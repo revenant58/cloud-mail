@@ -2,30 +2,20 @@
   <div id="login-box" :style="background ? 'background: var(--el-bg-color)' : ''" v-loading="oauthLoading" element-loading-text="登录中...">
     <div v-if="background" :style="background" class="bg-image-layer"></div>
 
-    <!-- Aurora Background -->
-    <div class="aurora-bg">
-      <div class="orb orb-1"></div>
-      <div class="orb orb-2"></div>
-    </div>
-
     <!-- Login Panel -->
     <div class="login-panel">
-      <div class="glass-card">
+      <div class="login-card">
         <div class="card-header">
-          <div class="logo-wrap">
-            <Icon class="logo-icon" icon="mingcute:mail-line" width="28" height="28" />
-          </div>
           <h1 class="form-title">{{ settingStore.settings.title }}</h1>
-          <p class="form-desc" v-if="show === 'login'">{{ $t('loginTitle') }}</p>
-          <p class="form-desc" v-else>{{ $t('regTitle') }}</p>
+          <p class="form-subtitle" v-if="show === 'login'">{{ $t('loginTitle') }}</p>
+          <p class="form-subtitle" v-else>{{ $t('regTitle') }}</p>
         </div>
 
         <!-- Login Form -->
         <div v-show="show === 'login'" class="form-body">
-          <div class="input-wrap" :class="{ focused: emailFocused }">
-            <label class="floating-label">{{ $t('emailAccount') }}</label>
-            <div class="input-row">
-              <Icon class="input-icon" icon="mingcute:mail-2-line" width="18" height="18" />
+          <div class="field">
+            <label class="field-label">{{ $t('emailAccount') }}</label>
+            <div class="field-input-wrap" :class="{ focused: emailFocused }">
               <el-input :class="!hideLoginDomain ? 'email-input' : ''" v-model="form.email"
                         type="text" :placeholder="$t('emailAccount')" autocomplete="off"
                         @focus="emailFocused = true" @blur="emailFocused = false">
@@ -55,28 +45,28 @@
             </div>
           </div>
 
-          <div class="input-wrap" :class="{ focused: passFocused }">
-            <label class="floating-label">{{ $t('password') }}</label>
-            <div class="input-row">
-              <Icon class="input-icon" icon="mingcute:lock-line" width="18" height="18" />
+          <div class="field">
+            <label class="field-label">{{ $t('password') }}</label>
+            <div class="field-input-wrap" :class="{ focused: passFocused }">
               <el-input v-model="form.password" :placeholder="$t('password')" type="password" autocomplete="off"
                         @focus="passFocused = true" @blur="passFocused = false">
               </el-input>
             </div>
           </div>
 
-          <button class="btn-primary" @click="submit" :disabled="loginLoading">
-            <span v-if="!loginLoading">{{ $t('loginBtn') }}</span>
+          <a class="forgot-link" href="javascript:void(0)">{{ $t('forgetPwd') }}</a>
+
+          <button class="btn-login" @click="submit" :disabled="loginLoading">
+            <span v-if="!loginLoading" class="btn-text">{{ $t('loginBtn') }} <span class="btn-arrow">&rarr;</span></span>
             <span v-else class="btn-spinner"></span>
           </button>
         </div>
 
         <!-- Register Form -->
         <div v-show="show !== 'login'" class="form-body">
-          <div class="input-wrap" :class="{ focused: regEmailFocused }">
-            <label class="floating-label">{{ $t('emailAccount') }}</label>
-            <div class="input-row">
-              <Icon class="input-icon" icon="mingcute:mail-2-line" width="18" height="18" />
+          <div class="field">
+            <label class="field-label">{{ $t('emailAccount') }}</label>
+            <div class="field-input-wrap" :class="{ focused: regEmailFocused }">
               <el-input :class="!hideLoginDomain ? 'email-input' : ''" v-model="registerForm.email" type="text"
                         :placeholder="$t('emailAccount')" autocomplete="off"
                         @focus="regEmailFocused = true" @blur="regEmailFocused = false">
@@ -106,20 +96,18 @@
             </div>
           </div>
 
-          <div class="input-wrap" :class="{ focused: regPassFocused }">
-            <label class="floating-label">{{ $t('password') }}</label>
-            <div class="input-row">
-              <Icon class="input-icon" icon="mingcute:lock-line" width="18" height="18" />
+          <div class="field">
+            <label class="field-label">{{ $t('password') }}</label>
+            <div class="field-input-wrap" :class="{ focused: regPassFocused }">
               <el-input v-model="registerForm.password" :placeholder="$t('password')" type="password" autocomplete="off"
                         @focus="regPassFocused = true" @blur="regPassFocused = false">
               </el-input>
             </div>
           </div>
 
-          <div class="input-wrap" :class="{ focused: regConfirmFocused }">
-            <label class="floating-label">{{ $t('confirmPwd') }}</label>
-            <div class="input-row">
-              <Icon class="input-icon" icon="mingcute:lock-2-line" width="18" height="18" />
+          <div class="field">
+            <label class="field-label">{{ $t('confirmPwd') }}</label>
+            <div class="field-input-wrap" :class="{ focused: regConfirmFocused }">
               <el-input v-model="registerForm.confirmPassword" :placeholder="$t('confirmPwd')" type="password"
                         autocomplete="off"
                         @focus="regConfirmFocused = true" @blur="regConfirmFocused = false">
@@ -127,10 +115,9 @@
             </div>
           </div>
 
-          <div class="input-wrap" :class="{ focused: regCodeFocused }" v-if="settingStore.settings.regKey === 0">
-            <label class="floating-label">{{ $t('regKey') }}</label>
-            <div class="input-row">
-              <Icon class="input-icon" icon="mingcute:key-line" width="18" height="18" />
+          <div class="field" v-if="settingStore.settings.regKey === 0">
+            <label class="field-label">{{ $t('regKey') }}</label>
+            <div class="field-input-wrap" :class="{ focused: regCodeFocused }">
               <el-input v-model="registerForm.code" :placeholder="$t('regKey')"
                         type="text" autocomplete="off"
                         @focus="regCodeFocused = true" @blur="regCodeFocused = false">
@@ -138,10 +125,9 @@
             </div>
           </div>
 
-          <div class="input-wrap" :class="{ focused: regCodeFocused2 }" v-if="settingStore.settings.regKey === 2">
-            <label class="floating-label">{{ $t('regKeyOptional') }}</label>
-            <div class="input-row">
-              <Icon class="input-icon" icon="mingcute:key-line" width="18" height="18" />
+          <div class="field" v-if="settingStore.settings.regKey === 2">
+            <label class="field-label">{{ $t('regKeyOptional') }}</label>
+            <div class="field-input-wrap" :class="{ focused: regCodeFocused2 }">
               <el-input v-model="registerForm.code"
                         :placeholder="$t('regKeyOptional')" type="text" autocomplete="off"
                         @focus="regCodeFocused2 = true" @blur="regCodeFocused2 = false">
@@ -160,24 +146,22 @@
             <span style="font-size: 12px;color: #F56C6C" v-if="botJsError">{{ $t('verifyModuleFailed') }}</span>
           </div>
 
-          <button class="btn-primary" @click="submitRegister" :disabled="registerLoading">
-            <span v-if="!registerLoading">{{ $t('regBtn') }}</span>
+          <button class="btn-login" @click="submitRegister" :disabled="registerLoading">
+            <span v-if="!registerLoading" class="btn-text">{{ $t('regBtn') }} <span class="btn-arrow">&rarr;</span></span>
             <span v-else class="btn-spinner"></span>
           </button>
         </div>
 
         <!-- Switch between login/register -->
         <template v-if="settingStore.settings.register === 0">
-          <div class="switch" @click="show = 'register'" v-if="show === 'login'">
-            {{ $t('noAccount') }} <span>{{ $t('regSwitch') }}</span>
+          <div class="switch" v-if="show === 'login'">
+            {{ $t('noAccount') }} <span @click="show = 'register'">{{ $t('regSwitch') }}</span>
           </div>
-          <div class="switch" @click="show = 'login'" v-else>
-            {{ $t('hasAccount') }} <span>{{ $t('loginSwitch') }}</span>
+          <div class="switch" v-else>
+            {{ $t('hasAccount') }} <span @click="show = 'login'">{{ $t('loginSwitch') }}</span>
           </div>
         </template>
       </div>
-
-      <p class="footer-text">Cloud Mail &mdash; Serverless Email</p>
     </div>
 
     <!-- Bind dialog -->
@@ -247,7 +231,7 @@ const oauthLoading = ref(false);
 const showBindForm = ref(false);
 const show = ref('login')
 
-// Focus states for floating labels
+// Focus states
 const emailFocused = ref(false)
 const passFocused = ref(false)
 const regEmailFocused = ref(false)
@@ -589,7 +573,7 @@ function submitRegister() {
 
   if (!verifyToken && (settingStore.settings.registerVerify === 0 || (settingStore.settings.registerVerify === 2 && settingStore.settings.regVerifyOpen))) {
     if (!verifyShow.value) {
-      verifyShow.value = true
+      verifyShow.value = 1
       nextTick(() => {
         if (!turnstileId) {
           try {
@@ -674,56 +658,26 @@ function submitRegister() {
 <style lang="scss" scoped>
 
 /* ============================================
-   LOGIN PAGE — Clean Minimal
+   LOGIN PAGE — Clean Light
    ============================================ */
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 #login-box {
-  font: 14px/1.5 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   height: 100%;
   margin: 0;
   padding: 0;
   overflow: hidden;
   display: flex;
   position: relative;
-  background: #0c0c1d;
+  background: #f0f2f5;
 }
 
 .bg-image-layer {
   position: absolute;
   inset: 0;
   z-index: 0;
-}
-
-/* ── Background ── */
-.aurora-bg {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  background: #0c0c1d;
-}
-
-.orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(100px);
-  opacity: 0.35;
-}
-
-.orb-1 {
-  width: 500px;
-  height: 500px;
-  background: #633cff;
-  top: -20%;
-  left: -10%;
-}
-
-.orb-2 {
-  width: 400px;
-  height: 400px;
-  background: #00b4d8;
-  bottom: -20%;
-  right: -5%;
 }
 
 /* ── Login Panel ── */
@@ -733,87 +687,58 @@ function submitRegister() {
   width: 100%;
   height: 100%;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 24px;
 }
 
-/* ── Glass Card ── */
-.glass-card {
+/* ── Login Card ── */
+.login-card {
   width: 100%;
-  max-width: 400px;
-  max-height: calc(100vh - 60px);
-  overflow-y: auto;
-  padding: 44px 36px 36px;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 20px;
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
-  animation: cardFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  max-width: 420px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 40px 36px 32px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 24px rgba(0, 0, 0, 0.06);
+  animation: cardSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255,255,255,0.1) transparent;
+  scrollbar-color: #e0e0e0 transparent;
 
   &::-webkit-scrollbar { width: 4px; }
   &::-webkit-scrollbar-track { background: transparent; }
-  &::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+  &::-webkit-scrollbar-thumb { background: #e0e0e0; border-radius: 4px; }
 
   @media (max-width: 480px) {
-    padding: 32px 24px 28px;
-    max-height: 92vh;
-    border-radius: 16px;
+    padding: 32px 24px 24px;
+    border-radius: 12px;
+    max-width: 100%;
   }
 }
 
-@keyframes cardFadeIn {
-  0% { opacity: 0; transform: translateY(24px); }
+@keyframes cardSlideUp {
+  0% { opacity: 0; transform: translateY(16px); }
   100% { opacity: 1; transform: translateY(0); }
 }
 
 /* ── Card Header ── */
 .card-header {
-  text-align: center;
-  margin-bottom: 32px;
-}
-
-.logo-wrap {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 56px;
-  height: 56px;
-  border-radius: 16px;
-  background: rgba(99, 60, 255, 0.15);
-  border: 1px solid rgba(99, 60, 255, 0.2);
-  margin-bottom: 20px;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: rgba(99, 60, 255, 0.25);
-    border-color: rgba(99, 60, 255, 0.35);
-  }
-}
-
-.logo-icon {
-  color: #a78bfa;
+  margin-bottom: 28px;
 }
 
 .form-title {
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: 700;
-  font-size: 22px;
-  letter-spacing: -0.3px;
-  color: #ffffff;
-  margin: 0;
+  font-size: 28px;
+  line-height: 1.2;
+  color: #1a1a2e;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.5px;
 }
 
-.form-desc {
-  display: block;
-  margin-top: 6px;
-  color: rgba(255, 255, 255, 0.35);
-  font-size: 14px;
+.form-subtitle {
+  margin: 0;
+  font-size: 15px;
+  color: #9ca3af;
   font-weight: 400;
 }
 
@@ -824,90 +749,59 @@ function submitRegister() {
   gap: 16px;
 }
 
-/* ── Input ── */
-.input-wrap {
+/* ── Field ── */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b7280;
+  letter-spacing: 0.01em;
+}
+
+.field-input-wrap {
   position: relative;
+  border-radius: 8px;
+  border: 1.5px solid #e5e7eb;
+  background: #ffffff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
-  .floating-label {
-    position: absolute;
-    top: 14px;
-    left: 44px;
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.3);
-    pointer-events: none;
-    transition: all 0.2s ease;
-    transform-origin: left center;
-    font-weight: 500;
-    z-index: 2;
+  &:hover {
+    border-color: #d1d5db;
   }
 
-  &.focused .floating-label,
-  &:has(.el-input:focus-within) .floating-label {
-    top: -8px;
-    left: 12px;
-    font-size: 11px;
-    color: rgba(0, 210, 211, 0.8);
-    letter-spacing: 0.3px;
-    text-transform: uppercase;
-  }
-
-  .input-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 12px;
-    padding: 0 14px;
-    transition: all 0.2s ease;
-
-    &:hover {
-      border-color: rgba(255, 255, 255, 0.1);
-    }
-
-    .focused &,
-    &:focus-within {
-      border-color: rgba(0, 210, 211, 0.4);
-      background: rgba(255, 255, 255, 0.06);
-    }
-  }
-
-  .input-icon {
-    color: rgba(255, 255, 255, 0.2);
-    flex-shrink: 0;
-    transition: color 0.2s ease;
-    z-index: 1;
-  }
-
-  &.focused .input-icon,
-  &:has(.el-input:focus-within) .input-icon {
-    color: rgba(0, 210, 211, 0.7);
+  &.focused {
+    border-color: #1a8cff;
+    box-shadow: 0 0 0 3px rgba(26, 140, 255, 0.1);
   }
 }
 
 :deep(.el-input) {
-  flex: 1;
   width: 100%;
 
   .el-input__wrapper {
     background: transparent !important;
     box-shadow: none !important;
     border: none !important;
-    border-radius: 0 !important;
-    padding: 0 !important;
-    min-height: 46px;
+    border-radius: 8px !important;
+    padding: 0 14px !important;
+    min-height: 44px;
   }
 
   .el-input__inner {
-    height: 46px;
+    height: 44px;
     font-size: 14px;
-    color: #ffffff !important;
+    color: #1a1a2e !important;
     background: transparent !important;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
 
     &::placeholder {
-      color: rgba(255, 255, 255, 0.2) !important;
+      color: #c0c4cc !important;
     }
   }
 
@@ -916,84 +810,19 @@ function submitRegister() {
   }
 }
 
+.email-input :deep(.el-input__wrapper) {
+  border-radius: 8px;
+}
+
 :deep(.el-input-group__append) {
   padding: 0 !important;
   padding-left: 8px !important;
   padding-right: 4px !important;
-  background: rgba(255, 255, 255, 0.04) !important;
+  background: transparent !important;
   border: none !important;
   box-shadow: none !important;
   border-radius: 0 !important;
-  color: rgba(255, 255, 255, 0.5) !important;
-}
-
-.email-input :deep(.el-input__wrapper) {
-  border-radius: 0;
-}
-
-/* ── Primary Button ── */
-.btn-primary {
-  position: relative;
-  width: 100%;
-  height: 46px;
-  border: none;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 600;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  color: #ffffff;
-  cursor: pointer;
-  background: #633cff;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: #7c5cff;
-  }
-
-  &:active {
-    transform: scale(0.98);
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-}
-
-.btn-spinner {
-  display: inline-block;
-  width: 18px;
-  height: 18px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: #ffffff;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* ── Switch ── */
-.switch {
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  text-align: center;
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.3);
-  font-weight: 400;
-
-  span {
-    color: rgba(0, 210, 211, 0.85);
-    cursor: pointer;
-    font-weight: 600;
-    transition: color 0.2s ease;
-
-    &:hover {
-      color: #00d2d3;
-    }
-  }
+  color: #6b7280 !important;
 }
 
 /* ── Domain Suffix ── */
@@ -1001,18 +830,18 @@ function submitRegister() {
   display: flex;
   align-items: center;
   gap: 2px;
-  color: rgba(255, 255, 255, 0.5);
+  color: #6b7280;
   font-size: 13px;
   cursor: pointer;
   white-space: nowrap;
   font-weight: 500;
   padding: 4px 8px;
-  border-radius: 8px;
-  transition: all 0.2s ease;
+  border-radius: 6px;
+  transition: all 0.15s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.06);
-    color: rgba(255, 255, 255, 0.8);
+    background: #f3f4f6;
+    color: #374151;
   }
 }
 
@@ -1032,22 +861,115 @@ function submitRegister() {
   pointer-events: none;
 }
 
+/* ── Forgot Link ── */
+.forgot-link {
+  font-size: 13px;
+  color: #6b7280;
+  text-decoration: none;
+  font-weight: 400;
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: #374151;
+  }
+}
+
+/* ── Login Button ── */
+.btn-login {
+  position: relative;
+  width: 100%;
+  height: 48px;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  color: #ffffff;
+  cursor: pointer;
+  background: #1a8cff;
+  transition: all 0.15s ease;
+  margin-top: 4px;
+
+  &:hover {
+    background: #0f7ae5;
+    box-shadow: 0 2px 8px rgba(26, 140, 255, 0.3);
+  }
+
+  &:active {
+    transform: scale(0.985);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+}
+
+.btn-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-arrow {
+  font-size: 18px;
+  transition: transform 0.15s ease;
+
+  .btn-login:hover & {
+    transform: translateX(2px);
+  }
+}
+
+.btn-spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Switch (account link) ── */
+.switch {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 14px;
+  color: #9ca3af;
+  font-weight: 400;
+
+  span {
+    color: #1a8cff;
+    cursor: pointer;
+    font-weight: 600;
+    transition: color 0.15s ease;
+
+    &:hover {
+      color: #0f7ae5;
+    }
+  }
+}
+
 /* ── Bind Dialog ── */
 :deep(.bind-dialog) {
   width: 400px !important;
   border-radius: 16px !important;
-  background: rgba(16, 16, 36, 0.95) !important;
-  backdrop-filter: blur(16px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
 
   .el-dialog__header {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid #f3f4f6;
   }
 
   .el-dialog__title {
-    color: #ffffff;
+    color: #1a1a2e;
     font-weight: 600;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: 'Inter', sans-serif;
   }
 
   @media (max-width: 440px) {
@@ -1069,25 +991,8 @@ function submitRegister() {
   margin-bottom: 4px;
 }
 
-/* ── Footer ── */
-.footer-text {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.1);
-  font-weight: 500;
-  letter-spacing: 0.5px;
-}
-
-:deep(.el-button + .el-button) {
-  margin: 0;
-}
-
 /* ── Responsive ── */
 @media (max-width: 768px) {
-  .orb { opacity: 0.2; }
-  .glass-card { max-width: 100%; margin: 0 8px; }
+  .login-card { max-width: 100%; margin: 0 8px; }
 }
 </style>
