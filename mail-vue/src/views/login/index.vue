@@ -1,116 +1,133 @@
 <template>
-  <div id="login-box" :style=" background ? 'background: var(--el-bg-color)' : ''" v-loading="oauthLoading" element-loading-text="登录中...">
+  <div id="login-box" :style="background ? 'background: var(--el-bg-color)' : ''" v-loading="oauthLoading" element-loading-text="登录中...">
     <div class="mesh-bg" v-if="!settingStore.settings.background">
       <div class="mesh-orb orb-1"></div>
       <div class="mesh-orb orb-2"></div>
       <div class="mesh-orb orb-3"></div>
       <div class="mesh-orb orb-4"></div>
-      <div class="mesh-orb orb-5"></div>
     </div>
     <div v-else :style="background"></div>
     <div class="form-wrapper">
       <div class="container">
         <div class="form-header">
           <div class="logo-icon">
-            <Icon icon="mingcute:mail-line" width="32" height="32" />
+            <Icon icon="mingcute:mail-line" width="28" height="28" />
           </div>
           <span class="form-title">{{ settingStore.settings.title }}</span>
           <span class="form-desc" v-if="show === 'login'">{{ $t('loginTitle') }}</span>
           <span class="form-desc" v-else>{{ $t('regTitle') }}</span>
         </div>
+
+        <!-- Login Form -->
         <div v-show="show === 'login'" class="form-body">
-          <el-input :class="!hideLoginDomain ? 'email-input' : ''" v-model="form.email"
-                    type="text" :placeholder="$t('emailAccount')" autocomplete="off" size="large">
-            <template #prefix>
-              <Icon class="input-icon" icon="mingcute:mail-2-line" width="18" height="18" />
-            </template>
-            <template #append v-if="!hideLoginDomain">
-              <div @click.stop="openSelect">
-                <el-select
-                    v-if="show === 'login'"
-                    ref="mySelect"
-                    v-model="suffix"
-                    :placeholder="$t('select')"
-                    class="select"
-                >
-                  <el-option
-                      v-for="item in domainList"
-                      :key="item"
-                      :label="item"
-                      :value="item"
-                  />
-                </el-select>
-                <div style="color: var(--el-text-color-primary)">
-                  <span>{{ suffix }}</span>
-                  <Icon class="setting-icon" icon="mingcute:down-small-fill" width="20" height="20"/>
+          <div class="input-group">
+            <el-input :class="!hideLoginDomain ? 'email-input' : ''" v-model="form.email"
+                      type="text" :placeholder="$t('emailAccount')" autocomplete="off">
+              <template #prefix>
+                <Icon class="input-icon" icon="mingcute:mail-2-line" width="18" height="18" />
+              </template>
+              <template #append v-if="!hideLoginDomain">
+                <div @click.stop="openSelect">
+                  <el-select
+                      v-if="show === 'login'"
+                      ref="mySelect"
+                      v-model="suffix"
+                      :placeholder="$t('select')"
+                      class="select"
+                  >
+                    <el-option
+                        v-for="item in domainList"
+                        :key="item"
+                        :label="item"
+                        :value="item"
+                    />
+                  </el-select>
+                  <div class="domain-suffix">
+                    <span>{{ suffix }}</span>
+                    <Icon class="setting-icon" icon="mingcute:down-small-fill" width="18" height="18"/>
+                  </div>
                 </div>
-              </div>
-            </template>
-          </el-input>
-          <el-input v-model="form.password" :placeholder="$t('password')" type="password" autocomplete="off" size="large">
-            <template #prefix>
-              <Icon class="input-icon" icon="mingcute:lock-line" width="18" height="18" />
-            </template>
-          </el-input>
-          <el-button class="btn btn-gradient" type="primary" @click="submit" :loading="loginLoading"
+              </template>
+            </el-input>
+          </div>
+          <div class="input-group">
+            <el-input v-model="form.password" :placeholder="$t('password')" type="password" autocomplete="off">
+              <template #prefix>
+                <Icon class="input-icon" icon="mingcute:lock-line" width="18" height="18" />
+              </template>
+            </el-input>
+          </div>
+          <el-button class="btn btn-primary" type="primary" @click="submit" :loading="loginLoading"
           >{{ $t('loginBtn') }}
           </el-button>
           <el-button class="btn btn-oauth" v-if="settingStore.settings.linuxdoSwitch" @click="linuxDoLogin">
             <el-avatar src="/image/linuxdo.webp" :size="18" style="margin-right: 10px" />LinuxDo
           </el-button>
         </div>
+
+        <!-- Register Form -->
         <div v-show="show !== 'login'" class="form-body">
-          <el-input :class="!hideLoginDomain ? 'email-input' : ''" v-model="registerForm.email" type="text" :placeholder="$t('emailAccount')"
-                    autocomplete="off" size="large">
-            <template #prefix>
-              <Icon class="input-icon" icon="mingcute:mail-2-line" width="18" height="18" />
-            </template>
-            <template #append v-if="!hideLoginDomain">
-              <div @click.stop="openSelect">
-                <el-select
-                    v-if="show !== 'login'"
-                    ref="mySelect"
-                    v-model="suffix"
-                    :placeholder="$t('select')"
-                    class="select"
-                >
-                  <el-option
-                      v-for="item in domainList"
-                      :key="item"
-                      :label="item"
-                      :value="item"
-                  />
-                </el-select>
-                <div>
-                  <span>{{ suffix }}</span>
-                  <Icon class="setting-icon" icon="mingcute:down-small-fill" width="20" height="20"/>
+          <div class="input-group">
+            <el-input :class="!hideLoginDomain ? 'email-input' : ''" v-model="registerForm.email" type="text" :placeholder="$t('emailAccount')"
+                      autocomplete="off">
+              <template #prefix>
+                <Icon class="input-icon" icon="mingcute:mail-2-line" width="18" height="18" />
+              </template>
+              <template #append v-if="!hideLoginDomain">
+                <div @click.stop="openSelect">
+                  <el-select
+                      v-if="show !== 'login'"
+                      ref="mySelect"
+                      v-model="suffix"
+                      :placeholder="$t('select')"
+                      class="select"
+                  >
+                    <el-option
+                        v-for="item in domainList"
+                        :key="item"
+                        :label="item"
+                        :value="item"
+                    />
+                  </el-select>
+                  <div class="domain-suffix">
+                    <span>{{ suffix }}</span>
+                    <Icon class="setting-icon" icon="mingcute:down-small-fill" width="18" height="18"/>
+                  </div>
                 </div>
-              </div>
-            </template>
-          </el-input>
-          <el-input v-model="registerForm.password" :placeholder="$t('password')" type="password" autocomplete="off" size="large">
-            <template #prefix>
-              <Icon class="input-icon" icon="mingcute:lock-line" width="18" height="18" />
-            </template>
-          </el-input>
-          <el-input v-model="registerForm.confirmPassword" :placeholder="$t('confirmPwd')" type="password"
-                    autocomplete="off" size="large">
-            <template #prefix>
-              <Icon class="input-icon" icon="mingcute:lock-2-line" width="18" height="18" />
-            </template>
-          </el-input>
-          <el-input v-if="settingStore.settings.regKey === 0" v-model="registerForm.code" :placeholder="$t('regKey')"
-                    type="text" autocomplete="off" size="large">
-            <template #prefix>
-              <Icon class="input-icon" icon="mingcute:key-line" width="18" height="18" />
-            </template>
-          </el-input>
-          <el-input v-if="settingStore.settings.regKey === 2" v-model="registerForm.code"
-                    :placeholder="$t('regKeyOptional')" type="text" autocomplete="off" size="large">
-            <template #prefix>
-              <Icon class="input-icon" icon="mingcute:key-line" width="18" height="18" />
-            </template>
-          </el-input>
+              </template>
+            </el-input>
+          </div>
+          <div class="input-group">
+            <el-input v-model="registerForm.password" :placeholder="$t('password')" type="password" autocomplete="off">
+              <template #prefix>
+                <Icon class="input-icon" icon="mingcute:lock-line" width="18" height="18" />
+              </template>
+            </el-input>
+          </div>
+          <div class="input-group">
+            <el-input v-model="registerForm.confirmPassword" :placeholder="$t('confirmPwd')" type="password"
+                      autocomplete="off">
+              <template #prefix>
+                <Icon class="input-icon" icon="mingcute:lock-2-line" width="18" height="18" />
+              </template>
+            </el-input>
+          </div>
+          <div class="input-group" v-if="settingStore.settings.regKey === 0">
+            <el-input v-model="registerForm.code" :placeholder="$t('regKey')"
+                      type="text" autocomplete="off">
+              <template #prefix>
+                <Icon class="input-icon" icon="mingcute:key-line" width="18" height="18" />
+              </template>
+            </el-input>
+          </div>
+          <div class="input-group" v-if="settingStore.settings.regKey === 2">
+            <el-input v-model="registerForm.code"
+                      :placeholder="$t('regKeyOptional')" type="text" autocomplete="off">
+              <template #prefix>
+                <Icon class="input-icon" icon="mingcute:key-line" width="18" height="18" />
+              </template>
+            </el-input>
+          </div>
           <div v-show="verifyShow"
                class="register-turnstile"
                :data-sitekey="settingStore.settings.siteKey"
@@ -121,22 +138,28 @@
           >
             <span style="font-size: 12px;color: #F56C6C" v-if="botJsError">{{ $t('verifyModuleFailed') }}</span>
           </div>
-          <el-button class="btn btn-gradient" style="margin: 0" type="primary" @click="submitRegister" :loading="registerLoading"
+          <el-button class="btn btn-primary" style="margin: 0" type="primary" @click="submitRegister" :loading="registerLoading"
           >{{ $t('regBtn') }}
           </el-button>
           <el-button v-if="settingStore.settings.linuxdoSwitch" class="btn btn-oauth" @click="linuxDoLogin">
             <el-avatar src="/image/linuxdo.webp" :size="18" style="margin-right: 10px" />LinuxDo
           </el-button>
         </div>
+
+        <!-- Switch between login/register -->
         <template v-if="settingStore.settings.register === 0">
-          <div class="switch" @click="show = 'register'" v-if="show === 'login'">{{ $t('noAccount') }}
-            <span>{{ $t('regSwitch') }}</span></div>
-          <div class="switch" @click="show = 'login'" v-else>{{ $t('hasAccount') }} <span>{{ $t('loginSwitch') }}</span>
+          <div class="switch" @click="show = 'register'" v-if="show === 'login'">
+            {{ $t('noAccount') }} <span>{{ $t('regSwitch') }}</span>
+          </div>
+          <div class="switch" @click="show = 'login'" v-else>
+            {{ $t('hasAccount') }} <span>{{ $t('loginSwitch') }}</span>
           </div>
         </template>
       </div>
     </div>
-    <el-dialog class="bind-dialog" v-model="showBindForm"  title="注册邮箱" >
+
+    <!-- Bind dialog -->
+    <el-dialog class="bind-dialog" v-model="showBindForm" title="注册邮箱">
       <div class="bind-container">
         <el-input :class="!hideLoginDomain ? 'email-input' : ''" v-model="bindForm.email" type="text" :placeholder="$t('emailAccount')" autocomplete="off">
           <template #append v-if="!hideLoginDomain">
@@ -154,9 +177,9 @@
                     :value="item"
                 />
               </el-select>
-              <div>
+              <div class="domain-suffix">
                 <span>{{ suffix }}</span>
-                <Icon class="setting-icon" icon="mingcute:down-small-fill" width="20" height="20"/>
+                <Icon class="setting-icon" icon="mingcute:down-small-fill" width="18" height="18"/>
               </div>
             </div>
           </template>
@@ -165,7 +188,7 @@
                   type="text" autocomplete="off"/>
         <el-input v-if="settingStore.settings.regKey === 2" v-model="bindForm.code"
                   :placeholder="$t('regKeyOptional')" type="text" autocomplete="off"/>
-        <el-button class="btn btn-gradient" type="primary" @click="bind" :loading="bindLoading"
+        <el-button class="btn btn-primary" type="primary" @click="bind" :loading="bindLoading"
         >绑定
         </el-button>
       </div>
@@ -620,7 +643,7 @@ function submitRegister() {
 <style lang="scss" scoped>
 
 /* ============================================
-   LOGIN PAGE — Premium Glassmorphism Design
+   LOGIN PAGE — Clean Premium Design
    ============================================ */
 
 .form-wrapper {
@@ -635,69 +658,66 @@ function submitRegister() {
 
 .container {
   background: v-bind(loginOpacity);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  padding: 40px 36px;
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  padding: 44px 40px 40px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  width: 440px;
+  width: 420px;
   max-height: calc(100vh - 48px);
   overflow-y: auto;
-  border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 8px 48px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(255,255,255,0.05) inset;
-  animation: cardEnter 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 6px 24px rgba(0, 0, 0, 0.06),
+    0 20px 48px rgba(0, 0, 0, 0.04);
+  animation: cardEnter 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 
-  @media (max-width: 1024px) {
-    padding: 32px 28px;
-    width: 400px;
-  }
-  @media (max-width: 767px) {
-    border-radius: 20px 20px 0 0;
-    padding: 32px 24px;
-    max-height: 90vh;
+  @media (max-width: 480px) {
+    border-radius: 16px;
+    padding: 36px 28px 32px;
     width: 100%;
-    border-bottom: none;
-    animation: cardEnterMobile 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+    max-height: 92vh;
   }
 
   .form-header {
     text-align: center;
-    margin-bottom: 8px;
+    margin-bottom: 32px;
   }
 
   .logo-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 56px;
-    height: 56px;
-    border-radius: 16px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
     color: #fff;
     margin-bottom: 20px;
-    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.35);
-    animation: logoPulse 3s ease-in-out infinite;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+    }
   }
 
   .form-title {
     display: block;
     font-weight: 700;
-    font-size: 24px !important;
-    letter-spacing: -0.3px;
+    font-size: 22px !important;
+    letter-spacing: -0.4px;
     line-height: 1.3;
-    background: linear-gradient(135deg, var(--el-text-color-primary) 0%, var(--el-text-color-secondary) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--el-text-color-primary);
   }
 
   .form-desc {
     display: block;
     margin-top: 8px;
-    margin-bottom: 28px;
-    color: var(--form-desc-color);
+    color: var(--el-text-color-secondary);
     font-size: 14px;
     line-height: 1.5;
   }
@@ -705,7 +725,11 @@ function submitRegister() {
   .form-body {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 12px;
+    animation: staggerIn 0.5s ease-out both;
+  }
+
+  .input-group {
     animation: staggerIn 0.5s ease-out both;
   }
 
@@ -715,47 +739,33 @@ function submitRegister() {
     border-radius: 10px;
     font-size: 15px;
     font-weight: 600;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.2s ease;
     border: none;
-    margin-top: 12px;
+    margin-top: 4px;
   }
 
-  .btn-gradient {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  .btn-primary {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
     color: #fff;
-    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.35);
-    position: relative;
-    overflow: hidden;
-
-    &::after {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -60%;
-      width: 40%;
-      height: 200%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
-      transform: skewX(-20deg);
-      animation: shimmer 3s ease-in-out infinite;
-    }
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
 
     &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 28px rgba(102, 126, 234, 0.5);
-      background: linear-gradient(135deg, #5a72d6 0%, #6b42a0 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
+      background: linear-gradient(135deg, #5558e6 0%, #7c50e0 100%);
     }
 
     &:active {
       transform: translateY(0);
-      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+      box-shadow: 0 1px 4px rgba(99, 102, 241, 0.2);
     }
   }
 
   .btn-oauth {
     background: var(--el-bg-color);
-    border: 1px solid var(--el-border-color-light);
-    color: var(--el-text-color-primary);
-    margin-top: 8px;
+    border: 1px solid var(--el-border-color-lighter);
+    color: var(--el-text-color-regular);
+    margin-top: 0;
 
     &:hover {
       border-color: var(--el-color-primary-light-5);
@@ -767,68 +777,81 @@ function submitRegister() {
     margin-top: 24px;
     text-align: center;
     font-size: 14px;
-    color: var(--form-desc-color);
+    color: var(--el-text-color-secondary);
 
     span {
-      color: var(--login-switch-color);
+      color: #6366f1;
       cursor: pointer;
       font-weight: 600;
       transition: opacity 0.2s;
 
       &:hover {
-        opacity: 0.8;
+        opacity: 0.75;
       }
     }
   }
 
   :deep(.el-input__wrapper) {
     border-radius: 10px;
-    background: var(--el-bg-color);
-    box-shadow: 0 0 0 1px var(--el-border-color-lighter) inset;
-    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+    background: var(--el-fill-color-blank);
+    border: 1px solid var(--el-border-color-lighter);
+    box-shadow: none;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
     padding: 4px 12px;
 
     &:hover {
-      box-shadow: 0 0 0 1px var(--el-color-primary-light-5) inset;
+      border-color: var(--el-border-color);
     }
 
     &.is-focus {
-      box-shadow: 0 0 0 1px var(--el-color-primary) inset, 0 0 0 3px rgba(102, 126, 234, 0.12);
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.08);
     }
   }
 
   .email-input :deep(.el-input__wrapper) {
     border-radius: 10px 0 0 10px;
-    background: var(--el-bg-color);
   }
 
   .el-input {
-    height: 44px;
     width: 100%;
-    margin-bottom: 4px;
 
     :deep(.el-input__inner) {
-      height: 42px;
+      height: 40px;
       font-size: 14px;
     }
 
     :deep(.el-input__prefix) {
-      color: var(--el-text-color-secondary);
+      color: var(--el-text-color-placeholder);
       display: flex;
       align-items: center;
-      padding-right: 6px;
+      padding-right: 4px;
     }
   }
 
   .input-icon {
-    opacity: 0.55;
-    transition: opacity 0.2s;
+    opacity: 0.4;
+    transition: opacity 0.2s, color 0.2s;
   }
 
   .el-input:focus-within .input-icon {
-    opacity: 1;
-    color: var(--el-color-primary);
+    opacity: 0.8;
+    color: #6366f1;
   }
+}
+
+.domain-suffix {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--el-text-color-primary);
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.setting-icon {
+  opacity: 0.5;
 }
 
 :deep(.el-select-dropdown__item) {
@@ -849,20 +872,14 @@ function submitRegister() {
 .bind-container {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 15px;
+  gap: 14px;
 }
-
-.setting-icon {
-  position: relative;
-  top: 6px;
-}
-
 
 :deep(.el-input-group__append) {
   padding: 0 !important;
   padding-left: 10px !important;
   padding-right: 6px !important;
-  background: var(--el-bg-color);
+  background: var(--el-fill-color-blank);
   border-radius: 0 10px 10px 0;
   border: none;
   box-shadow: none;
@@ -873,7 +890,7 @@ function submitRegister() {
 }
 
 .register-turnstile {
-  margin-bottom: 12px;
+  margin-bottom: 4px;
 }
 
 .select {
@@ -884,19 +901,9 @@ function submitRegister() {
   pointer-events: none;
 }
 
-.custom-style {
-  margin-bottom: 10px;
-}
-
-.custom-style .el-segmented {
-  --el-border-radius-base: 6px;
-  width: 180px;
-}
-
 
 #login-box {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-  font: 100% -apple-system, 'Inter', BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font: 14px/1.5 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   height: 100%;
   margin: 0;
   padding: 0;
@@ -906,7 +913,7 @@ function submitRegister() {
 }
 
 /* ============================================
-   ANIMATED MESH GRADIENT BACKGROUND
+   ANIMATED MESH BACKGROUND — Soft Pastels
    ============================================ */
 
 .mesh-bg {
@@ -917,166 +924,92 @@ function submitRegister() {
   height: 100%;
   z-index: 0;
   overflow: hidden;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  background: linear-gradient(160deg, #f0f4ff 0%, #faf5ff 35%, #fff1f2 65%, #f8fafc 100%);
 }
 
 .mesh-orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.6;
+  filter: blur(100px);
+  opacity: 0.5;
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
   animation-direction: alternate;
 }
 
 .orb-1 {
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, #667eea, transparent 70%);
-  top: -10%;
-  left: -5%;
-  animation: meshMove1 12s ease-in-out infinite alternate;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.2), transparent 70%);
+  top: -15%;
+  left: -10%;
+  animation: meshFloat1 20s ease-in-out infinite alternate;
 }
 
 .orb-2 {
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle, #764ba2, transparent 70%);
-  top: 50%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.15), transparent 70%);
+  top: 40%;
   right: -10%;
-  animation: meshMove2 15s ease-in-out infinite alternate;
+  animation: meshFloat2 24s ease-in-out infinite alternate;
 }
 
 .orb-3 {
-  width: 350px;
-  height: 350px;
-  background: radial-gradient(circle, #f093fb, transparent 70%);
-  bottom: -15%;
-  left: 30%;
-  animation: meshMove3 10s ease-in-out infinite alternate;
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, rgba(236, 72, 153, 0.12), transparent 70%);
+  bottom: -10%;
+  left: 25%;
+  animation: meshFloat3 18s ease-in-out infinite alternate;
 }
 
 .orb-4 {
-  width: 300px;
-  height: 300px;
-  background: radial-gradient(circle, #4facfe, transparent 70%);
-  top: 30%;
-  left: 50%;
-  animation: meshMove4 18s ease-in-out infinite alternate;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.12), transparent 70%);
+  top: 20%;
+  left: 45%;
+  animation: meshFloat4 22s ease-in-out infinite alternate;
 }
 
-.orb-5 {
-  width: 250px;
-  height: 250px;
-  background: radial-gradient(circle, #a78bfa, transparent 70%);
-  top: 10%;
-  right: 20%;
-  animation: meshMove5 14s ease-in-out infinite alternate;
-}
-
-@keyframes meshMove1 {
+@keyframes meshFloat1 {
   0% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(100px, 60px) scale(1.15); }
-  100% { transform: translate(40px, 120px) scale(0.95); }
+  100% { transform: translate(80px, 60px) scale(1.1); }
 }
 
-@keyframes meshMove2 {
+@keyframes meshFloat2 {
   0% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(-120px, -80px) scale(1.1); }
-  100% { transform: translate(-60px, 40px) scale(0.9); }
+  100% { transform: translate(-60px, 40px) scale(1.05); }
 }
 
-@keyframes meshMove3 {
+@keyframes meshFloat3 {
   0% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(80px, -60px) scale(1.2); }
-  100% { transform: translate(-40px, -100px) scale(1.05); }
+  100% { transform: translate(50px, -50px) scale(1.1); }
 }
 
-@keyframes meshMove4 {
+@keyframes meshFloat4 {
   0% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(-80px, 60px) scale(0.9); }
-  100% { transform: translate(60px, -40px) scale(1.15); }
-}
-
-@keyframes meshMove5 {
-  0% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(60px, 80px) scale(1.1); }
-  100% { transform: translate(-80px, 30px) scale(0.95); }
+  100% { transform: translate(-40px, 30px) scale(0.95); }
 }
 
 @keyframes cardEnter {
   0% {
     opacity: 0;
-    transform: translateY(40px) scale(0.95);
-    filter: blur(8px);
-  }
-  60% {
-    filter: blur(0);
+    transform: translateY(24px) scale(0.97);
   }
   100% {
     opacity: 1;
     transform: translateY(0) scale(1);
-    filter: blur(0);
   }
-}
-
-@keyframes cardEnterMobile {
-  0% {
-    opacity: 0;
-    transform: translateY(100%);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes logoPulse {
-  0%, 100% {
-    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.35);
-    transform: scale(1);
-  }
-  50% {
-    box-shadow: 0 12px 32px rgba(102, 126, 234, 0.55);
-    transform: scale(1.05);
-  }
-}
-
-@keyframes shimmer {
-  0% { left: -60%; }
-  100% { left: 120%; }
 }
 
 @keyframes staggerIn {
   0% {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(10px);
   }
   100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Legacy fallback */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeInUpMobile {
-  from {
-    opacity: 0;
-    transform: translateY(40px);
-  }
-  to {
     opacity: 1;
     transform: translateY(0);
   }
