@@ -6,9 +6,6 @@
     <div class="aurora-bg">
       <div class="orb orb-1"></div>
       <div class="orb orb-2"></div>
-      <div class="orb orb-3"></div>
-      <div class="aurora-mesh"></div>
-      <div class="grid-overlay"></div>
     </div>
 
     <!-- Login Panel -->
@@ -16,8 +13,7 @@
       <div class="glass-card">
         <div class="card-header">
           <div class="logo-wrap">
-            <div class="logo-glow"></div>
-            <Icon class="logo-icon" icon="mingcute:mail-line" width="32" height="32" />
+            <Icon class="logo-icon" icon="mingcute:mail-line" width="28" height="28" />
           </div>
           <h1 class="form-title">{{ settingStore.settings.title }}</h1>
           <p class="form-desc" v-if="show === 'login'">{{ $t('loginTitle') }}</p>
@@ -69,14 +65,9 @@
             </div>
           </div>
 
-          <button class="btn-gradient" @click="submit" :disabled="loginLoading">
+          <button class="btn-primary" @click="submit" :disabled="loginLoading">
             <span v-if="!loginLoading">{{ $t('loginBtn') }}</span>
             <span v-else class="btn-spinner"></span>
-            <div class="btn-shimmer"></div>
-          </button>
-          <button class="btn-oauth-aurora" v-if="settingStore.settings.linuxdoSwitch" @click="linuxDoLogin">
-            <img src="/image/linuxdo.webp" width="18" height="18" style="border-radius: 4px" alt="" />
-            <span>LinuxDo</span>
           </button>
         </div>
 
@@ -169,14 +160,9 @@
             <span style="font-size: 12px;color: #F56C6C" v-if="botJsError">{{ $t('verifyModuleFailed') }}</span>
           </div>
 
-          <button class="btn-gradient" style="margin: 0" @click="submitRegister" :disabled="registerLoading">
+          <button class="btn-primary" @click="submitRegister" :disabled="registerLoading">
             <span v-if="!registerLoading">{{ $t('regBtn') }}</span>
             <span v-else class="btn-spinner"></span>
-            <div class="btn-shimmer"></div>
-          </button>
-          <button class="btn-oauth-aurora" v-if="settingStore.settings.linuxdoSwitch" @click="linuxDoLogin">
-            <img src="/image/linuxdo.webp" width="18" height="18" style="border-radius: 4px" alt="" />
-            <span>LinuxDo</span>
           </button>
         </div>
 
@@ -688,20 +674,18 @@ function submitRegister() {
 <style lang="scss" scoped>
 
 /* ============================================
-   LOGIN PAGE — Aurora Glassmorphism
-   Split layout, animated mesh gradient,
-   frosted glass card, floating inputs
+   LOGIN PAGE — Clean Minimal
    ============================================ */
 
 #login-box {
-  font: 15px/1.5 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font: 14px/1.5 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   height: 100%;
   margin: 0;
   padding: 0;
   overflow: hidden;
   display: flex;
   position: relative;
-  background: #0a0a1a;
+  background: #0c0c1d;
 }
 
 .bg-image-layer {
@@ -710,83 +694,36 @@ function submitRegister() {
   z-index: 0;
 }
 
-/* ── Aurora Background ── */
+/* ── Background ── */
 .aurora-bg {
   position: absolute;
   inset: 0;
   z-index: 0;
   overflow: hidden;
-  background: linear-gradient(135deg, #0a0a1a 0%, #0d1025 30%, #110f28 60%, #0a0a1a 100%);
-}
-
-.aurora-mesh {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 80% 60% at 10% 50%, rgba(88, 28, 255, 0.25) 0%, transparent 60%),
-    radial-gradient(ellipse 70% 50% at 80% 20%, rgba(0, 210, 211, 0.2) 0%, transparent 55%),
-    radial-gradient(ellipse 60% 80% at 50% 90%, rgba(255, 0, 128, 0.15) 0%, transparent 50%);
-  animation: meshShift 20s ease-in-out infinite alternate;
-}
-
-.grid-overlay {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-  background-size: 60px 60px;
-  mask-image: radial-gradient(ellipse at 30% 50%, rgba(0,0,0,0.4), transparent 70%);
+  background: #0c0c1d;
 }
 
 .orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.6;
-  animation: orbFloat 15s ease-in-out infinite alternate;
+  filter: blur(100px);
+  opacity: 0.35;
 }
 
 .orb-1 {
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle, rgba(99, 60, 255, 0.5) 0%, transparent 70%);
-  top: -10%;
-  left: -5%;
-  animation-duration: 18s;
+  width: 500px;
+  height: 500px;
+  background: #633cff;
+  top: -20%;
+  left: -10%;
 }
 
 .orb-2 {
-  width: 350px;
-  height: 350px;
-  background: radial-gradient(circle, rgba(0, 210, 211, 0.4) 0%, transparent 70%);
-  bottom: -15%;
-  right: 10%;
-  animation-duration: 22s;
-  animation-delay: -5s;
-}
-
-.orb-3 {
-  width: 300px;
-  height: 300px;
-  background: radial-gradient(circle, rgba(255, 0, 128, 0.35) 0%, transparent 70%);
-  top: 40%;
-  left: 30%;
-  animation-duration: 25s;
-  animation-delay: -10s;
-}
-
-@keyframes orbFloat {
-  0% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(30px, -40px) scale(1.1); }
-  66% { transform: translate(-20px, 20px) scale(0.95); }
-  100% { transform: translate(15px, -15px) scale(1.05); }
-}
-
-@keyframes meshShift {
-  0% { transform: scale(1) rotate(0deg); }
-  50% { transform: scale(1.05) rotate(2deg); }
-  100% { transform: scale(1) rotate(-1deg); }
+  width: 400px;
+  height: 400px;
+  background: #00b4d8;
+  bottom: -20%;
+  right: -5%;
 }
 
 /* ── Login Panel ── */
@@ -805,147 +742,89 @@ function submitRegister() {
 /* ── Glass Card ── */
 .glass-card {
   width: 100%;
-  max-width: 440px;
+  max-width: 400px;
   max-height: calc(100vh - 60px);
   overflow-y: auto;
-  padding: 48px 40px 40px;
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(24px) saturate(1.4);
-  -webkit-backdrop-filter: blur(24px) saturate(1.4);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 24px;
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.05),
-    0 8px 32px rgba(0, 0, 0, 0.4),
-    0 2px 8px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  animation: cardSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  padding: 44px 36px 36px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 20px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
+  animation: cardFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255,255,255,0.15) transparent;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
 
-  /* scrollbar for webkit */
-  &::-webkit-scrollbar {
-    width: 4px;
-  }
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 4px;
-  }
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
 
   @media (max-width: 480px) {
-    padding: 36px 28px 32px;
-    max-height: 90vh;
-    border-radius: 20px;
-    background: rgba(255, 255, 255, 0.08);
+    padding: 32px 24px 28px;
+    max-height: 92vh;
+    border-radius: 16px;
   }
 }
 
-@keyframes cardSlideUp {
-  0% {
-    opacity: 0;
-    transform: translateY(40px) scale(0.97);
-    filter: blur(4px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0px);
-  }
+@keyframes cardFadeIn {
+  0% { opacity: 0; transform: translateY(24px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 /* ── Card Header ── */
 .card-header {
   text-align: center;
-  margin-bottom: 36px;
+  margin-bottom: 32px;
 }
 
 .logo-wrap {
-  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 68px;
-  height: 68px;
-  border-radius: 20px;
-  background: linear-gradient(135deg, rgba(99, 60, 255, 0.3) 0%, rgba(0, 210, 211, 0.3) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: rgba(99, 60, 255, 0.15);
+  border: 1px solid rgba(99, 60, 255, 0.2);
   margin-bottom: 20px;
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all 0.3s ease;
 
   &:hover {
-    transform: translateY(-3px) scale(1.05);
-    background: linear-gradient(135deg, rgba(99, 60, 255, 0.45) 0%, rgba(0, 210, 211, 0.45) 100%);
-    box-shadow: 0 8px 24px rgba(99, 60, 255, 0.3);
-  }
-}
-
-.logo-glow {
-  position: absolute;
-  inset: -4px;
-  border-radius: 22px;
-  background: linear-gradient(135deg, rgba(99, 60, 255, 0.2), rgba(0, 210, 211, 0.2));
-  filter: blur(12px);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-
-  .logo-wrap:hover & {
-    opacity: 1;
+    background: rgba(99, 60, 255, 0.25);
+    border-color: rgba(99, 60, 255, 0.35);
   }
 }
 
 .logo-icon {
-  position: relative;
-  z-index: 1;
-  color: rgba(255, 255, 255, 0.95);
+  color: #a78bfa;
 }
 
 .form-title {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  display: block;
-  font-weight: 800;
-  font-size: 26px;
-  letter-spacing: -0.5px;
-  line-height: 1.3;
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: -0.3px;
   color: #ffffff;
   margin: 0;
-  background: linear-gradient(135deg, #ffffff 0%, rgba(255, 255, 255, 0.75) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .form-desc {
   display: block;
   margin-top: 6px;
-  color: rgba(255, 255, 255, 0.45);
-  font-size: 15px;
-  line-height: 1.5;
-  font-weight: 500;
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 14px;
+  font-weight: 400;
 }
 
 /* ── Form Body ── */
 .form-body {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  animation: staggerIn 0.6s ease-out 0.2s both;
+  gap: 16px;
 }
 
-@keyframes staggerIn {
-  0% {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ── Input Wrap (Floating Label) ── */
+/* ── Input ── */
 .input-wrap {
   position: relative;
 
@@ -953,10 +832,10 @@ function submitRegister() {
     position: absolute;
     top: 14px;
     left: 44px;
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.4);
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.3);
     pointer-events: none;
-    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: all 0.2s ease;
     transform-origin: left center;
     font-weight: 500;
     z-index: 2;
@@ -967,8 +846,8 @@ function submitRegister() {
     top: -8px;
     left: 12px;
     font-size: 11px;
-    color: rgba(0, 210, 211, 0.9);
-    letter-spacing: 0.5px;
+    color: rgba(0, 210, 211, 0.8);
+    letter-spacing: 0.3px;
     text-transform: uppercase;
   }
 
@@ -976,38 +855,33 @@ function submitRegister() {
     display: flex;
     align-items: center;
     gap: 10px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 14px;
-    padding: 0 16px;
-    transition: all 0.3s ease;
-    position: relative;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    padding: 0 14px;
+    transition: all 0.2s ease;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.08);
-      border-color: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.1);
     }
 
     .focused &,
     &:focus-within {
-      background: rgba(255, 255, 255, 0.08);
-      border-color: rgba(0, 210, 211, 0.5);
-      box-shadow:
-        0 0 0 3px rgba(0, 210, 211, 0.1),
-        0 0 20px rgba(0, 210, 211, 0.05);
+      border-color: rgba(0, 210, 211, 0.4);
+      background: rgba(255, 255, 255, 0.06);
     }
   }
 
   .input-icon {
-    color: rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.2);
     flex-shrink: 0;
-    transition: all 0.25s ease;
+    transition: color 0.2s ease;
     z-index: 1;
   }
 
   &.focused .input-icon,
   &:has(.el-input:focus-within) .input-icon {
-    color: rgba(0, 210, 211, 0.8);
+    color: rgba(0, 210, 211, 0.7);
   }
 }
 
@@ -1021,19 +895,19 @@ function submitRegister() {
     border: none !important;
     border-radius: 0 !important;
     padding: 0 !important;
-    min-height: 48px;
+    min-height: 46px;
   }
 
   .el-input__inner {
-    height: 48px;
-    font-size: 15px;
+    height: 46px;
+    font-size: 14px;
     color: #ffffff !important;
     background: transparent !important;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 500;
 
     &::placeholder {
-      color: rgba(255, 255, 255, 0.25) !important;
+      color: rgba(255, 255, 255, 0.2) !important;
     }
   }
 
@@ -1046,171 +920,78 @@ function submitRegister() {
   padding: 0 !important;
   padding-left: 8px !important;
   padding-right: 4px !important;
-  background: rgba(255, 255, 255, 0.05) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
   border: none !important;
   box-shadow: none !important;
   border-radius: 0 !important;
-  color: rgba(255, 255, 255, 0.6) !important;
+  color: rgba(255, 255, 255, 0.5) !important;
 }
 
 .email-input :deep(.el-input__wrapper) {
   border-radius: 0;
 }
 
-/* ── Gradient Button ── */
-.btn-gradient {
+/* ── Primary Button ── */
+.btn-primary {
   position: relative;
   width: 100%;
-  height: 50px;
+  height: 46px;
   border: none;
-  border-radius: 14px;
-  font-size: 15px;
-  font-weight: 700;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
   font-family: 'Plus Jakarta Sans', sans-serif;
   color: #ffffff;
   cursor: pointer;
-  overflow: hidden;
-  background: linear-gradient(135deg, #633cff 0%, #00d2d3 50%, #633cff 100%);
-  background-size: 200% 200%;
-  animation: gradientPulse 4s ease infinite;
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow:
-    0 4px 15px rgba(99, 60, 255, 0.35),
-    0 1px 3px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
-  margin-top: 4px;
+  background: #633cff;
+  transition: all 0.2s ease;
 
   &:hover {
-    transform: translateY(-2px) scale(1.01);
-    box-shadow:
-      0 8px 25px rgba(99, 60, 255, 0.45),
-      0 2px 6px rgba(0, 0, 0, 0.2),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    background: #7c5cff;
   }
 
   &:active {
-    transform: translateY(0) scale(0.99);
-    box-shadow:
-      0 2px 8px rgba(99, 60, 255, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transform: scale(0.98);
   }
 
   &:disabled {
-    opacity: 0.7;
+    opacity: 0.5;
     cursor: not-allowed;
-    transform: none;
-  }
-
-  .btn-shimmer {
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(255, 255, 255, 0.12) 50%,
-      transparent 100%
-    );
-    transition: none;
-  }
-
-  &:hover .btn-shimmer {
-    animation: shimmer 1.5s ease infinite;
   }
 }
 
 .btn-spinner {
   display: inline-block;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-top-color: #ffffff;
   border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-}
-
-@keyframes shimmer {
-  0% { left: -100%; }
-  100% { left: 100%; }
-}
-
-@keyframes gradientPulse {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+  animation: spin 0.6s linear infinite;
 }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
-/* ── OAuth Button ── */
-.btn-oauth-aurora {
-  width: 100%;
-  height: 46px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  color: rgba(255, 255, 255, 0.65);
-  font-size: 14px;
-  font-weight: 600;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  backdrop-filter: blur(8px);
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.15);
-    color: rgba(255, 255, 255, 0.9);
-    transform: translateY(-1px);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-}
-
 /* ── Switch ── */
 .switch {
-  margin-top: 28px;
-  padding-top: 24px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
   text-align: center;
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.4);
-  font-weight: 500;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.3);
+  font-weight: 400;
 
   span {
-    color: #00d2d3;
+    color: rgba(0, 210, 211, 0.85);
     cursor: pointer;
-    font-weight: 700;
-    transition: all 0.2s ease;
-    position: relative;
-
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: -2px;
-      left: 0;
-      width: 0;
-      height: 2px;
-      background: linear-gradient(90deg, #00d2d3, #633cff);
-      border-radius: 1px;
-      transition: width 0.3s ease;
-    }
-
-    &:hover::after {
-      width: 100%;
-    }
+    font-weight: 600;
+    transition: color 0.2s ease;
 
     &:hover {
-      color: #ffffff;
+      color: #00d2d3;
     }
   }
 }
@@ -1220,23 +1001,23 @@ function submitRegister() {
   display: flex;
   align-items: center;
   gap: 2px;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.5);
   font-size: 13px;
   cursor: pointer;
   white-space: nowrap;
-  font-weight: 600;
+  font-weight: 500;
   padding: 4px 8px;
   border-radius: 8px;
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.8);
   }
 }
 
 .setting-icon {
-  opacity: 0.5;
+  opacity: 0.4;
 }
 
 :deep(.el-select-dropdown__item) {
@@ -1254,18 +1035,18 @@ function submitRegister() {
 /* ── Bind Dialog ── */
 :deep(.bind-dialog) {
   width: 400px !important;
-  border-radius: 20px !important;
-  background: rgba(20, 20, 40, 0.95) !important;
-  backdrop-filter: blur(20px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 16px !important;
+  background: rgba(16, 16, 36, 0.95) !important;
+  backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
 
   .el-dialog__header {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   }
 
   .el-dialog__title {
     color: #ffffff;
-    font-weight: 700;
+    font-weight: 600;
     font-family: 'Plus Jakarta Sans', sans-serif;
   }
 
@@ -1279,7 +1060,7 @@ function submitRegister() {
 .bind-container {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 14px;
+  gap: 12px;
   padding-top: 12px;
 }
 
@@ -1294,11 +1075,10 @@ function submitRegister() {
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.15);
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.1);
   font-weight: 500;
-  letter-spacing: 1px;
-  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 :deep(.el-button + .el-button) {
@@ -1307,20 +1087,7 @@ function submitRegister() {
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
-  .aurora-bg {
-    opacity: 0.7;
-  }
-
-  .glass-card {
-    max-width: 100%;
-    margin: 0 8px;
-  }
-
-  .orb {
-    filter: blur(60px);
-    opacity: 0.4;
-  }
+  .orb { opacity: 0.2; }
+  .glass-card { max-width: 100%; margin: 0 8px; }
 }
-
-/* ── Dark mode handled by default (this IS the dark design) ── */
 </style>
