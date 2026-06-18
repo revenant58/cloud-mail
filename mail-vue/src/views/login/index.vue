@@ -698,7 +698,7 @@ function submitRegister() {
 /* Dark mode overrides */
 @media (prefers-color-scheme: dark) {
   :root {
-    --ds-neutral-primary-soft: #101828;
+    --ds-neutral-primary-soft: #1E293B;
     --ds-neutral-secondary-soft: #101828;
     --ds-neutral-secondary-medium: #1E2939;
     --ds-disabled: #1F2937;
@@ -722,7 +722,7 @@ function submitRegister() {
     --ds-color-1-400: rgba(255, 255, 255, 0.12);
     --ds-color-1-700: rgba(0, 0, 0, 0.25);
 
-    --ds-bg-page: #101828;
+    --ds-bg-page: #0F172A;
   }
 }
 
