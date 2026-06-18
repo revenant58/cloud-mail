@@ -1,43 +1,38 @@
 <p align="center">
     <img src="doc/demo/logo.png" width="80px" />
-    <h1 align="center">Cloud Mail</h1>
-    <p align="center">基于 Cloudflare 的简约响应式邮箱服务，支持邮件发送、附件收发 🎉</p> 
+    <h1 align="center">RevMailHost</h1>
+    <p align="center">A simple, responsive email service built on Cloudflare, supporting email sending and attachments 🎉</p> 
     <p align="center">
-        简体中文 | <a href="/README-en.md" style="margin-left: 5px">English </a>
+        English | <a href="/README-en.md" style="margin-left: 5px">简体中文 </a>
     </p>
     <p align="center">
-        <a href="https://github.com/maillab/cloud-mail/tree/main?tab=MIT-1-ov-file" target="_blank" >
+        <a href="https://github.com/revenant58/cloud-mail/tree/main?tab=MIT-1-ov-file" target="_blank" >
             <img src="https://img.shields.io/badge/license-MIT-green" />
         </a>    
-        <a href="https://github.com/maillab/cloud-mail/releases" target="_blank" >
-            <img src="https://img.shields.io/github/v/release/maillab/cloud-mail" alt="releases" />
+        <a href="https://github.com/revenant58/cloud-mail/releases" target="_blank" >
+            <img src="https://img.shields.io/github/v/release/revenant58/cloud-mail" alt="releases" />
         </a>  
-        <a href="https://github.com/maillab/cloud-mail/issues" >
-            <img src="https://img.shields.io/github/issues/maillab/cloud-mail" alt="issues" />
+        <a href="https://github.com/revenant58/cloud-mail/issues" >
+            <img src="https://img.shields.io/github/issues/revenant58/cloud-mail" alt="issues" />
         </a>  
-        <a href="https://github.com/maillab/cloud-mail/stargazers" target="_blank">
-            <img src="https://img.shields.io/github/stars/maillab/cloud-mail" alt="stargazers" />
+        <a href="https://github.com/revenant58/cloud-mail/stargazers" target="_blank">
+            <img src="https://img.shields.io/github/stars/revenant58/cloud-mail" alt="stargazers" />
         </a>  
-        <a href="https://github.com/maillab/cloud-mail/forks" target="_blank" >
-            <img src="https://img.shields.io/github/forks/maillab/cloud-mail" alt="forks" />
-        </a>
-    </p>
-    <p align="center">
-        <a href="https://trendshift.io/repositories/20459" target="_blank" >
-            <img src="https://trendshift.io/api/badge/repositories/20459" alt="trendshift" >
+        <a href="https://github.com/revenant58/cloud-mail/forks" target="_blank" >
+            <img src="https://img.shields.io/github/forks/revenant58/cloud-mail" alt="forks" />
         </a>
     </p>
 </p>
 
 
-## 项目简介
+## About
 
-只需要一个域名，就可以创建多个不同的邮箱，类似各大邮箱平台，本项目支持署到 Cloudflare Workers ，降低服务器成本，搭建自己的邮箱服务
+With just one domain, you can create multiple email addresses — similar to major email platforms. This project can be deployed on Cloudflare Workers to reduce server costs and build your own email service.
 
-## 项目展示
+## Live Demo
 
-- [在线演示](https://skymail.ink)<br>
-- [部署文档](https://doc.skymail.ink)<br>
+- [Online Demo](https://skymail.ink)<br>
+- [Deployment Docs](https://doc.skymail.ink)<br>
 
 | ![](/doc/demo/demo1.png) | ![](/doc/demo/demo2.png) |
 |-----------------------|-----------------------|
@@ -46,113 +41,112 @@
 
 
 
-## 功能介绍
+## Features
 
-- **💰 低成本使用**： 可部署到 Cloudflare Workers 降低服务器成本
+- **💰 Low-Cost Usage**: Deploy to Cloudflare Workers to reduce server costs
 
-- **💻 响应式设计**：响应式布局自动适配PC和大部分手机端浏览器
+- **💻 Responsive Design**: Automatically adapts to desktop and most mobile browsers
 
-- **📧 邮件发送**：集成Resend发送邮件，支持群发，内嵌图片和附件发送，发送状态查看
+- **📧 Email Sending**: Integrated with Resend for sending emails, supporting bulk sends, inline images, and attachments
 
-- **🛡️ 管理员功能**：可以对用户，邮件进行管理，RABC权限控制对功能及使用资源限制
+- **🛡️ Admin Features**: Manage users and emails, with RBAC access control for feature and resource limits
 
-- **📦 附件收发**：支持收发附件，使用R2对象存储保存和下载文件
+- **📦 Attachment Support**: Send and receive attachments, stored and downloaded via R2 object storage
 
-- **🔔 邮件推送**：接收邮件后可以转发到TG机器人或其他服务商邮箱
+- **🔔 Email Push**: Forward received emails to Telegram bots or other email providers
 
-- **📡 开放API**：支持使用API批量生成用户，多条件查询邮件 
+- **📡 Open API**: Supports batch user creation via API and multi-condition email queries
 
-- **🔢 验证码识别**：使用Workers AI，自动识别邮件验证码 
+- **🔢 Verification Code Recognition**: Uses Workers AI to automatically detect email verification codes
 
-- **📈 数据可视化**：使用ECharts对系统数据详情，用户邮件增长可视化显示
+- **📈 Data Visualization**: Uses ECharts to display system data and user email growth charts
 
-- **🎨 个性化设置**：可以自定义网站标题，登录背景，透明度
+- **🎨 Customization**: Customize website title, login background, and transparency
 
-- **🤖 人机验证**：集成Turnstile人机验证，防止人机批量注册
+- **🤖 CAPTCHA**: Integrated with Turnstile CAPTCHA to prevent automated registration
 
-- **📜 更多功能**：正在开发中...
+- **📜 More Features**: Under development...
 
 
 
-## 技术栈
+## Tech Stack
 
-- **平台**：[Cloudflare Workers](https://developers.cloudflare.com/workers/)
+- **Platform**: [Cloudflare Workers](https://developers.cloudflare.com/workers/)
 
-- **Web框架**：[Hono](https://hono.dev/)
+- **Web Framework**: [Hono](https://hono.dev/)
 
-- **ORM：**[Drizzle](https://orm.drizzle.team/)
+- **ORM**: [Drizzle](https://orm.drizzle.team/)
 
-- **前端框架**：[Vue3](https://vuejs.org/) 
+- **Frontend**: [Vue3](https://vuejs.org/) 
 
-- **UI框架**：[Element Plus](https://element-plus.org/) 
+- **UI Framework**: [Element Plus](https://element-plus.org/) 
 
-- **邮件推送：** [Resend](https://resend.com/)
+- **Email Service**: [Resend](https://resend.com/)
 
-- **缓存**：[Cloudflare KV](https://developers.cloudflare.com/kv/)
+- **Cache**: [Cloudflare KV](https://developers.cloudflare.com/kv/)
 
-- **数据库**：[Cloudflare D1](https://developers.cloudflare.com/d1/)
+- **Database**: [Cloudflare D1](https://developers.cloudflare.com/d1/)
 
-- **文件存储**：[Cloudflare R2](https://developers.cloudflare.com/r2/)
+- **File Storage**: [Cloudflare R2](https://developers.cloudflare.com/r2/)
 
-## 目录结构
+## Directory Structure
 
 ```
 cloud-mail
-├── mail-worker				    # worker后端项目
-│   ├── src                  
-│   │   ├── api	 			    # api接口层			
-│   │   ├── const  			    # 项目常量
-│   │   ├── dao                 # 数据访问层
-│   │   ├── email			    # 邮件处理接收
-│   │   ├── entity			    # 数据库实体
-│   │   ├── error			    # 自定义异常
-│   │   ├── hono			    # web框架配置、拦截器、全局异常等
-│   │   ├── i18n			    # 语言国际化
-│   │   ├── init			    # 数据库缓存初始化
-│   │   ├── model			    # 响应体数据封装
-│   │   ├── security			# 身份权限认证
-│   │   ├── service			    # 业务服务层
-│   │   ├── template			# 消息模板
-│   │   ├── utils			    # 工具类
-│   │   └── index.js			# 入口文件
-│   ├── pageckge.json			# 项目依赖
-│   └── wrangler.toml			# 项目配置
+├── mail-worker			    # Worker backend project
+│   ├── src                 
+│   │   ├── api	 		    # API layer
+│   │   ├── const 		    # Project constants
+│   │   ├── dao             # Data access layer
+│   │   ├── email		    # Email processing
+│   │   ├── entity		    # Database entities
+│   │   ├── error		    # Custom exceptions
+│   │   ├── hono		    # Web framework, middleware, error handling
+│   │   ├── i18n		    # Internationalization
+│   │   ├── init		    # Database and cache initialization
+│   │   ├── model		    # Response data models
+│   │   ├── security		# Authentication and authorization
+│   │   ├── service		    # Business logic layer
+│   │   ├── template		# Message templates
+│   │   ├── utils		    # Utility functions
+│   │   └── index.js		# Entry point
+│   ├── package.json		# Dependencies
+│   └── wrangler.toml		# Project configuration
 │
-├── mail-vue				    # vue前端项目
+├── mail-vue			    # Vue frontend project
 │   ├── src
-│   │   ├── axios 			    # axios配置
-│   │   ├── components			# 自定义组件
-│   │   ├── echarts			    # echarts组件导入
-│   │   ├── i18n			    # 语言国际化
-│   │   ├── init			    # 入站初始化
-│   │   ├── layout			    # 主体布局组件
-│   │   ├── perm			    # 权限认证
-│   │   ├── request			    # api接口
-│   │   ├── router			    # 路由配置
-│   │   ├── store			    # 全局状态管理
-│   │   ├── utils			    # 工具类
-│   │   ├── views			    # 页面组件
-│   │   ├── app.vue			    # 入口组件
-│   │   ├── main.js			    # 入口js
-│   │   └── style.css			# 全局css
-│   ├── package.json			# 项目依赖
-└── └── env.release				# 项目配置
+│   │   ├── axios 		    # Axios configuration
+│   │   ├── components		# Custom components
+│   │   ├── echarts		    # ECharts integration
+│   │   ├── i18n		    # Internationalization
+│   │   ├── init		    # App initialization
+│   │   ├── layout		    # Layout components
+│   │   ├── perm		    # Permissions and access control
+│   │   ├── request		    # API request layer
+│   │   ├── router		    # Router configuration
+│   │   ├── store		    # Global state management
+│   │   ├── utils		    # Utility functions
+│   │   ├── views		    # Page components
+│   │   ├── app.vue		    # Root component
+│   │   ├── main.js		    # Entry JS
+│   │   └── style.css		# Global styles
+│   ├── package.json		# Dependencies
+└── └── env.release			# Environment configuration
 ```
 
-## 赞助
+## Sponsor
 
 <a href="https://doc.skymail.ink/support.html" >
 <img width="170px" src="./doc/images/support.png" alt="">
 </a>
 
-## 许可证
+## License
 
-本项目采用 [MIT](LICENSE) 许可证	
+This project is licensed under the [MIT](LICENSE) license.	
 
 
-## 交流
+## Community
 
 [Telegram](https://t.me/cloud_mail_tg)
-
 
 
