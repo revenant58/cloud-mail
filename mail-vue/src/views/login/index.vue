@@ -1,12 +1,6 @@
 <template>
   <div id="login-box" :style="background ? 'background: var(--el-bg-color)' : ''" v-loading="oauthLoading" element-loading-text="登录中...">
-    <div class="mesh-bg" v-if="!settingStore.settings.background">
-      <div class="mesh-orb orb-1"></div>
-      <div class="mesh-orb orb-2"></div>
-      <div class="mesh-orb orb-3"></div>
-      <div class="mesh-orb orb-4"></div>
-    </div>
-    <div v-else :style="background"></div>
+    <div v-if="background" :style="background"></div>
     <div class="form-wrapper">
       <div class="container">
         <div class="form-header">
@@ -643,7 +637,7 @@ function submitRegister() {
 <style lang="scss" scoped>
 
 /* ============================================
-   LOGIN PAGE — Dashboard Design System
+   LOGIN PAGE — Dashboard Design System (Premium)
    Tokens from skills/colors.md, buttons.md,
    inputs.md, cards.md, radius.md, shadows.md,
    borders.md, layout.md, typography.md
@@ -661,6 +655,8 @@ function submitRegister() {
   --ds-brand: #1447E6;
   --ds-brand-strong: #193CB8;
   --ds-brand-medium: #BEDBFF;
+  --ds-brand-softer: #EEF6FF;
+  --ds-brand-soft: #DBEAFE;
 
   /* Text tokens */
   --ds-heading: #111827;
@@ -679,6 +675,7 @@ function submitRegister() {
   /* Shadow tokens */
   --ds-shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --ds-shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --ds-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 
   /* Button glint tokens */
   --ds-color-1-400: rgba(255, 255, 255, 0.25);
@@ -686,6 +683,7 @@ function submitRegister() {
 
   /* Radius tokens */
   --ds-radius-base: 8px;
+  --ds-radius-lg: 12px;
   --ds-radius-sm: 4px;
 
   /* Status tokens */
@@ -706,6 +704,8 @@ function submitRegister() {
     --ds-brand: #155DFC;
     --ds-brand-strong: #1447E6;
     --ds-brand-medium: #1C398E;
+    --ds-brand-softer: #162455;
+    --ds-brand-soft: #1C398E;
 
     --ds-heading: #FFFFFF;
     --ds-body: #9CA3AF;
@@ -714,7 +714,7 @@ function submitRegister() {
     --ds-fg-brand: #51A2FF;
     --ds-fg-disabled: #6B7280;
 
-    --ds-border-default: #1F2937;
+    --ds-border-default: #374151;
     --ds-border-default-medium: #374151;
     --ds-border-default-strong: #4B5563;
     --ds-border-brand: #51A2FF;
@@ -722,7 +722,7 @@ function submitRegister() {
     --ds-color-1-400: rgba(255, 255, 255, 0.12);
     --ds-color-1-700: rgba(0, 0, 0, 0.25);
 
-    --ds-bg-page: #0F172A;
+    --ds-bg-page: #0C1222;
   }
 }
 
@@ -741,47 +741,44 @@ function submitRegister() {
 
 .container {
   background: var(--ds-neutral-primary-soft);
-  padding: 32px;
+  padding: 40px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  width: 400px;
+  width: 420px;
   max-height: calc(100vh - 48px);
   overflow-y: auto;
-  border-radius: var(--ds-radius-base);
+  border-radius: var(--ds-radius-lg);
   border: 1px solid var(--ds-border-default);
-  box-shadow:
-    0 1px 3px 0 rgb(0 0 0 / 0.1),
-    0 1px 2px -1px rgb(0 0 0 / 0.1);
+  box-shadow: var(--ds-shadow-md);
   animation: cardEnter 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 
   @media (max-width: 480px) {
     padding: 24px;
     width: 100%;
     max-height: 92vh;
+    border-radius: var(--ds-radius-base);
   }
 
   .form-header {
     text-align: center;
-    margin-bottom: 24px;
+    margin-bottom: 32px;
   }
 
   .logo-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 48px;
-    height: 48px;
-    border-radius: var(--ds-radius-base);
-    background: var(--ds-brand);
-    color: var(--ds-white);
-    margin-bottom: 16px;
-    box-shadow: var(--ds-shadow-xs);
-    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    background: var(--ds-brand-softer);
+    color: var(--ds-brand);
+    margin-bottom: 20px;
+    transition: background-color 0.2s ease;
 
     &:hover {
-      background: var(--ds-brand-strong);
-      box-shadow: var(--ds-shadow-sm);
+      background: var(--ds-brand-soft);
     }
   }
 
@@ -797,7 +794,7 @@ function submitRegister() {
   .form-desc {
     display: block;
     margin-top: 8px;
-    color: var(--ds-body);
+    color: var(--ds-body-subtle);
     font-size: 14px;
     line-height: 1.5;
   }
@@ -805,7 +802,7 @@ function submitRegister() {
   .form-body {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
     animation: staggerIn 0.5s ease-out both;
   }
 
@@ -814,14 +811,14 @@ function submitRegister() {
   }
 
   .btn {
-    height: 40px;
+    height: 44px;
     width: 100%;
     border-radius: var(--ds-radius-base);
     font-size: 14px;
     font-weight: 500;
     transition: all 0.2s ease;
     border: 1px solid transparent;
-    margin-top: 8px;
+    margin-top: 4px;
     font-family: 'Inter', sans-serif;
   }
 
@@ -864,7 +861,7 @@ function submitRegister() {
       var(--ds-color-1-700) 0 4px 10px -5px;
 
     &:hover {
-      background: #F3F4F6;
+      background: var(--ds-neutral-secondary-soft);
       color: var(--ds-heading);
       border-color: var(--ds-border-default-strong);
     }
@@ -872,7 +869,7 @@ function submitRegister() {
     &:focus-visible {
       outline: none;
       box-shadow:
-        0 0 0 4px #F3F4F6,
+        0 0 0 4px var(--ds-neutral-secondary-soft),
         var(--ds-shadow-xs);
     }
   }
@@ -916,7 +913,7 @@ function submitRegister() {
     width: 100%;
 
     :deep(.el-input__inner) {
-      height: 40px;
+      height: 44px;
       font-size: 14px;
     }
 
@@ -1000,7 +997,6 @@ function submitRegister() {
   pointer-events: none;
 }
 
-
 #login-box {
   font: 14px/1.5 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   height: 100%;
@@ -1010,9 +1006,6 @@ function submitRegister() {
   display: grid;
   grid-template-columns: 1fr;
 }
-
-/* Mesh background removed per design system rule:
-   "avoid gradient meshes, noise textures, or decorative overlays" */
 
 @keyframes cardEnter {
   0% {
