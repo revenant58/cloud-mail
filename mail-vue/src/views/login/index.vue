@@ -690,6 +690,9 @@ function submitRegister() {
 
   /* Status tokens */
   --ds-danger: #C70036;
+
+  /* Page background token */
+  --ds-bg-page: #F9FAFB;
 }
 
 /* Dark mode overrides */
@@ -718,6 +721,8 @@ function submitRegister() {
 
     --ds-color-1-400: rgba(255, 255, 255, 0.12);
     --ds-color-1-700: rgba(0, 0, 0, 0.25);
+
+    --ds-bg-page: #101828;
   }
 }
 
@@ -729,7 +734,7 @@ function submitRegister() {
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background: var(--ds-neutral-primary-soft);
+  background: var(--ds-bg-page);
   transition: background-color 0.2s ease;
   font-family: 'Inter', sans-serif;
 }
@@ -745,7 +750,9 @@ function submitRegister() {
   overflow-y: auto;
   border-radius: var(--ds-radius-base);
   border: 1px solid var(--ds-border-default);
-  box-shadow: var(--ds-shadow-xs);
+  box-shadow:
+    0 1px 3px 0 rgb(0 0 0 / 0.1),
+    0 1px 2px -1px rgb(0 0 0 / 0.1);
   animation: cardEnter 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 
   @media (max-width: 480px) {
