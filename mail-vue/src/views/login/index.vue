@@ -643,8 +643,83 @@ function submitRegister() {
 <style lang="scss" scoped>
 
 /* ============================================
-   LOGIN PAGE — Clean Premium Design
+   LOGIN PAGE — Dashboard Design System
+   Tokens from skills/colors.md, buttons.md,
+   inputs.md, cards.md, radius.md, shadows.md,
+   borders.md, layout.md, typography.md
    ============================================ */
+
+/* Design System CSS Custom Properties */
+:root {
+  /* Background tokens */
+  --ds-neutral-primary-soft: #FFFFFF;
+  --ds-neutral-secondary-soft: #F9FAFB;
+  --ds-neutral-secondary-medium: #F9FAFB;
+  --ds-disabled: #F3F4F6;
+
+  /* Brand tokens */
+  --ds-brand: #1447E6;
+  --ds-brand-strong: #193CB8;
+  --ds-brand-medium: #BEDBFF;
+
+  /* Text tokens */
+  --ds-heading: #111827;
+  --ds-body: #4B5563;
+  --ds-body-subtle: #6B7280;
+  --ds-white: #FFFFFF;
+  --ds-fg-brand: #1447E6;
+  --ds-fg-disabled: #9CA3AF;
+
+  /* Border tokens */
+  --ds-border-default: #E5E7EB;
+  --ds-border-default-medium: #E5E7EB;
+  --ds-border-default-strong: #E5E7EB;
+  --ds-border-brand: #1447E6;
+
+  /* Shadow tokens */
+  --ds-shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --ds-shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+
+  /* Button glint tokens */
+  --ds-color-1-400: rgba(255, 255, 255, 0.25);
+  --ds-color-1-700: rgba(0, 0, 0, 0.12);
+
+  /* Radius tokens */
+  --ds-radius-base: 8px;
+  --ds-radius-sm: 4px;
+
+  /* Status tokens */
+  --ds-danger: #C70036;
+}
+
+/* Dark mode overrides */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ds-neutral-primary-soft: #101828;
+    --ds-neutral-secondary-soft: #101828;
+    --ds-neutral-secondary-medium: #1E2939;
+    --ds-disabled: #1F2937;
+
+    --ds-brand: #155DFC;
+    --ds-brand-strong: #1447E6;
+    --ds-brand-medium: #1C398E;
+
+    --ds-heading: #FFFFFF;
+    --ds-body: #9CA3AF;
+    --ds-body-subtle: #9CA3AF;
+    --ds-white: #FFFFFF;
+    --ds-fg-brand: #51A2FF;
+    --ds-fg-disabled: #6B7280;
+
+    --ds-border-default: #1F2937;
+    --ds-border-default-medium: #374151;
+    --ds-border-default-strong: #4B5563;
+    --ds-border-brand: #51A2FF;
+
+    --ds-color-1-400: rgba(255, 255, 255, 0.12);
+    --ds-color-1-700: rgba(0, 0, 0, 0.25);
+  }
+}
 
 .form-wrapper {
   position: fixed;
@@ -654,70 +729,68 @@ function submitRegister() {
   align-items: center;
   justify-content: center;
   padding: 24px;
+  background: var(--ds-neutral-primary-soft);
+  transition: background-color 0.2s ease;
+  font-family: 'Inter', sans-serif;
 }
 
 .container {
-  background: v-bind(loginOpacity);
-  backdrop-filter: blur(40px);
-  -webkit-backdrop-filter: blur(40px);
-  padding: 44px 40px 40px;
+  background: var(--ds-neutral-primary-soft);
+  padding: 32px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  width: 420px;
+  width: 400px;
   max-height: calc(100vh - 48px);
   overflow-y: auto;
-  border-radius: 20px;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.04),
-    0 6px 24px rgba(0, 0, 0, 0.06),
-    0 20px 48px rgba(0, 0, 0, 0.04);
+  border-radius: var(--ds-radius-base);
+  border: 1px solid var(--ds-border-default);
+  box-shadow: var(--ds-shadow-xs);
   animation: cardEnter 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 
   @media (max-width: 480px) {
-    border-radius: 16px;
-    padding: 36px 28px 32px;
+    padding: 24px;
     width: 100%;
     max-height: 92vh;
   }
 
   .form-header {
     text-align: center;
-    margin-bottom: 32px;
+    margin-bottom: 24px;
   }
 
   .logo-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 52px;
-    height: 52px;
-    border-radius: 14px;
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-    color: #fff;
-    margin-bottom: 20px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    width: 48px;
+    height: 48px;
+    border-radius: var(--ds-radius-base);
+    background: var(--ds-brand);
+    color: var(--ds-white);
+    margin-bottom: 16px;
+    box-shadow: var(--ds-shadow-xs);
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
 
     &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+      background: var(--ds-brand-strong);
+      box-shadow: var(--ds-shadow-sm);
     }
   }
 
   .form-title {
     display: block;
-    font-weight: 700;
-    font-size: 22px !important;
-    letter-spacing: -0.4px;
+    font-weight: 600;
+    font-size: 20px !important;
+    letter-spacing: -0.2px;
     line-height: 1.3;
-    color: var(--el-text-color-primary);
+    color: var(--ds-heading);
   }
 
   .form-desc {
     display: block;
     margin-top: 8px;
-    color: var(--el-text-color-secondary);
+    color: var(--ds-body);
     font-size: 14px;
     line-height: 1.5;
   }
@@ -725,7 +798,7 @@ function submitRegister() {
   .form-body {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 16px;
     animation: staggerIn 0.5s ease-out both;
   }
 
@@ -734,42 +807,66 @@ function submitRegister() {
   }
 
   .btn {
-    height: 44px;
+    height: 40px;
     width: 100%;
-    border-radius: 10px;
-    font-size: 15px;
-    font-weight: 600;
+    border-radius: var(--ds-radius-base);
+    font-size: 14px;
+    font-weight: 500;
     transition: all 0.2s ease;
-    border: none;
-    margin-top: 4px;
+    border: 1px solid transparent;
+    margin-top: 8px;
+    font-family: 'Inter', sans-serif;
   }
 
   .btn-primary {
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-    color: #fff;
-    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
+    background: var(--ds-brand);
+    color: var(--ds-white);
+    box-shadow:
+      var(--ds-shadow-xs),
+      inset var(--ds-color-1-400) 0 6px 0px -5px,
+      var(--ds-color-1-700) 0 4px 10px -5px;
 
     &:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
-      background: linear-gradient(135deg, #5558e6 0%, #7c50e0 100%);
+      background: var(--ds-brand-strong);
+      box-shadow:
+        var(--ds-shadow-xs),
+        inset var(--ds-color-1-400) 0 6px 0px -5px,
+        var(--ds-color-1-700) 0 4px 10px -5px;
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow:
+        0 0 0 4px var(--ds-brand-medium),
+        var(--ds-shadow-xs);
     }
 
     &:active {
-      transform: translateY(0);
-      box-shadow: 0 1px 4px rgba(99, 102, 241, 0.2);
+      background: var(--ds-brand-strong);
     }
   }
 
   .btn-oauth {
-    background: var(--el-bg-color);
-    border: 1px solid var(--el-border-color-lighter);
-    color: var(--el-text-color-regular);
+    background: var(--ds-neutral-secondary-medium);
+    border: 1px solid var(--ds-border-default-medium);
+    color: var(--ds-body);
     margin-top: 0;
+    box-shadow:
+      var(--ds-shadow-xs),
+      inset var(--ds-color-1-400) 0 6px 0px -5px,
+      var(--ds-color-1-700) 0 4px 10px -5px;
 
     &:hover {
-      border-color: var(--el-color-primary-light-5);
-      background: var(--el-color-primary-light-9);
+      background: #F3F4F6;
+      color: var(--ds-heading);
+      border-color: var(--ds-border-default-strong);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow:
+        0 0 0 4px #F3F4F6,
+        var(--ds-shadow-xs);
     }
   }
 
@@ -777,40 +874,35 @@ function submitRegister() {
     margin-top: 24px;
     text-align: center;
     font-size: 14px;
-    color: var(--el-text-color-secondary);
+    color: var(--ds-body);
 
     span {
-      color: #6366f1;
+      color: var(--ds-fg-brand);
       cursor: pointer;
-      font-weight: 600;
+      font-weight: 500;
       transition: opacity 0.2s;
 
       &:hover {
-        opacity: 0.75;
+        text-decoration: underline;
       }
     }
   }
 
   :deep(.el-input__wrapper) {
-    border-radius: 10px;
-    background: var(--el-fill-color-blank);
-    border: 1px solid var(--el-border-color-lighter);
-    box-shadow: none;
-    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    border-radius: var(--ds-radius-base);
+    background: var(--ds-neutral-secondary-medium);
+    border: 1px solid var(--ds-border-default-medium);
+    box-shadow: var(--ds-shadow-xs);
     padding: 4px 12px;
 
-    &:hover {
-      border-color: var(--el-border-color);
-    }
-
     &.is-focus {
-      border-color: #6366f1;
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.08);
+      border-color: var(--ds-border-brand);
+      box-shadow: 0 0 0 1px var(--ds-border-brand);
     }
   }
 
   .email-input :deep(.el-input__wrapper) {
-    border-radius: 10px 0 0 10px;
+    border-radius: var(--ds-radius-base) 0 0 var(--ds-radius-base);
   }
 
   .el-input {
@@ -836,7 +928,7 @@ function submitRegister() {
 
   .el-input:focus-within .input-icon {
     opacity: 0.8;
-    color: #6366f1;
+    color: var(--ds-brand);
   }
 }
 
@@ -844,7 +936,7 @@ function submitRegister() {
   display: flex;
   align-items: center;
   gap: 2px;
-  color: var(--el-text-color-primary);
+  color: var(--ds-heading);
   font-size: 13px;
   cursor: pointer;
   white-space: nowrap;
@@ -860,7 +952,7 @@ function submitRegister() {
 
 :deep(.bind-dialog) {
   width: 400px !important;
-  border-radius: 16px !important;
+  border-radius: var(--ds-radius-base) !important;
 
   @media (max-width: 440px) {
     width: calc(100% - 40px) !important;
@@ -879,8 +971,8 @@ function submitRegister() {
   padding: 0 !important;
   padding-left: 10px !important;
   padding-right: 6px !important;
-  background: var(--el-fill-color-blank);
-  border-radius: 0 10px 10px 0;
+  background: var(--ds-neutral-secondary-medium);
+  border-radius: 0 var(--ds-radius-base) var(--ds-radius-base) 0;
   border: none;
   box-shadow: none;
 }
@@ -912,86 +1004,8 @@ function submitRegister() {
   grid-template-columns: 1fr;
 }
 
-/* ============================================
-   ANIMATED MESH BACKGROUND — Soft Pastels
-   ============================================ */
-
-.mesh-bg {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
-  overflow: hidden;
-  background: linear-gradient(160deg, #f0f4ff 0%, #faf5ff 35%, #fff1f2 65%, #f8fafc 100%);
-}
-
-.mesh-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(100px);
-  opacity: 0.5;
-  animation-timing-function: ease-in-out;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-}
-
-.orb-1 {
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.2), transparent 70%);
-  top: -15%;
-  left: -10%;
-  animation: meshFloat1 20s ease-in-out infinite alternate;
-}
-
-.orb-2 {
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(168, 85, 247, 0.15), transparent 70%);
-  top: 40%;
-  right: -10%;
-  animation: meshFloat2 24s ease-in-out infinite alternate;
-}
-
-.orb-3 {
-  width: 450px;
-  height: 450px;
-  background: radial-gradient(circle, rgba(236, 72, 153, 0.12), transparent 70%);
-  bottom: -10%;
-  left: 25%;
-  animation: meshFloat3 18s ease-in-out infinite alternate;
-}
-
-.orb-4 {
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.12), transparent 70%);
-  top: 20%;
-  left: 45%;
-  animation: meshFloat4 22s ease-in-out infinite alternate;
-}
-
-@keyframes meshFloat1 {
-  0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(80px, 60px) scale(1.1); }
-}
-
-@keyframes meshFloat2 {
-  0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(-60px, 40px) scale(1.05); }
-}
-
-@keyframes meshFloat3 {
-  0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(50px, -50px) scale(1.1); }
-}
-
-@keyframes meshFloat4 {
-  0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(-40px, 30px) scale(0.95); }
-}
+/* Mesh background removed per design system rule:
+   "avoid gradient meshes, noise textures, or decorative overlays" */
 
 @keyframes cardEnter {
   0% {
