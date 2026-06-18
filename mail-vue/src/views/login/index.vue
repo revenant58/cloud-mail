@@ -628,15 +628,12 @@ function submitRegister() {
 
 .form-wrapper {
   position: fixed;
-  right: 0;
-  height: 100%;
+  inset: 0;
   z-index: 10;
   display: flex;
   align-items: center;
   justify-content: center;
-  @media (max-width: 767px) {
-    width: 100%;
-  }
+  padding: 24px;
 }
 
 .container {
@@ -648,24 +645,24 @@ function submitRegister() {
   flex-direction: column;
   justify-content: center;
   width: 440px;
-  height: 100%;
-  border-left: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.08);
-  animation: fadeInUp 0.6s ease-out both;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 48px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(255,255,255,0.05) inset;
+  animation: cardEnter 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 
   @media (max-width: 1024px) {
     padding: 32px 28px;
     width: 400px;
-    margin-left: 0;
   }
   @media (max-width: 767px) {
-    border: none;
-    border-radius: 0;
+    border-radius: 20px 20px 0 0;
     padding: 32px 24px;
-    height: fit-content;
+    max-height: 90vh;
     width: 100%;
-    margin: 0;
-    animation: fadeInUpMobile 0.5s ease-out both;
+    border-bottom: none;
+    animation: cardEnterMobile 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
   .form-header {
@@ -684,6 +681,7 @@ function submitRegister() {
     color: #fff;
     margin-bottom: 20px;
     box-shadow: 0 8px 24px rgba(102, 126, 234, 0.35);
+    animation: logoPulse 3s ease-in-out infinite;
   }
 
   .form-title {
@@ -711,6 +709,7 @@ function submitRegister() {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    animation: staggerIn 0.5s ease-out both;
   }
 
   .btn {
@@ -728,10 +727,24 @@ function submitRegister() {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: #fff;
     box-shadow: 0 4px 16px rgba(102, 126, 234, 0.35);
+    position: relative;
+    overflow: hidden;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -60%;
+      width: 40%;
+      height: 200%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+      transform: skewX(-20deg);
+      animation: shimmer 3s ease-in-out infinite;
+    }
 
     &:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 24px rgba(102, 126, 234, 0.45);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(102, 126, 234, 0.5);
       background: linear-gradient(135deg, #5a72d6 0%, #6b42a0 100%);
     }
 
@@ -1019,10 +1032,61 @@ function submitRegister() {
   100% { transform: translate(-80px, 30px) scale(0.95); }
 }
 
-/* ============================================
-   ENTRANCE ANIMATIONS
-   ============================================ */
+@keyframes cardEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+    filter: blur(8px);
+  }
+  60% {
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
 
+@keyframes cardEnterMobile {
+  0% {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes logoPulse {
+  0%, 100% {
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.35);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 12px 32px rgba(102, 126, 234, 0.55);
+    transform: scale(1.05);
+  }
+}
+
+@keyframes shimmer {
+  0% { left: -60%; }
+  100% { left: 120%; }
+}
+
+@keyframes staggerIn {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Legacy fallback */
 @keyframes fadeInUp {
   from {
     opacity: 0;
