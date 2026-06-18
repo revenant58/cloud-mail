@@ -1,21 +1,29 @@
 <template>
   <div id="login-box" :style=" background ? 'background: var(--el-bg-color)' : ''" v-loading="oauthLoading" element-loading-text="登录中...">
-    <div id="background-wrap" v-if="!settingStore.settings.background">
-      <div class="x1 cloud"></div>
-      <div class="x2 cloud"></div>
-      <div class="x3 cloud"></div>
-      <div class="x4 cloud"></div>
-      <div class="x5 cloud"></div>
+    <div class="mesh-bg" v-if="!settingStore.settings.background">
+      <div class="mesh-orb orb-1"></div>
+      <div class="mesh-orb orb-2"></div>
+      <div class="mesh-orb orb-3"></div>
+      <div class="mesh-orb orb-4"></div>
+      <div class="mesh-orb orb-5"></div>
     </div>
     <div v-else :style="background"></div>
     <div class="form-wrapper">
       <div class="container">
-        <span class="form-title">{{ settingStore.settings.title }}</span>
-        <span class="form-desc" v-if="show === 'login'">{{ $t('loginTitle') }}</span>
-        <span class="form-desc" v-else>{{ $t('regTitle') }}</span>
-        <div v-show="show === 'login'">
+        <div class="form-header">
+          <div class="logo-icon">
+            <Icon icon="mingcute:mail-line" width="32" height="32" />
+          </div>
+          <span class="form-title">{{ settingStore.settings.title }}</span>
+          <span class="form-desc" v-if="show === 'login'">{{ $t('loginTitle') }}</span>
+          <span class="form-desc" v-else>{{ $t('regTitle') }}</span>
+        </div>
+        <div v-show="show === 'login'" class="form-body">
           <el-input :class="!hideLoginDomain ? 'email-input' : ''" v-model="form.email"
-                    type="text" :placeholder="$t('emailAccount')" autocomplete="off">
+                    type="text" :placeholder="$t('emailAccount')" autocomplete="off" size="large">
+            <template #prefix>
+              <Icon class="input-icon" icon="mingcute:mail-2-line" width="18" height="18" />
+            </template>
             <template #append v-if="!hideLoginDomain">
               <div @click.stop="openSelect">
                 <el-select
@@ -39,18 +47,24 @@
               </div>
             </template>
           </el-input>
-          <el-input v-model="form.password" :placeholder="$t('password')" type="password" autocomplete="off">
+          <el-input v-model="form.password" :placeholder="$t('password')" type="password" autocomplete="off" size="large">
+            <template #prefix>
+              <Icon class="input-icon" icon="mingcute:lock-line" width="18" height="18" />
+            </template>
           </el-input>
-          <el-button class="btn" type="primary" @click="submit" :loading="loginLoading"
+          <el-button class="btn btn-gradient" type="primary" @click="submit" :loading="loginLoading"
           >{{ $t('loginBtn') }}
           </el-button>
-          <el-button class="btn" v-if="settingStore.settings.linuxdoSwitch"  style="margin-top: 10px"  @click="linuxDoLogin">
+          <el-button class="btn btn-oauth" v-if="settingStore.settings.linuxdoSwitch" @click="linuxDoLogin">
             <el-avatar src="/image/linuxdo.webp" :size="18" style="margin-right: 10px" />LinuxDo
           </el-button>
         </div>
-        <div v-show="show !== 'login'">
+        <div v-show="show !== 'login'" class="form-body">
           <el-input :class="!hideLoginDomain ? 'email-input' : ''" v-model="registerForm.email" type="text" :placeholder="$t('emailAccount')"
-                    autocomplete="off">
+                    autocomplete="off" size="large">
+            <template #prefix>
+              <Icon class="input-icon" icon="mingcute:mail-2-line" width="18" height="18" />
+            </template>
             <template #append v-if="!hideLoginDomain">
               <div @click.stop="openSelect">
                 <el-select
@@ -74,13 +88,29 @@
               </div>
             </template>
           </el-input>
-          <el-input v-model="registerForm.password" :placeholder="$t('password')" type="password" autocomplete="off"/>
+          <el-input v-model="registerForm.password" :placeholder="$t('password')" type="password" autocomplete="off" size="large">
+            <template #prefix>
+              <Icon class="input-icon" icon="mingcute:lock-line" width="18" height="18" />
+            </template>
+          </el-input>
           <el-input v-model="registerForm.confirmPassword" :placeholder="$t('confirmPwd')" type="password"
-                    autocomplete="off"/>
+                    autocomplete="off" size="large">
+            <template #prefix>
+              <Icon class="input-icon" icon="mingcute:lock-2-line" width="18" height="18" />
+            </template>
+          </el-input>
           <el-input v-if="settingStore.settings.regKey === 0" v-model="registerForm.code" :placeholder="$t('regKey')"
-                    type="text" autocomplete="off"/>
+                    type="text" autocomplete="off" size="large">
+            <template #prefix>
+              <Icon class="input-icon" icon="mingcute:key-line" width="18" height="18" />
+            </template>
+          </el-input>
           <el-input v-if="settingStore.settings.regKey === 2" v-model="registerForm.code"
-                    :placeholder="$t('regKeyOptional')" type="text" autocomplete="off"/>
+                    :placeholder="$t('regKeyOptional')" type="text" autocomplete="off" size="large">
+            <template #prefix>
+              <Icon class="input-icon" icon="mingcute:key-line" width="18" height="18" />
+            </template>
+          </el-input>
           <div v-show="verifyShow"
                class="register-turnstile"
                :data-sitekey="settingStore.settings.siteKey"
@@ -91,10 +121,10 @@
           >
             <span style="font-size: 12px;color: #F56C6C" v-if="botJsError">{{ $t('verifyModuleFailed') }}</span>
           </div>
-          <el-button class="btn" style="margin: 0" type="primary" @click="submitRegister" :loading="registerLoading"
+          <el-button class="btn btn-gradient" style="margin: 0" type="primary" @click="submitRegister" :loading="registerLoading"
           >{{ $t('regBtn') }}
           </el-button>
-          <el-button v-if="settingStore.settings.linuxdoSwitch" class="btn" style="margin-top: 10px"  @click="linuxDoLogin">
+          <el-button v-if="settingStore.settings.linuxdoSwitch" class="btn btn-oauth" @click="linuxDoLogin">
             <el-avatar src="/image/linuxdo.webp" :size="18" style="margin-right: 10px" />LinuxDo
           </el-button>
         </div>
@@ -135,13 +165,13 @@
                   type="text" autocomplete="off"/>
         <el-input v-if="settingStore.settings.regKey === 2" v-model="bindForm.code"
                   :placeholder="$t('regKeyOptional')" type="text" autocomplete="off"/>
-        <el-button class="btn" type="primary" @click="bind" :loading="bindLoading"
+        <el-button class="btn btn-gradient" type="primary" @click="bind" :loading="bindLoading"
         >绑定
         </el-button>
       </div>
     </el-dialog>
     <a v-show="settingStore.settings.projectLink" class="github" href="https://github.com/maillab/cloud-mail">
-      <Icon icon="mingcute:github-line" color="#1890ff" width="20" height="20" />
+      <Icon icon="mingcute:github-line" color="#fff" width="20" height="20" />
     </a>
   </div>
 </template>
@@ -592,6 +622,10 @@ function submitRegister() {
 
 <style lang="scss" scoped>
 
+/* ============================================
+   LOGIN PAGE — Premium Glassmorphism Design
+   ============================================ */
+
 .form-wrapper {
   position: fixed;
   right: 0;
@@ -607,75 +641,183 @@ function submitRegister() {
 
 .container {
   background: v-bind(loginOpacity);
-  padding-left: 40px;
-  padding-right: 40px;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  padding: 40px 36px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  width: 450px;
+  width: 440px;
   height: 100%;
-  border-left: 1px solid var(--login-border);
-  box-shadow: var(--el-box-shadow-light);
+  border-left: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.08);
+  animation: fadeInUp 0.6s ease-out both;
+
   @media (max-width: 1024px) {
-    padding: 20px 18px;
-    width: 384px;
-    margin-left: 18px;
+    padding: 32px 28px;
+    width: 400px;
+    margin-left: 0;
   }
   @media (max-width: 767px) {
-    border: 1px solid var(--login-border);
-    padding: 20px 18px;
-    border-radius: 6px;
+    border: none;
+    border-radius: 0;
+    padding: 32px 24px;
     height: fit-content;
     width: 100%;
-    margin-right: 18px;
-    margin-left: 18px;
+    margin: 0;
+    animation: fadeInUpMobile 0.5s ease-out both;
   }
 
-  .btn {
-    height: 36px;
-    width: 100%;
-    border-radius: 6px;
+  .form-header {
+    text-align: center;
+    margin-bottom: 8px;
   }
 
-  .form-desc {
-    margin-top: 5px;
-    margin-bottom: 18px;
-    color: var(--form-desc-color);
+  .logo-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.35);
   }
 
   .form-title {
-    font-weight: bold;
-    font-size: 22px !important;
+    display: block;
+    font-weight: 700;
+    font-size: 24px !important;
+    letter-spacing: -0.3px;
+    line-height: 1.3;
+    background: linear-gradient(135deg, var(--el-text-color-primary) 0%, var(--el-text-color-secondary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .form-desc {
+    display: block;
+    margin-top: 8px;
+    margin-bottom: 28px;
+    color: var(--form-desc-color);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .form-body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .btn {
+    height: 44px;
+    width: 100%;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    margin-top: 12px;
+  }
+
+  .btn-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.35);
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 24px rgba(102, 126, 234, 0.45);
+      background: linear-gradient(135deg, #5a72d6 0%, #6b42a0 100%);
+    }
+
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    }
+  }
+
+  .btn-oauth {
+    background: var(--el-bg-color);
+    border: 1px solid var(--el-border-color-light);
+    color: var(--el-text-color-primary);
+    margin-top: 8px;
+
+    &:hover {
+      border-color: var(--el-color-primary-light-5);
+      background: var(--el-color-primary-light-9);
+    }
   }
 
   .switch {
-    margin-top: 20px;
+    margin-top: 24px;
     text-align: center;
+    font-size: 14px;
+    color: var(--form-desc-color);
 
     span {
       color: var(--login-switch-color);
       cursor: pointer;
+      font-weight: 600;
+      transition: opacity 0.2s;
+
+      &:hover {
+        opacity: 0.8;
+      }
     }
   }
 
   :deep(.el-input__wrapper) {
-    border-radius: 6px;
+    border-radius: 10px;
     background: var(--el-bg-color);
+    box-shadow: 0 0 0 1px var(--el-border-color-lighter) inset;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+    padding: 4px 12px;
+
+    &:hover {
+      box-shadow: 0 0 0 1px var(--el-color-primary-light-5) inset;
+    }
+
+    &.is-focus {
+      box-shadow: 0 0 0 1px var(--el-color-primary) inset, 0 0 0 3px rgba(102, 126, 234, 0.12);
+    }
   }
 
   .email-input :deep(.el-input__wrapper) {
-    border-radius: 6px 0 0 6px;
+    border-radius: 10px 0 0 10px;
     background: var(--el-bg-color);
   }
 
   .el-input {
-    height: 38px;
+    height: 44px;
     width: 100%;
-    margin-bottom: 18px;
+    margin-bottom: 4px;
 
     :deep(.el-input__inner) {
-      height: 36px;
+      height: 42px;
+      font-size: 14px;
     }
+
+    :deep(.el-input__prefix) {
+      color: var(--el-text-color-secondary);
+      display: flex;
+      align-items: center;
+      padding-right: 6px;
+    }
+  }
+
+  .input-icon {
+    opacity: 0.55;
+    transition: opacity 0.2s;
+  }
+
+  .el-input:focus-within .input-icon {
+    opacity: 1;
+    color: var(--el-color-primary);
   }
 }
 
@@ -685,6 +827,8 @@ function submitRegister() {
 
 :deep(.bind-dialog) {
   width: 400px !important;
+  border-radius: 16px !important;
+
   @media (max-width: 440px) {
     width: calc(100% - 40px) !important;
     margin-right: 20px !important;
@@ -705,27 +849,37 @@ function submitRegister() {
 
 .github {
   position: fixed;
-  width: 35px;
-  height: 35px;
+  width: 40px;
+  height: 40px;
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 50%;
-  background: var(--el-bg-color);
-  bottom: 10px;
-  right: 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  bottom: 20px;
+  right: 20px;
   z-index: 1000;
-  border: 1px solid var(--el-border-color-light);
-  box-shadow: var(--el-box-shadow-light);
   cursor: pointer;
+  transition: all 0.25s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
 }
 
 :deep(.el-input-group__append) {
   padding: 0 !important;
-  padding-left: 8px !important;
-  padding-right: 4px !important;
+  padding-left: 10px !important;
+  padding-right: 6px !important;
   background: var(--el-bg-color);
-  border-radius: 0 8px 8px 0;
+  border-radius: 0 10px 10px 0;
+  border: none;
+  box-shadow: none;
 }
 
 :deep(.el-button+.el-button) {
@@ -733,7 +887,7 @@ function submitRegister() {
 }
 
 .register-turnstile {
-  margin-bottom: 18px;
+  margin-bottom: 12px;
 }
 
 .select {
@@ -755,8 +909,8 @@ function submitRegister() {
 
 
 #login-box {
-  background: linear-gradient(to bottom, #2980b9, #6dd5fa, #fff);
-  font: 100% Arial, sans-serif;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  font: 100% -apple-system, 'Inter', BlinkMacSystemFont, 'Segoe UI', sans-serif;
   height: 100%;
   margin: 0;
   padding: 0;
@@ -765,78 +919,130 @@ function submitRegister() {
   grid-template-columns: 1fr;
 }
 
+/* ============================================
+   ANIMATED MESH GRADIENT BACKGROUND
+   ============================================ */
 
-#background-wrap {
+.mesh-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
   height: 100%;
   z-index: 0;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
 }
 
-@keyframes animateCloud {
-  0% {
-    margin-left: -500px;
-  }
-
-  100% {
-    margin-left: 100%;
-  }
-}
-
-.x1 {
-  animation: animateCloud 30s linear infinite;
-  transform: scale(0.65);
-}
-
-.x2 {
-  animation: animateCloud 15s linear infinite;
-  transform: scale(0.3);
-}
-
-.x3 {
-  animation: animateCloud 25s linear infinite;
-  transform: scale(0.5);
-}
-
-.x4 {
-  animation: animateCloud 13s linear infinite;
-  transform: scale(0.4);
-}
-
-.x5 {
-  animation: animateCloud 20s linear infinite;
-  transform: scale(0.55);
-}
-
-.cloud {
-  background: linear-gradient(to bottom, #fff 5%, #f1f1f1 100%);
-  border-radius: 100px;
-  box-shadow: 0 8px 5px rgba(0, 0, 0, 0.1);
-  height: 120px;
-  width: 350px;
-  position: relative;
-}
-
-.cloud:after,
-.cloud:before {
-  content: "";
+.mesh-orb {
   position: absolute;
-  background: #fff;
-  z-index: -1;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.6;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
 }
 
-.cloud:after {
-  border-radius: 100px;
-  height: 100px;
-  left: 50px;
-  top: -50px;
-  width: 100px;
+.orb-1 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, #667eea, transparent 70%);
+  top: -10%;
+  left: -5%;
+  animation: meshMove1 12s ease-in-out infinite alternate;
 }
 
-.cloud:before {
-  border-radius: 200px;
-  height: 180px;
-  width: 180px;
-  right: 50px;
-  top: -90px;
+.orb-2 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, #764ba2, transparent 70%);
+  top: 50%;
+  right: -10%;
+  animation: meshMove2 15s ease-in-out infinite alternate;
+}
+
+.orb-3 {
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, #f093fb, transparent 70%);
+  bottom: -15%;
+  left: 30%;
+  animation: meshMove3 10s ease-in-out infinite alternate;
+}
+
+.orb-4 {
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, #4facfe, transparent 70%);
+  top: 30%;
+  left: 50%;
+  animation: meshMove4 18s ease-in-out infinite alternate;
+}
+
+.orb-5 {
+  width: 250px;
+  height: 250px;
+  background: radial-gradient(circle, #a78bfa, transparent 70%);
+  top: 10%;
+  right: 20%;
+  animation: meshMove5 14s ease-in-out infinite alternate;
+}
+
+@keyframes meshMove1 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(100px, 60px) scale(1.15); }
+  100% { transform: translate(40px, 120px) scale(0.95); }
+}
+
+@keyframes meshMove2 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-120px, -80px) scale(1.1); }
+  100% { transform: translate(-60px, 40px) scale(0.9); }
+}
+
+@keyframes meshMove3 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(80px, -60px) scale(1.2); }
+  100% { transform: translate(-40px, -100px) scale(1.05); }
+}
+
+@keyframes meshMove4 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-80px, 60px) scale(0.9); }
+  100% { transform: translate(60px, -40px) scale(1.15); }
+}
+
+@keyframes meshMove5 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(60px, 80px) scale(1.1); }
+  100% { transform: translate(-80px, 30px) scale(0.95); }
+}
+
+/* ============================================
+   ENTRANCE ANIMATIONS
+   ============================================ */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUpMobile {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 </style>
