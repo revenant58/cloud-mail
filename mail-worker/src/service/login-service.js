@@ -16,7 +16,7 @@ import turnstileService from './turnstile-service';
 import roleService from './role-service';
 import regKeyService from './reg-key-service';
 import dayjs from 'dayjs';
-import { toUtc } from '../utils/date-uitil';
+import { toUtc } from '../utils/date-util.js';
 import { t } from '../i18n/i18n.js';
 import verifyRecordService from './verify-record-service';
 

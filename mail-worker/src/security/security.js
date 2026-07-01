@@ -7,6 +7,23 @@ import userService from '../service/user-service';
 import permService from '../service/perm-service';
 import { t } from '../i18n/i18n'
 import app from '../hono/hono';
+import reqUtils from '../utils/req-utils';
+
+const RATE_LIMIT_MAX = 10;
+const RATE_LIMIT_WINDOW = 60 * 5; // 5 minutes in seconds
+
+async function checkRateLimit(c, key) {
+	const ip = reqUtils.getIp(c);
+	const rateKey = `rate_limit:${key}:${ip}`;
+	const current = await c.env.kv.get(rateKey, { type: 'json' });
+
+	if (current && current.count >= RATE_LIMIT_MAX) {
+		throw new BizError(t('tooManyRequests'), 429);
+	}
+
+	const newCount = current ? current.count + 1 : 1;
+	await c.env.kv.put(rateKey, JSON.stringify({ count: newCount }), { expirationTtl: RATE_LIMIT_WINDOW });
+}
 
 const exclude = [
 	'/login',
@@ -92,6 +109,14 @@ const premKey = {
 app.use('*', async (c, next) => {
 
 	const path = c.req.path;
+
+	// Rate limit for auth endpoints
+	if (path.startsWith('/login')) {
+		await checkRateLimit(c, 'login');
+	}
+	if (path.startsWith('/register')) {
+		await checkRateLimit(c, 'register');
+	}
 
 	const index = exclude.findIndex(item => {
 		return path.startsWith(item);

@@ -1,6 +1,6 @@
 import { sqliteTable, text, integer} from 'drizzle-orm/sqlite-core';
 import { sql } from 'drizzle-orm';
-export const email = sqliteTable('verify_record', {
+export const verifyRecord = sqliteTable('verify_record', {
 	vrId: integer('vr_id').primaryKey({ autoIncrement: true }),
 	ip: integer('ip').notNull().default(''),
 	count: integer('count').notNull().default(1),

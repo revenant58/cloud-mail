@@ -6,18 +6,24 @@ const r2Service = {
 
 	async storageType(c) {
 
+		// Cache per-request to avoid repeated settingService.query() calls
+		const cached = c.get?.('storageType');
+		if (cached) return cached;
+
 		const setting = await settingService.query(c);
 		const { bucket, endpoint, s3AccessKey, s3SecretKey } = setting;
 
+		let type;
 		if (!!(bucket && endpoint && s3AccessKey && s3SecretKey)) {
-			return 'S3';
+			type = 'S3';
+		} else if (c.env.r2) {
+			type = 'R2';
+		} else {
+			type = 'KV';
 		}
 
-		if (c.env.r2) {
-			return 'R2';
-		}
-
-		return 'KV';
+		c.set?.('storageType', type);
+		return type;
 	},
 
 	async putObj(c, key, content, metadata) {

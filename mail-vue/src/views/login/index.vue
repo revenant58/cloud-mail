@@ -658,20 +658,20 @@ function submitRegister() {
 <style lang="scss" scoped>
 
 /* ============================================
-   LOGIN PAGE — Clean Light
+   LOGIN PAGE — Neobrutalism Pro
    ============================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 #login-box {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
   height: 100%;
   margin: 0;
   padding: 0;
   overflow: hidden;
   display: flex;
   position: relative;
-  background: #f0f2f5;
+  background: #FFEE58;
 }
 
 .bg-image-layer {
@@ -697,27 +697,28 @@ function submitRegister() {
   width: 100%;
   max-width: 420px;
   background: #ffffff;
-  border-radius: 16px;
+  border: 3px solid #1a1a2e;
+  border-radius: 20px;
   padding: 40px 36px 32px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 24px rgba(0, 0, 0, 0.06);
-  animation: cardSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  box-shadow: 6px 6px 0px #1a1a2e;
+  animation: cardSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
   scrollbar-width: thin;
-  scrollbar-color: #e0e0e0 transparent;
 
   &::-webkit-scrollbar { width: 4px; }
   &::-webkit-scrollbar-track { background: transparent; }
-  &::-webkit-scrollbar-thumb { background: #e0e0e0; border-radius: 4px; }
+  &::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
 
   @media (max-width: 480px) {
-    padding: 32px 24px 24px;
-    border-radius: 12px;
+    padding: 28px 20px 20px;
+    border-radius: 16px;
     max-width: 100%;
+    box-shadow: 4px 4px 0px #1a1a2e;
   }
 }
 
 @keyframes cardSlideUp {
-  0% { opacity: 0; transform: translateY(16px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% { opacity: 0; transform: translateY(20px) rotate(-1deg); }
+  100% { opacity: 1; transform: translateY(0) rotate(0deg); }
 }
 
 /* ── Card Header ── */
@@ -726,27 +727,28 @@ function submitRegister() {
 }
 
 .form-title {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
   font-weight: 700;
-  font-size: 28px;
-  line-height: 1.2;
+  font-size: 32px;
+  line-height: 1.1;
   color: #1a1a2e;
-  margin: 0 0 4px 0;
+  margin: 0 0 6px 0;
   letter-spacing: -0.5px;
+  text-transform: uppercase;
 }
 
 .form-subtitle {
   margin: 0;
   font-size: 15px;
-  color: #9ca3af;
-  font-weight: 400;
+  color: #52525b;
+  font-weight: 500;
 }
 
 /* ── Form Body ── */
 .form-body {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 }
 
 /* ── Field ── */
@@ -758,25 +760,28 @@ function submitRegister() {
 
 .field-label {
   font-size: 13px;
-  font-weight: 500;
-  color: #6b7280;
-  letter-spacing: 0.01em;
+  font-weight: 700;
+  color: #1a1a2e;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
 .field-input-wrap {
   position: relative;
-  border-radius: 8px;
-  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  border: 2.5px solid #1a1a2e;
   background: #ffffff;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: box-shadow 0.12s ease, transform 0.12s ease;
+  box-shadow: 3px 3px 0px #1a1a2e;
 
   &:hover {
-    border-color: #d1d5db;
+    box-shadow: 4px 4px 0px #1a1a2e;
   }
 
   &.focused {
-    border-color: #1a8cff;
-    box-shadow: 0 0 0 3px rgba(26, 140, 255, 0.1);
+    box-shadow: 2px 2px 0px #1a1a2e;
+    transform: translate(1px, 1px);
+    background: #FFFDE7;
   }
 }
 
@@ -794,14 +799,15 @@ function submitRegister() {
 
   .el-input__inner {
     height: 44px;
-    font-size: 14px;
+    font-size: 15px;
     color: #1a1a2e !important;
     background: transparent !important;
-    font-family: 'Inter', sans-serif;
-    font-weight: 400;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 500;
 
     &::placeholder {
-      color: #c0c4cc !important;
+      color: #a1a1aa !important;
+      font-weight: 400;
     }
   }
 
@@ -822,7 +828,7 @@ function submitRegister() {
   border: none !important;
   box-shadow: none !important;
   border-radius: 0 !important;
-  color: #6b7280 !important;
+  color: #52525b !important;
 }
 
 /* ── Domain Suffix ── */
@@ -830,23 +836,24 @@ function submitRegister() {
   display: flex;
   align-items: center;
   gap: 2px;
-  color: #6b7280;
+  color: #52525b;
   font-size: 13px;
   cursor: pointer;
   white-space: nowrap;
-  font-weight: 500;
-  padding: 4px 8px;
-  border-radius: 6px;
-  transition: all 0.15s ease;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  transition: all 0.12s ease;
 
   &:hover {
-    background: #f3f4f6;
-    color: #374151;
+    background: #FFF9C4;
+    border-color: #1a1a2e;
   }
 }
 
 .setting-icon {
-  opacity: 0.4;
+  opacity: 0.5;
 }
 
 :deep(.el-select-dropdown__item) {
@@ -864,13 +871,17 @@ function submitRegister() {
 /* ── Forgot Link ── */
 .forgot-link {
   font-size: 13px;
-  color: #6b7280;
+  color: #71717a;
   text-decoration: none;
-  font-weight: 400;
-  transition: color 0.15s ease;
+  font-weight: 500;
+  transition: color 0.12s ease;
+  display: inline-block;
+  margin-top: -4px;
 
   &:hover {
-    color: #374151;
+    color: #E53935;
+    text-decoration: underline wavy #E53935;
+    text-underline-offset: 3px;
   }
 }
 
@@ -878,54 +889,60 @@ function submitRegister() {
 .btn-login {
   position: relative;
   width: 100%;
-  height: 48px;
-  border: none;
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: 600;
-  font-family: 'Inter', sans-serif;
+  height: 52px;
+  border: 3px solid #1a1a2e;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: 'Space Grotesk', sans-serif;
   color: #ffffff;
   cursor: pointer;
-  background: #1a8cff;
-  transition: all 0.15s ease;
+  background: #5C6BC0;
+  box-shadow: 4px 4px 0px #1a1a2e;
+  transition: all 0.1s ease;
   margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 
   &:hover {
-    background: #0f7ae5;
-    box-shadow: 0 2px 8px rgba(26, 140, 255, 0.3);
+    background: #7986CB;
+    box-shadow: 5px 5px 0px #1a1a2e;
+    transform: translate(-1px, -1px);
   }
 
   &:active {
-    transform: scale(0.985);
+    box-shadow: 2px 2px 0px #1a1a2e;
+    transform: translate(2px, 2px);
   }
 
   &:disabled {
-    opacity: 0.55;
+    opacity: 0.5;
     cursor: not-allowed;
-    box-shadow: none;
+    box-shadow: 3px 3px 0px #1a1a2e;
+    transform: none;
   }
 }
 
 .btn-text {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .btn-arrow {
-  font-size: 18px;
+  font-size: 20px;
   transition: transform 0.15s ease;
 
   .btn-login:hover & {
-    transform: translateX(2px);
+    transform: translateX(4px);
   }
 }
 
 .btn-spinner {
   display: inline-block;
-  width: 18px;
-  height: 18px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
   border-top-color: #ffffff;
   border-radius: 50%;
   animation: spin 0.6s linear infinite;
@@ -937,20 +954,23 @@ function submitRegister() {
 
 /* ── Switch (account link) ── */
 .switch {
-  margin-top: 20px;
+  margin-top: 22px;
   text-align: center;
   font-size: 14px;
-  color: #9ca3af;
-  font-weight: 400;
+  color: #71717a;
+  font-weight: 500;
 
   span {
-    color: #1a8cff;
+    color: #E53935;
     cursor: pointer;
-    font-weight: 600;
-    transition: color 0.15s ease;
+    font-weight: 700;
+    text-decoration: underline wavy #E53935;
+    text-underline-offset: 3px;
+    transition: all 0.12s ease;
 
     &:hover {
-      color: #0f7ae5;
+      color: #C62828;
+      text-decoration-style: solid;
     }
   }
 }
@@ -960,16 +980,18 @@ function submitRegister() {
   width: 400px !important;
   border-radius: 16px !important;
   background: #ffffff !important;
-  border: 1px solid #e5e7eb !important;
+  border: 3px solid #1a1a2e !important;
+  box-shadow: 6px 6px 0px #1a1a2e !important;
 
   .el-dialog__header {
-    border-bottom: 1px solid #f3f4f6;
+    border-bottom: 3px solid #1a1a2e;
   }
 
   .el-dialog__title {
     color: #1a1a2e;
-    font-weight: 600;
-    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-family: 'Space Grotesk', sans-serif;
+    text-transform: uppercase;
   }
 
   @media (max-width: 440px) {
@@ -993,6 +1015,14 @@ function submitRegister() {
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
-  .login-card { max-width: 100%; margin: 0 8px; }
+  .login-card {
+    max-width: 100%;
+    margin: 0 8px;
+    box-shadow: 4px 4px 0px #1a1a2e;
+  }
+
+  #login-box {
+    background: #FFF9C4;
+  }
 }
 </style>

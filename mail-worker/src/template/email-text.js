@@ -1,3 +1,7 @@
+function escapeHtml(str) {
+	return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 export default function emailTextTemplate(text) {
 	return `<!DOCTYPE html>
 <html lang='en' >
@@ -29,7 +33,7 @@ export default function emailTextTemplate(text) {
     </style>
 </head>
 <body>
-<span>${text}</span>
+<span>${escapeHtml(text)}</span>
 </body>
 </html>`
 }

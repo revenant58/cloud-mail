@@ -1,6 +1,6 @@
 import { S3Client, PutObjectCommand, DeleteObjectsCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import settingService from './setting-service';
-import domainUtils from '../utils/domain-uitls';
+import domainUtils from '../utils/domain-utils';
 import { settingConst } from '../const/entity-const';
 const s3Service = {
 
@@ -43,26 +43,8 @@ const s3Service = {
 		const { bucket } = await settingService.query(c);
 
 
-		client.middlewareStack.add(
-			(next) => async (args) => {
-
-				const body = args.request.body
-
-				// 计算 MD5 校验和并转换为 Base64 编码
-				const encoder = new TextEncoder();
-				const data = encoder.encode(body);
-
-				// 使用 Web Crypto API 计算 MD5 校验和
-				const hashBuffer = await crypto.subtle.digest('MD5', data);
-				const hashArray = new Uint8Array(hashBuffer);
-				const contentMD5 = btoa(String.fromCharCode.apply(null, hashArray));
-
-				args.request.headers["Content-MD5"] = contentMD5;
-
-				return next(args);
-			},
-			{ step: "build", name: "inspectRequestMiddleware" }
-		);
+		// Content-MD5 not supported in Workers runtime (no MD5 in Web Crypto).
+	// Skip middleware — DeleteObjects works without it for most providers.
 
 
 		await client.send(
@@ -94,8 +76,11 @@ const s3Service = {
 
 
 	async client(c) {
+		const cached = c.get?.('s3Client');
+		if (cached) return cached;
+
 		const { region, endpoint, s3AccessKey, s3SecretKey, forcePathStyle } = await settingService.query(c);
-		return new S3Client({
+		const client = new S3Client({
 			region: region || 'auto',
 			endpoint: domainUtils.toOssDomain(endpoint),
 			forcePathStyle: forcePathStyle === settingConst.forcePathStyle.OPEN,
@@ -104,6 +89,8 @@ const s3Service = {
 				secretAccessKey: s3SecretKey,
 			}
 		});
+		c.set?.('s3Client', client);
+		return client;
 	}
 }
 
