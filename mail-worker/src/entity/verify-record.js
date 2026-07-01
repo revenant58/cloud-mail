@@ -7,4 +7,4 @@ export const verifyRecord = sqliteTable('verify_record', {
 	type: integer('type').notNull().default(0),
 	updateTime: text('update_time').default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
-export default email
+export default verifyRecord
