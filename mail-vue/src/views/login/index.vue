@@ -671,7 +671,7 @@ function submitRegister() {
   overflow: hidden;
   display: flex;
   position: relative;
-  background: #FFEE58;
+  background: #f5f5f5;
 }
 
 .bg-image-layer {
@@ -847,7 +847,7 @@ function submitRegister() {
   transition: all 0.12s ease;
 
   &:hover {
-    background: #FFF9C4;
+    background: #f0f0f0;
     border-color: #1a1a2e;
   }
 }
@@ -1022,7 +1022,7 @@ function submitRegister() {
   }
 
   #login-box {
-    background: #FFF9C4;
+    background: #f5f5f5;
   }
 }
 </style>
