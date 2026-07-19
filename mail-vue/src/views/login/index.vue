@@ -870,7 +870,7 @@ function submitRegister() {
   font-size: 26px;
   text-transform: uppercase;
   letter-spacing: -0.01em;
-  color: #0A0A0A;
+  color: #ffffff;
   line-height: 1.1;
 }
 
@@ -1077,11 +1077,15 @@ function submitRegister() {
   .container {
     background: #2a2a2a;
     color: #f5f0e8;
+    border-left-color: #f5f0e8;
+    box-shadow: -8px 0 0 #f5f0e8;
   }
   .form-title { color: #f5f0e8; }
   .form-desc { color: #aaa; }
   .switch { color: #aaa; }
   .switch span { color: #FFE500; }
+  .neo-brand-title { color: #f5f0e8; }
+  .neo-brand-sub { color: #ccc; }
   #login-box .el-input__wrapper {
     background: #333 !important;
   }
