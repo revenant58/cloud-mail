@@ -1,6 +1,6 @@
 import { S3Client, PutObjectCommand, DeleteObjectsCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import settingService from './setting-service';
-import domainUtils from '../utils/domain-uitls';
+import domainUtils from '../utils/domain-utils';
 import { settingConst } from '../const/entity-const';
 const s3Service = {
 

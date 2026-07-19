@@ -7,7 +7,7 @@ const dbInit = {
 
 		const secret = c.req.param('secret');
 
-		if (secret !== c.env.jwt_secret) {
+		if (secret !== (c.env.init_secret || c.env.jwt_secret)) {
 			return c.text('❌ JWT secret mismatch');
 		}
 

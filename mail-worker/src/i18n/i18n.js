@@ -4,10 +4,8 @@ import id from './id.js'
 import app from '../hono/hono';
 
 app.use('*', async (c, next) => {
-	const lang = c.req.header('accept-language')?.split('-')[0]
-	i18next.init({
-		lng: lang,
-	});
+	const lang = c.req.header('accept-language')?.split('-')[0] || 'en'
+	if (lang) await i18next.changeLanguage(lang);
 	return await next()
 })
 

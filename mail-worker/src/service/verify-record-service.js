@@ -4,6 +4,8 @@ import { eq, sql, and } from 'drizzle-orm';
 import dayjs from 'dayjs';
 import reqUtils from '../utils/req-utils';
 import { verifyRecordType } from '../const/entity-const';
+import BizError from '../error/biz-error';
+import { t } from '../i18n/i18n.js';
 
 const verifyRecordService = {
 
@@ -17,71 +19,78 @@ const verifyRecordService = {
 	},
 
 	async isOpenRegVerify(c, regVerifyCount) {
-
 		const ip = reqUtils.getIp(c)
-
 		const row = await orm(c).select().from(verifyRecord).where(and(eq(verifyRecord.ip, ip),eq(verifyRecord.type,verifyRecordType.REG))).get();
-
 		if (row) {
 			if (row.count >= regVerifyCount){
 				return true
 			}
-
 		}
-
 		return false
-
 	},
 
 	async isOpenAddVerify(c, addVerifyCount) {
-
 		const ip = reqUtils.getIp(c)
-
 		const row = await orm(c).select().from(verifyRecord).where(and(eq(verifyRecord.ip, ip),eq(verifyRecord.type,verifyRecordType.ADD))).get();
-
 		if (row) {
-
 			if (row.count >= addVerifyCount){
 				return true
 			}
-
 		}
-
 		return false
-
 	},
 
 	async increaseRegCount(c) {
-
 		const ip = reqUtils.getIp(c)
-
 		const row = await orm(c).select().from(verifyRecord).where(and(eq(verifyRecord.ip, ip),eq(verifyRecord.type,verifyRecordType.REG))).get();
 		const now = dayjs().format('YYYY-MM-DD HH:mm:ss');
-
 		if (row) {
-			return  orm(c).update(verifyRecord).set({
-				count: sql`${verifyRecord.count}
-		+ 1`, updateTime: now
+			return orm(c).update(verifyRecord).set({
+				count: sql`${verifyRecord.count} + 1`, updateTime: now
 			}).where(and(eq(verifyRecord.ip, ip),eq(verifyRecord.type,verifyRecordType.REG))).returning().get();
 		} else {
-			return  orm(c).insert(verifyRecord).values({ip, type: verifyRecordType.REG}).returning().run();
+			return orm(c).insert(verifyRecord).values({ip, type: verifyRecordType.REG}).returning().run();
 		}
 	},
 
 	async increaseAddCount(c) {
-
 		const ip = reqUtils.getIp(c)
-
 		const row = await orm(c).select().from(verifyRecord).where(and(eq(verifyRecord.ip, ip),eq(verifyRecord.type,verifyRecordType.ADD))).get();
 		const now = dayjs().format('YYYY-MM-DD HH:mm:ss');
-
 		if (row) {
 			return orm(c).update(verifyRecord).set({
-				count: sql`${verifyRecord.count}
-		+ 1`, updateTime: now
+				count: sql`${verifyRecord.count} + 1`, updateTime: now
 			}).where(and(eq(verifyRecord.ip, ip),eq(verifyRecord.type,verifyRecordType.ADD))).returning().get();
 		} else {
 			return orm(c).insert(verifyRecord).values({ip, type: verifyRecordType.ADD}).returning().get();
+		}
+	},
+
+	async checkRateLimit(c, type) {
+		const ip = reqUtils.getIp(c);
+		const row = await orm(c).select().from(verifyRecord).where(and(eq(verifyRecord.ip, ip),eq(verifyRecord.type,type))).get();
+		const now = dayjs();
+		const limit = 10;
+		const windowMin = 10;
+
+		if (row) {
+			const lastUpdate = dayjs(row.updateTime);
+			if (now.diff(lastUpdate, 'minute') < windowMin) {
+				if (row.count >= limit) {
+					throw new BizError(t('tooManyAttempts') || 'Too many attempts', 429);
+				}
+				await orm(c).update(verifyRecord).set({
+					count: sql`${verifyRecord.count} + 1`,
+					updateTime: now.format('YYYY-MM-DD HH:mm:ss')
+				}).where(and(eq(verifyRecord.ip, ip), eq(verifyRecord.type, type))).run();
+			} else {
+				await orm(c).update(verifyRecord).set({
+					count: 1,
+					updateTime: now.format('YYYY-MM-DD HH:mm:ss')
+				}).where(and(eq(verifyRecord.ip, ip), eq(verifyRecord.type, type))).run();
+			}
+		} else {
+			await orm(c).insert(verifyRecord).values({ip, type, count: 1}).run();
 		}
 	}
 
