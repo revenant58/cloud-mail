@@ -3,6 +3,8 @@ import constant from '../const/constant';
 import jwtUtils from '../utils/jwt-utils';
 import KvConst from '../const/kv-const';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+dayjs.extend(utc);
 import userService from '../service/user-service';
 import permService from '../service/perm-service';
 import { t } from '../i18n/i18n'
@@ -152,8 +154,8 @@ app.use('*', async (c, next) => {
 
 	}
 
-	const refreshTime = dayjs(authInfo.refreshTime).startOf('day');
-	const nowTime = dayjs().startOf('day')
+	const refreshTime = dayjs(authInfo.refreshTime).utc().startOf('day');
+	const nowTime = dayjs().utc().startOf('day')
 
 	if (!nowTime.isSame(refreshTime)) {
 		authInfo.refreshTime = dayjs().toISOString();

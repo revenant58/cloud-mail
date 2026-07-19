@@ -102,6 +102,7 @@ const id = {
 		"发件重置": "Reset Hitungan Kirim"
 	},
 	listTooLarge: 'Daftar tidak boleh melebihi 100 item',
+	dbNotInit: 'Database belum diinisialisasi. Jalankan /init terlebih dahulu.',
 };
 
 export default id;

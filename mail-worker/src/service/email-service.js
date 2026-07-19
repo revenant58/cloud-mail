@@ -140,7 +140,8 @@ const emailService = {
 		await orm(c).update(email).set({ isDel: isDel.DELETE }).where(
 			and(
 				eq(email.userId, userId),
-				inArray(email.emailId, emailIdList)))
+				inArray(email.emailId, emailIdList),
+				eq(email.isDel, isDel.NORMAL)))
 			.run();
 	},
 

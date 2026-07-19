@@ -115,9 +115,8 @@ const userService = {
 		num = Number(num);
 		timeSort = Number(timeSort);
 		params.isDel = Number(params.isDel);
-		if (size > 50) {
-			size = 50;
-		}
+		if (size > 50) size = 50;
+		if (size < 1) size = 10;
 
 		num = (num - 1) * size;
 

@@ -102,6 +102,7 @@ const en = {
 		"发件重置": "Reset Send Count"
 	},
 	listTooLarge: 'The list cannot exceed 100 items',
+	dbNotInit: 'Database not initialized. Please run /init first.',
 };
 
 export default en;

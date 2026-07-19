@@ -21,9 +21,9 @@ const attService = {
 			}
 
 			if (!attachment.contentId) {
-				metadate.contentDisposition = `attachment;filename=${attachment.filename}`
+				metadate.contentDisposition = `attachment; filename="${attachment.filename}"`
 			} else {
-				metadate.contentDisposition = `inline;filename=${attachment.filename}`
+				metadate.contentDisposition = `inline; filename="${attachment.filename}"`
 				metadate.cacheControl = `max-age=259200`
 			}
 
