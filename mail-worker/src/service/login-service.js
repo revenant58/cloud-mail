@@ -79,11 +79,17 @@ const loginService = {
 			regKeyId = result?.regKeyId
 		}
 
-		const accountRow = await accountService.selectByEmailIncludeDel(c, email);
-		const userRow = await userService.selectByEmailIncludeDel(c, email);
+		let accountRow = await accountService.selectByEmailIncludeDel(c, email);
+		let userRow = await userService.selectByEmailIncludeDel(c, email);
 
-		if ((accountRow && accountRow.isDel === isDel.DELETE) || (userRow && userRow.isDel === isDel.DELETE)) {
-			throw new BizError(t('isDelUser'));
+		if (accountRow && accountRow.isDel === isDel.DELETE) {
+			await accountService.hardDeleteById(c, accountRow.accountId);
+			accountRow = null;
+		}
+
+		if (userRow && userRow.isDel === isDel.DELETE) {
+			await userService.hardDeleteById(c, userRow.userId);
+			userRow = null;
 		}
 
 		if (accountRow || userRow) {

@@ -331,7 +331,7 @@ const emailService = {
 		}
 
 		//如果权限有发送次数增加用户发送次数
-		if (roleRow.sendCount && roleRow.sendType !== 'internal') {
+		if (roleRow?.sendCount && roleRow?.sendType !== 'internal') {
 			await userService.incrUserSendCount(c, receiveEmail.length, userId);
 		}
 

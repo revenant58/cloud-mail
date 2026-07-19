@@ -50,7 +50,8 @@ const accountService = {
 		let accountRow = await this.selectByEmailIncludeDel(c, email);
 
 		if (accountRow && accountRow.isDel === isDel.DELETE) {
-			throw new BizError(t('isDelAccount'));
+			await this.hardDeleteById(c, accountRow.accountId);
+			accountRow = null;
 		}
 
 		if (accountRow) {
@@ -101,6 +102,10 @@ const accountService = {
 
 	selectByEmailIncludeDel(c, email) {
 		return orm(c).select().from(account).where(sql`${account.email} COLLATE NOCASE = ${email}`).get();
+	},
+
+	hardDeleteById(c, accountId) {
+		return orm(c).delete(account).where(eq(account.accountId, accountId)).run();
 	},
 
 	list(c, params, userId) {

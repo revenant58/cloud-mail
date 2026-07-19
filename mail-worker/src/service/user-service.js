@@ -82,6 +82,10 @@ const userService = {
 		return orm(c).select().from(user).where(sql`${user.email} COLLATE NOCASE = ${email}`).get();
 	},
 
+	hardDeleteById(c, userId) {
+		return orm(c).delete(user).where(eq(user.userId, userId)).run();
+	},
+
 	selectByIdIncludeDel(c, userId) {
 		return orm(c).select().from(user).where(eq(user.userId, userId)).get();
 	},
@@ -313,11 +317,17 @@ const userService = {
 			throw new BizError(t('pwdMinLength'));
 		}
 
-		const accountRow = await accountService.selectByEmailIncludeDel(c, email);
-		const userRow = await userService.selectByEmailIncludeDel(c, email);
+		let accountRow = await accountService.selectByEmailIncludeDel(c, email);
+		let userRow = await this.selectByEmailIncludeDel(c, email);
 
-		if ((accountRow && accountRow.isDel === isDel.DELETE) || (userRow && userRow.isDel === isDel.DELETE)) {
-			throw new BizError(t('isDelUser'));
+		if (accountRow && accountRow.isDel === isDel.DELETE) {
+			await accountService.hardDeleteById(c, accountRow.accountId);
+			accountRow = null;
+		}
+
+		if (userRow && userRow.isDel === isDel.DELETE) {
+			await this.hardDeleteById(c, userRow.userId);
+			userRow = null;
 		}
 
 		if (accountRow || userRow) {
