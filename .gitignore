@@ -1,0 +1,10 @@
+node_modules/
+mail-vue/node_modules/
+mail-worker/node_modules/
+mail-vue/pnpm-lock.yaml
+mail-vue/pnpm-workspace.yaml
+mail-vue/dist/
+mail-worker/dist/
+.DS_Store
+*.log
+codebase.md
