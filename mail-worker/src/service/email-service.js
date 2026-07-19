@@ -51,7 +51,7 @@ const emailService = {
 
 		if (isNaN(allReceive)) {
 			let accountRow = await accountService.selectById(c, accountId);
-			allReceive = accountRow.allReceive;
+			allReceive = accountRow ? accountRow.allReceive : 0;
 		}
 
 		const query = orm(c)
@@ -706,7 +706,7 @@ const emailService = {
 
 		if (isNaN(allReceive)) {
 			let accountRow = await accountService.selectById(c, accountId);
-			allReceive = accountRow.allReceive;
+			allReceive = accountRow ? accountRow.allReceive : 0;
 		}
 
 		let list = await orm(c).select({...email}).from(email)
