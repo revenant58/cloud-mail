@@ -315,12 +315,13 @@ const userService = {
 		}
 
 		const accountRow = await accountService.selectByEmailIncludeDel(c, email);
+		const userRow = await userService.selectByEmailIncludeDel(c, email);
 
-		if (accountRow && accountRow.isDel === isDel.DELETE) {
+		if ((accountRow && accountRow.isDel === isDel.DELETE) || (userRow && userRow.isDel === isDel.DELETE)) {
 			throw new BizError(t('isDelUser'));
 		}
 
-		if (accountRow) {
+		if (accountRow || userRow) {
 			throw new BizError(t('isRegAccount'));
 		}
 
