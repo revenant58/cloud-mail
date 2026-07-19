@@ -336,7 +336,13 @@ const en = {
     searchUser: 'Search by user',
     searchEmail: 'Search by Email',
     searchSender: 'Search by Sender',
-    userEmail: 'Email Address'
+    userEmail: 'Email Address',
+    processing: 'Processing...',
+    brandSub: 'Temporary. Powerful. Yours.',
+    loading: 'Loading...',
+    bindEmail: 'Bind Email',
+    bindBtn: 'Bind',
+    bindOauthMsg: 'Please register and bind an email'
 }
 
 export default en
