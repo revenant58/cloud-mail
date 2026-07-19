@@ -12,6 +12,8 @@ import reqUtils from '../utils/req-utils';
 import dayjs from 'dayjs';
 import { isDel, roleConst } from '../const/entity-const';
 import email from '../entity/email';
+import user from '../entity/user';
+import account from '../entity/account';
 import userService from './user-service';
 import KvConst from '../const/kv-const';
 
@@ -99,6 +101,11 @@ const publicService = {
 
 		if (list.length === 0) return;
 
+		// Fix #7: limit bulk insert to prevent abuse
+		if (list.length > 100) {
+			throw new BizError(t('listTooLarge'));
+		}
+
 		for (const emailRow of list) {
 			if (!verifyUtils.isEmail(emailRow.email)) {
 				throw new BizError(t('notEmail'));
@@ -116,7 +123,6 @@ const publicService = {
 			emailRow.hash = hash;
 		}
 
-
 		const activeIp = reqUtils.getIp(c);
 		const { os, browser, device } = reqUtils.getUserAgent(c);
 		const activeTime = dayjs().format('YYYY-MM-DD HH:mm:ss');
@@ -124,10 +130,11 @@ const publicService = {
 		const roleList = await roleService.roleSelectUse(c);
 		const defRole = roleList.find(roleRow => roleRow.isDefault === roleConst.isDefault.OPEN);
 
-		const userList = [];
+		// Fix #1: use Drizzle ORM parameterized inserts (no SQL injection)
+		const insertStatements = [];
 
 		for (const emailRow of list) {
-			let { email, hash, salt, roleName } = emailRow;
+			let { email: emailAddr, hash, salt, roleName } = emailRow;
 			let type = defRole.roleId;
 
 			if (roleName) {
@@ -135,26 +142,42 @@ const publicService = {
 				type = roleRow ? roleRow.roleId : type;
 			}
 
-			const userSql = `INSERT INTO user (email, password, salt, type, os, browser, active_ip, create_ip, device, active_time, create_time)
-			VALUES ('${email}', '${hash}', '${salt}', '${type}', '${os}', '${browser}', '${activeIp}', '${activeIp}', '${device}', '${activeTime}', '${activeTime}')`
-
-			const accountSql = `INSERT INTO account (email, name, user_id)
-			VALUES ('${email}', '${emailUtils.getName(email)}', 0);`;
-
-			userList.push(c.env.db.prepare(userSql));
-			userList.push(c.env.db.prepare(accountSql));
-
+			insertStatements.push(
+				orm(c).insert(user).values({
+					email: emailAddr,
+					password: hash,
+					salt,
+					type,
+					os,
+					browser,
+					activeIp,
+					createIp: activeIp,
+					device,
+					activeTime,
+					createTime: activeTime,
+				}).toSQL()
+			);
+			insertStatements.push(
+				orm(c).insert(account).values({
+					email: emailAddr,
+					name: emailUtils.getName(emailAddr),
+					userId: 0,
+				}).toSQL()
+			);
 		}
 
-		userList.push(c.env.db.prepare(`UPDATE account SET user_id = (SELECT user_id FROM user WHERE user.email = account.email) WHERE user_id = 0;`))
+		const batchStatements = insertStatements.map(s => c.env.db.prepare(s.sql).bind(...s.params));
+		batchStatements.push(
+			c.env.db.prepare(`UPDATE account SET user_id = (SELECT user_id FROM user WHERE user.email = account.email) WHERE user_id = 0`)
+		);
 
 		try {
-			await c.env.db.batch(userList);
+			await c.env.db.batch(batchStatements);
 		} catch (e) {
-			if(e.message.includes('SQLITE_CONSTRAINT')) {
-				throw new BizError(t('emailExistDatabase'))
+			if (e.message.includes('SQLITE_CONSTRAINT')) {
+				throw new BizError(t('emailExistDatabase'));
 			} else {
-				throw e
+				throw e;
 			}
 		}
 

@@ -1,10 +1,11 @@
 import resendService from '../service/resend-service';
 import app from '../hono/hono';
-app.post('/webhooks',async (c) => {
+app.post('/webhooks', async (c) => {
 	try {
-		await resendService.webhooks(c, await c.req.json());
+		const rawBody = await c.req.text();
+		await resendService.webhooks(c, rawBody);
 		return c.text('success', 200)
 	} catch (e) {
-		return  c.text(e.message, 500)
+		return c.text(e.message, e.status || 500)
 	}
 })

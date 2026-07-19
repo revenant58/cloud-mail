@@ -100,7 +100,8 @@ const id = {
 		"设置查看": "Lihat Pengaturan",
 		"设置修改": "Ubah Pengaturan",
 		"发件重置": "Reset Hitungan Kirim"
-	}
+	},
+	listTooLarge: 'Daftar tidak boleh melebihi 100 item',
 };
 
 export default id;

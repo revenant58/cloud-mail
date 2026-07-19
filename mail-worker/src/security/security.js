@@ -17,8 +17,9 @@ const exclude = [
 	'/init',
 	'/public/genToken',
 	'/telegram',
-	'/test',
-	'/oauth'
+	// Fix #3: only exclude the initial OAuth login, not /oauth/bindUser
+	'/oauth/linuxDo',
+	// Fix #9: /test removed — no unauthenticated access
 ];
 
 const requirePerms = [

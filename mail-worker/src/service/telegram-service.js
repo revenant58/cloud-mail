@@ -49,7 +49,8 @@ const telegramService = {
 
 		const tgChatIds = tgChatId.split(',');
 
-		const jwtToken = await jwtUtils.generateToken(c, { emailId: email.emailId })
+		// Fix #6: Telegram link expires in 7 days
+		const jwtToken = await jwtUtils.generateToken(c, { emailId: email.emailId }, 60 * 60 * 24 * 7)
 
 		const webAppUrl = customDomain ? `${domainUtils.toOssDomain(customDomain)}/api/telegram/getEmail/${jwtToken}` : 'https://www.cloudflare.com/404'
 		const inlineKeyboard = [

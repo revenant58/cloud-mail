@@ -100,7 +100,8 @@ const en = {
 		"设置查看": "View Settings",
 		"设置修改": "Change Settings",
 		"发件重置": "Reset Send Count"
-	}
+	},
+	listTooLarge: 'The list cannot exceed 100 items',
 };
 
 export default en;
