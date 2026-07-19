@@ -103,6 +103,7 @@ const id = {
 	},
 	listTooLarge: 'Daftar tidak boleh melebihi 100 item',
 	dbNotInit: 'Database belum diinisialisasi. Jalankan /init terlebih dahulu.',
+	userAlreadyBound: 'Akun ini sudah terikat dengan alamat email.',
 };
 
 export default id;

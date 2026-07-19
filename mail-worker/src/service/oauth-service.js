@@ -5,6 +5,7 @@ import { eq, inArray } from 'drizzle-orm';
 import userService from "./user-service";
 import loginService from "./login-service";
 import cryptoUtils from "../utils/crypto-utils";
+import { t } from '../i18n/i18n';
 
 const oauthService = {
 
@@ -17,14 +18,14 @@ const oauthService = {
 		let userRow = await userService.selectByIdIncludeDel(c, oauthRow.userId);
 
 		if (userRow) {
-			throw new BizError('用户已绑定有邮箱')
+			throw new BizError(t('userAlreadyBound'))
 		}
 
 		await loginService.register(c, { email, password: cryptoUtils.genRandomPwd(), code }, true);
 
 		userRow = await userService.selectByEmail(c, email);
 
-		orm(c).update(oauth).set({ userId: userRow.userId }).where(eq(oauth.oauthUserId, oauthUserId)).run();
+		await orm(c).update(oauth).set({ userId: userRow.userId }).where(eq(oauth.oauthUserId, oauthUserId)).run();
 		const jwtToken = await loginService.login(c, { email, password: null }, true);
 
 		return { userInfo: oauthRow, token: jwtToken}

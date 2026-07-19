@@ -103,6 +103,7 @@ const en = {
 	},
 	listTooLarge: 'The list cannot exceed 100 items',
 	dbNotInit: 'Database not initialized. Please run /init first.',
+	userAlreadyBound: 'This account is already bound to an email address.',
 };
 
 export default en;

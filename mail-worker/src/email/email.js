@@ -38,14 +38,9 @@ export async function email(message, env, ctx) {
 			return;
 		}
 
-		const reader = message.raw.getReader();
-		let content = '';
-
-		while (true) {
-			const { done, value } = await reader.read();
-			if (done) break;
-			content += new TextDecoder().decode(value);
-		}
+		// Fix #1: use Response to read raw stream efficiently (no TextDecoder loop)
+		const buff = await new Response(message.raw).arrayBuffer();
+		const content = new TextDecoder().decode(buff);
 
 		const email = await PostalMime.parse(content);
 
@@ -172,7 +167,7 @@ export async function email(message, env, ctx) {
 				try {
 					await message.forward(email);
 				} catch (e) {
-					console.error(`转发邮箱 ${email} 失败：`, e);
+					console.error(`Failed to forward to ${email}:`, e);
 				}
 
 			}));
@@ -180,7 +175,7 @@ export async function email(message, env, ctx) {
 		}
 
 	} catch (e) {
-		console.error('邮件接收异常: ', e);
+		console.error('Email receive error:', e);
 		throw e
 	}
 }

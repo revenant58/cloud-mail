@@ -52,21 +52,9 @@ const settingService = {
 		let linuxdoSwitch = c.env.linuxdo_switch;
 		let projectLink = c.env.project_link;
 
-		if (typeof linuxdoSwitch === 'string' && linuxdoSwitch === 'true') {
-			linuxdoSwitch = true
-		} else if (linuxdoSwitch === true) {
-			linuxdoSwitch = true
-		} else {
-			linuxdoSwitch = false
-		}
-
-		if (typeof projectLink === 'string' && projectLink === 'false') {
-			projectLink = false
-		} else if (projectLink === false) {
-			projectLink = false
-		} else {
-			projectLink = true
-		}
+		// Fix #10: simplified boolean coercion
+		linuxdoSwitch = linuxdoSwitch === true || linuxdoSwitch === 'true';
+		projectLink = !(projectLink === false || projectLink === 'false');
 
 		setting.projectLink = projectLink;
 
