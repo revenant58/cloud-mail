@@ -1,16 +1,30 @@
 <template>
-  <div id="login-box" :style=" background ? 'background: var(--el-bg-color)' : ''" v-loading="oauthLoading" element-loading-text="登录中...">
-    <div id="background-wrap" v-if="!settingStore.settings.background">
-      <div class="x1 cloud"></div>
-      <div class="x2 cloud"></div>
-      <div class="x3 cloud"></div>
-      <div class="x4 cloud"></div>
-      <div class="x5 cloud"></div>
+  <div id="login-box" :style="background ? backgroundStyle : ''" v-loading="oauthLoading" element-loading-text="登录中...">
+    <!-- Neobrutalism geometric decorations -->
+    <div class="neo-bg" v-if="!settingStore.settings.background">
+      <div class="neo-shape neo-shape--square"></div>
+      <div class="neo-shape neo-shape--circle"></div>
+      <div class="neo-shape neo-shape--rect"></div>
+      <div class="neo-shape neo-shape--dot-grid"></div>
+      <!-- Brand panel (desktop only) -->
+      <div class="neo-brand-panel">
+        <div class="neo-brand-badge">MAIL</div>
+        <h1 class="neo-brand-title">{{ settingStore.settings.title }}</h1>
+        <p class="neo-brand-sub">Temporary. Powerful. Yours.</p>
+        <div class="neo-brand-strips">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
     </div>
-    <div v-else :style="background"></div>
+    <div v-else :style="backgroundStyle" class="neo-bg-image"></div>
+
     <div class="form-wrapper">
       <div class="container">
-        <span class="form-title">{{ settingStore.settings.title }}</span>
+        <div class="form-header">
+          <span class="form-title">{{ settingStore.settings.title }}</span>
+          <span class="form-mode-badge" v-if="show === 'login'">LOGIN</span>
+          <span class="form-mode-badge form-mode-badge--reg" v-else>REGISTER</span>
+        </div>
         <span class="form-desc" v-if="show === 'login'">{{ $t('loginTitle') }}</span>
         <span class="form-desc" v-else>{{ $t('regTitle') }}</span>
         <div v-show="show === 'login'">
@@ -32,7 +46,7 @@
                       :value="item"
                   />
                 </el-select>
-                <div style="color: var(--el-text-color-primary)">
+                <div style="color: #0A0A0A; font-weight: 600;">
                   <span>{{ suffix }}</span>
                   <Icon class="setting-icon" icon="mingcute:down-small-fill" width="20" height="20"/>
                 </div>
@@ -44,7 +58,7 @@
           <el-button class="btn" type="primary" @click="submit" :loading="loginLoading"
           >{{ $t('loginBtn') }}
           </el-button>
-          <el-button class="btn" v-if="settingStore.settings.linuxdoSwitch"  style="margin-top: 10px"  @click="linuxDoLogin">
+          <el-button class="btn btn--secondary" v-if="settingStore.settings.linuxdoSwitch" style="margin-top: 12px" @click="linuxDoLogin">
             <el-avatar src="/image/linuxdo.webp" :size="18" style="margin-right: 10px" />LinuxDo
           </el-button>
         </div>
@@ -67,7 +81,7 @@
                       :value="item"
                   />
                 </el-select>
-                <div>
+                <div style="font-weight: 600;">
                   <span>{{ suffix }}</span>
                   <Icon class="setting-icon" icon="mingcute:down-small-fill" width="20" height="20"/>
                 </div>
@@ -94,7 +108,7 @@
           <el-button class="btn" style="margin: 0" type="primary" @click="submitRegister" :loading="registerLoading"
           >{{ $t('regBtn') }}
           </el-button>
-          <el-button v-if="settingStore.settings.linuxdoSwitch" class="btn" style="margin-top: 10px"  @click="linuxDoLogin">
+          <el-button v-if="settingStore.settings.linuxdoSwitch" class="btn btn--secondary" style="margin-top: 12px" @click="linuxDoLogin">
             <el-avatar src="/image/linuxdo.webp" :size="18" style="margin-right: 10px" />LinuxDo
           </el-button>
         </div>
@@ -106,7 +120,7 @@
         </template>
       </div>
     </div>
-    <el-dialog class="bind-dialog" v-model="showBindForm"  title="注册邮箱" >
+    <el-dialog class="bind-dialog" v-model="showBindForm" title="注册邮箱">
       <div class="bind-container">
         <el-input :class="!hideLoginDomain ? 'email-input' : ''" v-model="bindForm.email" type="text" :placeholder="$t('emailAccount')" autocomplete="off">
           <template #append v-if="!hideLoginDomain">
@@ -141,7 +155,7 @@
       </div>
     </el-dialog>
     <a v-show="settingStore.settings.projectLink" class="github" href="https://github.com/maillab/cloud-mail">
-      <Icon icon="mingcute:github-line" color="#1890ff" width="20" height="20" />
+      <Icon icon="mingcute:github-line" color="#0A0A0A" width="20" height="20" />
     </a>
   </div>
 </template>
@@ -240,13 +254,16 @@ const loginOpacity = computed(() => {
 const hideLoginDomain = computed(() => settingStore.settings.loginDomain === 1)
 
 const background = computed(() => {
+  return settingStore.settings.background ? settingStore.settings.background : ''
+})
 
+const backgroundStyle = computed(() => {
   return settingStore.settings.background ? {
     'background-image': `url(${cvtR2Url(settingStore.settings.background)})`,
     'background-repeat': 'no-repeat',
     'background-size': 'cover',
     'background-position': 'center'
-  } : ''
+  } : {}
 })
 
 const openSelect = () => {
@@ -578,20 +595,224 @@ function submitRegister() {
 </script>
 
 
+
 <style>
+/* Global El overrides — outside scoped */
 .el-select-dropdown__item {
   padding: 0 15px;
+  font-weight: 600;
 }
 
-.no-autofill-pwd {
-  .el-input__inner {
-    -webkit-text-security: disc !important;
-  }
+.no-autofill-pwd .el-input__inner {
+  -webkit-text-security: disc !important;
+}
+
+/* Neobrutalism: override El-Plus button + input globally for login page */
+#login-box .el-button--primary {
+  background: #FFE500 !important;
+  border: 3px solid #0A0A0A !important;
+  color: #0A0A0A !important;
+  font-weight: 800 !important;
+  box-shadow: 4px 4px 0 #0A0A0A !important;
+  border-radius: 4px !important;
+  transition: transform 0.1s ease, box-shadow 0.1s ease !important;
+  letter-spacing: 0.04em;
+}
+#login-box .el-button--primary:hover:not(.is-loading) {
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 6px 6px 0 #0A0A0A !important;
+}
+#login-box .el-button--primary:active:not(.is-loading) {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 2px 2px 0 #0A0A0A !important;
+}
+
+#login-box .el-input__wrapper {
+  border: 2px solid #0A0A0A !important;
+  border-radius: 4px !important;
+  box-shadow: 3px 3px 0 #0A0A0A !important;
+  background: #fff !important;
+  transition: box-shadow 0.1s, transform 0.1s;
+}
+#login-box .el-input__wrapper:hover,
+#login-box .el-input__wrapper.is-focus {
+  box-shadow: 4px 4px 0 #0A0A0A !important;
+  transform: translate(-1px, -1px);
+}
+#login-box .el-input-group__append {
+  border: 2px solid #0A0A0A !important;
+  border-left: none !important;
+  border-radius: 0 4px 4px 0 !important;
+  background: #f5f0e8 !important;
+  font-weight: 700;
+}
+#login-box .email-input .el-input__wrapper {
+  border-radius: 4px 0 0 4px !important;
 }
 </style>
 
 <style lang="scss" scoped>
 
+/* ── LAYOUT ── */
+#login-box {
+  font-family: 'Arial Black', 'Impact', Arial, sans-serif;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  display: grid;
+  grid-template-columns: 1fr;
+  background: #F5F0E8;
+  position: relative;
+}
+
+/* ── NEOBRUTALISM BACKGROUND ── */
+.neo-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(circle, #0A0A0A 1px, transparent 1px) 0 0 / 28px 28px,
+    #F5F0E8;
+}
+
+.neo-bg-image {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+
+/* Geometric shapes */
+.neo-shape {
+  position: absolute;
+  pointer-events: none;
+}
+
+.neo-shape--square {
+  width: 200px;
+  height: 200px;
+  background: #FFE500;
+  border: 4px solid #0A0A0A;
+  top: -40px;
+  left: -40px;
+  transform: rotate(-12deg);
+  animation: neo-float 8s ease-in-out infinite;
+}
+
+.neo-shape--circle {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: #FF6B35;
+  border: 4px solid #0A0A0A;
+  bottom: 80px;
+  left: 80px;
+  animation: neo-float 10s ease-in-out infinite reverse;
+}
+
+.neo-shape--rect {
+  width: 300px;
+  height: 80px;
+  background: #AAFF00;
+  border: 4px solid #0A0A0A;
+  top: 50%;
+  left: -80px;
+  transform: rotate(8deg);
+  animation: neo-float 12s ease-in-out infinite 2s;
+}
+
+.neo-shape--dot-grid {
+  width: 180px;
+  height: 180px;
+  top: 60%;
+  left: 30%;
+  background:
+    radial-gradient(circle, #0A0A0A 3px, transparent 3px) 0 0 / 18px 18px;
+  opacity: 0.18;
+}
+
+@keyframes neo-float {
+  0%, 100% { transform: translateY(0) rotate(var(--r, -12deg)); }
+  50% { transform: translateY(-18px) rotate(var(--r, -12deg)); }
+}
+
+/* ── BRAND PANEL (left side, desktop) ── */
+.neo-brand-panel {
+  display: none;
+
+  @media (min-width: 900px) {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: calc(100% - 470px);
+    padding: 60px;
+    z-index: 2;
+  }
+}
+
+.neo-brand-badge {
+  display: inline-block;
+  background: #FFE500;
+  border: 3px solid #0A0A0A;
+  box-shadow: 5px 5px 0 #0A0A0A;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  padding: 6px 18px;
+  width: fit-content;
+  margin-bottom: 28px;
+  text-transform: uppercase;
+}
+
+.neo-brand-title {
+  font-size: clamp(3rem, 6vw, 6rem);
+  font-weight: 900;
+  line-height: 1;
+  color: #0A0A0A;
+  margin: 0 0 20px;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  /* Bold underline stripe */
+  position: relative;
+  display: inline-block;
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0; bottom: -8px;
+    width: 100%; height: 8px;
+    background: #FF6B35;
+    border: 2px solid #0A0A0A;
+  }
+}
+
+.neo-brand-sub {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #444;
+  margin: 24px 0 36px;
+  letter-spacing: 0.05em;
+}
+
+.neo-brand-strips {
+  display: flex;
+  gap: 10px;
+
+  span {
+    display: block;
+    height: 10px;
+    border: 2px solid #0A0A0A;
+    &:nth-child(1) { width: 80px; background: #FFE500; }
+    &:nth-child(2) { width: 50px; background: #FF6B35; }
+    &:nth-child(3) { width: 120px; background: #AAFF00; }
+  }
+}
+
+/* ── FORM WRAPPER ── */
 .form-wrapper {
   position: fixed;
   right: 0;
@@ -600,92 +821,177 @@ function submitRegister() {
   display: flex;
   align-items: center;
   justify-content: center;
+
   @media (max-width: 767px) {
     width: 100%;
+    position: relative;
+    min-height: 100vh;
   }
 }
 
 .container {
-  background: v-bind(loginOpacity);
-  padding-left: 40px;
-  padding-right: 40px;
+  background: #ffffff;
+  padding: 40px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   width: 450px;
   height: 100%;
-  border-left: 1px solid var(--login-border);
-  box-shadow: var(--el-box-shadow-light);
+  border-left: 4px solid #0A0A0A;
+  box-shadow: -8px 0 0 #0A0A0A;
+
   @media (max-width: 1024px) {
-    padding: 20px 18px;
-    width: 384px;
-    margin-left: 18px;
+    padding: 30px 24px;
+    width: 400px;
   }
+
   @media (max-width: 767px) {
-    border: 1px solid var(--login-border);
-    padding: 20px 18px;
-    border-radius: 6px;
+    border: 4px solid #0A0A0A;
+    box-shadow: 6px 6px 0 #0A0A0A;
+    padding: 28px 20px;
+    border-radius: 4px;
     height: fit-content;
-    width: 100%;
-    margin-right: 18px;
-    margin-left: 18px;
+    width: calc(100% - 40px);
+    margin: 40px 20px;
   }
+}
 
-  .btn {
-    height: 36px;
-    width: 100%;
-    border-radius: 6px;
+/* ── FORM HEADER ── */
+.form-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  gap: 12px;
+}
+
+.form-title {
+  font-weight: 900;
+  font-size: 26px;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  color: #0A0A0A;
+  line-height: 1.1;
+}
+
+.form-mode-badge {
+  display: inline-block;
+  background: #FFE500;
+  border: 2px solid #0A0A0A;
+  box-shadow: 3px 3px 0 #0A0A0A;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  padding: 4px 10px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-top: 4px;
+
+  &--reg {
+    background: #AAFF00;
   }
+}
 
-  .form-desc {
-    margin-top: 5px;
-    margin-bottom: 18px;
-    color: var(--form-desc-color);
-  }
+.form-desc {
+  display: block;
+  margin-top: 2px;
+  margin-bottom: 22px;
+  color: #666;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
 
-  .form-title {
-    font-weight: bold;
-    font-size: 22px !important;
-  }
+/* ── INPUTS ── */
+.el-input {
+  height: 42px;
+  width: 100%;
+  margin-bottom: 16px;
 
-  .switch {
-    margin-top: 20px;
-    text-align: center;
-
-    span {
-      color: var(--login-switch-color);
-      cursor: pointer;
-    }
-  }
-
-  :deep(.el-input__wrapper) {
-    border-radius: 6px;
-    background: var(--el-bg-color);
-  }
-
-  .email-input :deep(.el-input__wrapper) {
-    border-radius: 6px 0 0 6px;
-    background: var(--el-bg-color);
-  }
-
-  .el-input {
+  :deep(.el-input__inner) {
     height: 38px;
-    width: 100%;
-    margin-bottom: 18px;
+    font-weight: 600;
+    color: #0A0A0A;
+  }
+}
 
-    :deep(.el-input__inner) {
-      height: 36px;
+:deep(.el-input__wrapper) {
+  border-radius: 4px;
+  background: #fff;
+}
+
+.email-input :deep(.el-input__wrapper) {
+  border-radius: 4px 0 0 4px;
+  background: #fff;
+}
+
+/* ── BUTTONS ── */
+.btn {
+  height: 44px;
+  width: 100%;
+  border-radius: 4px;
+  font-weight: 900;
+  font-size: 15px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.btn--secondary {
+  background: #fff !important;
+  border: 3px solid #0A0A0A !important;
+  color: #0A0A0A !important;
+  font-weight: 800 !important;
+  box-shadow: 4px 4px 0 #0A0A0A !important;
+  transition: transform 0.1s ease, box-shadow 0.1s ease !important;
+
+  &:hover {
+    transform: translate(-2px, -2px) !important;
+    box-shadow: 6px 6px 0 #0A0A0A !important;
+    background: #f5f0e8 !important;
+  }
+}
+
+/* ── SWITCH ── */
+.switch {
+  margin-top: 22px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #555;
+
+  span {
+    color: #0A0A0A;
+    cursor: pointer;
+    font-weight: 900;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 2px;
+
+    &:hover {
+      background: #FFE500;
+      text-decoration: none;
     }
   }
 }
 
-:deep(.el-select-dropdown__item) {
-  padding: 0 10px;
-}
-
+/* ── BIND DIALOG ── */
 :deep(.bind-dialog) {
-  width: 400px !important;
-  @media (max-width: 440px) {
+  width: 420px !important;
+  border: 3px solid #0A0A0A !important;
+  box-shadow: 8px 8px 0 #0A0A0A !important;
+  border-radius: 4px !important;
+
+  .el-dialog__header {
+    font-weight: 900;
+    font-size: 18px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border-bottom: 3px solid #0A0A0A;
+    padding-bottom: 12px;
+    margin-bottom: 0;
+  }
+
+  @media (max-width: 460px) {
     width: calc(100% - 40px) !important;
     margin-right: 20px !important;
     margin-left: 20px !important;
@@ -695,45 +1001,36 @@ function submitRegister() {
 .bind-container {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 15px;
+  gap: 14px;
+  padding-top: 16px;
 }
 
+/* ── MISC ── */
 .setting-icon {
   position: relative;
   top: 6px;
 }
 
-.github {
-  position: fixed;
-  width: 35px;
-  height: 35px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 50%;
-  background: var(--el-bg-color);
-  bottom: 10px;
-  right: 10px;
-  z-index: 1000;
-  border: 1px solid var(--el-border-color-light);
-  box-shadow: var(--el-box-shadow-light);
-  cursor: pointer;
+:deep(.el-select-dropdown__item) {
+  padding: 0 10px;
+  font-weight: 700;
 }
 
 :deep(.el-input-group__append) {
   padding: 0 !important;
   padding-left: 8px !important;
   padding-right: 4px !important;
-  background: var(--el-bg-color);
-  border-radius: 0 8px 8px 0;
+  background: #f5f0e8;
+  border-radius: 0 4px 4px 0;
+  font-weight: 700;
 }
 
-:deep(.el-button+.el-button) {
+:deep(.el-button + .el-button) {
   margin: 0;
 }
 
 .register-turnstile {
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .select {
@@ -744,99 +1041,53 @@ function submitRegister() {
   pointer-events: none;
 }
 
-.custom-style {
-  margin-bottom: 10px;
-}
+/* ── GITHUB BUTTON ── */
+.github {
+  position: fixed;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #FFE500;
+  bottom: 16px;
+  right: 16px;
+  z-index: 1000;
+  border: 3px solid #0A0A0A;
+  box-shadow: 4px 4px 0 #0A0A0A;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s;
 
-.custom-style .el-segmented {
-  --el-border-radius-base: 6px;
-  width: 180px;
-}
-
-
-#login-box {
-  background: linear-gradient(to bottom, #2980b9, #6dd5fa, #fff);
-  font: 100% Arial, sans-serif;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
-  display: grid;
-  grid-template-columns: 1fr;
-}
-
-
-#background-wrap {
-  height: 100%;
-  z-index: 0;
-}
-
-@keyframes animateCloud {
-  0% {
-    margin-left: -500px;
-  }
-
-  100% {
-    margin-left: 100%;
+  &:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 #0A0A0A;
   }
 }
 
-.x1 {
-  animation: animateCloud 30s linear infinite;
-  transform: scale(0.65);
+/* ── DARK MODE ADAPTATION ── */
+@media (prefers-color-scheme: dark) {
+  #login-box:not([style*="background-image"]) {
+    background: #1a1a1a;
+  }
+  .neo-bg {
+    background:
+      radial-gradient(circle, #555 1px, transparent 1px) 0 0 / 28px 28px,
+      #1a1a1a;
+  }
+  .container {
+    background: #2a2a2a;
+    color: #f5f0e8;
+  }
+  .form-title { color: #f5f0e8; }
+  .form-desc { color: #aaa; }
+  .switch { color: #aaa; }
+  .switch span { color: #FFE500; }
+  #login-box .el-input__wrapper {
+    background: #333 !important;
+  }
+  #login-box .el-input__inner {
+    color: #f5f0e8;
+  }
 }
-
-.x2 {
-  animation: animateCloud 15s linear infinite;
-  transform: scale(0.3);
-}
-
-.x3 {
-  animation: animateCloud 25s linear infinite;
-  transform: scale(0.5);
-}
-
-.x4 {
-  animation: animateCloud 13s linear infinite;
-  transform: scale(0.4);
-}
-
-.x5 {
-  animation: animateCloud 20s linear infinite;
-  transform: scale(0.55);
-}
-
-.cloud {
-  background: linear-gradient(to bottom, #fff 5%, #f1f1f1 100%);
-  border-radius: 100px;
-  box-shadow: 0 8px 5px rgba(0, 0, 0, 0.1);
-  height: 120px;
-  width: 350px;
-  position: relative;
-}
-
-.cloud:after,
-.cloud:before {
-  content: "";
-  position: absolute;
-  background: #fff;
-  z-index: -1;
-}
-
-.cloud:after {
-  border-radius: 100px;
-  height: 100px;
-  left: 50px;
-  top: -50px;
-  width: 100px;
-}
-
-.cloud:before {
-  border-radius: 200px;
-  height: 180px;
-  width: 180px;
-  right: 50px;
-  top: -90px;
-}
-
 </style>
+
