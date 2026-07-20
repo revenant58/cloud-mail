@@ -63,10 +63,10 @@
         <el-input v-model="createForm.name" placeholder="Name (e.g. Discord Bot)"/>
         <div style="margin: 12px 0; font-size: 14px; color: #606266;">Scopes</div>
         <el-checkbox-group v-model="createForm.scopes">
-          <el-checkbox label="users">Users</el-checkbox>
-          <el-checkbox label="emails">Emails</el-checkbox>
-          <el-checkbox label="stats">Stats</el-checkbox>
-          <el-checkbox label="settings">Settings</el-checkbox>
+          <el-checkbox value="users">Users</el-checkbox>
+          <el-checkbox value="emails">Emails</el-checkbox>
+          <el-checkbox value="stats">Stats</el-checkbox>
+          <el-checkbox value="settings">Settings</el-checkbox>
         </el-checkbox-group>
         <el-date-picker
             v-model="createForm.expireTime"
@@ -165,7 +165,7 @@ async function submitCreate() {
   createLoading.value = true;
   try {
     const res = await apiKeyCreate(createForm.value);
-    createdKey.value = res.data.apiKey;
+    createdKey.value = res.apiKey;
     loadData();
   } catch (e) {
     console.error(e);
