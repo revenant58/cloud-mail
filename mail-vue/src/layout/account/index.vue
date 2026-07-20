@@ -20,7 +20,7 @@
               <Icon icon="fluent-color:clipboard-24" width="22" height="22" @click.stop="copyAccount(item.email)"/>
               <Icon icon="fluent:settings-24-filled" width="21" height="21" color="#909399"
                     v-if="showNullSetting(item)"/>
-              <el-dropdown v-else>
+              <el-dropdown v-else :teleported="false">
                 <Icon icon="fluent:settings-24-filled" width="21" height="21" color="#909399"/>
                 <template #dropdown>
                   <el-dropdown-menu>
@@ -308,13 +308,14 @@ function remove(account) {
     cancelButtonText: t('cancel'),
     type: 'warning'
   }).then(() => {
-    accountDelete(account.accountId).then(async () => {
-      await nextTick();
-      const index = accounts.findIndex(item => item.accountId === account.accountId);
-      accounts.splice(index, 1);
-      if (accounts.length < queryParams.size) {
-        getAccountList()
-      }
+    accountDelete(account.accountId).then(() => {
+      setTimeout(() => {
+        const index = accounts.findIndex(item => item.accountId === account.accountId);
+        if(index !== -1) accounts.splice(index, 1);
+        if (accounts.length < queryParams.size) {
+          getAccountList()
+        }
+      }, 300);
       ElMessage({
         message: t('delSuccessMsg'),
         type: 'success',
@@ -359,9 +360,10 @@ function setAsTop(account, index) {
       type: 'success',
       plain: true,
     })
-    await nextTick();
-    const [item] = accounts.splice(index, 1);
-    accounts.splice(1, 0, item);
+    setTimeout(() => {
+      const [item] = accounts.splice(index, 1);
+      accounts.splice(1, 0, item);
+    }, 300);
 
   });
 }
