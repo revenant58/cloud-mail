@@ -23,7 +23,6 @@ const exclude = [
 	'/oauth/linuxDo',
 	// Fix #9: /test removed — no unauthenticated access
 	'/bot',
-	'/discord',
 ];
 
 const requirePerms = [
