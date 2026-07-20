@@ -217,9 +217,10 @@ async function deleteKey(item) {
       }
     );
     await apiKeyDelete(item.apiKeyId);
-    await nextTick();
-    const index = dataList.value.findIndex(d => d.apiKeyId === item.apiKeyId);
-    if (index !== -1) dataList.value.splice(index, 1);
+    setTimeout(() => {
+      const index = dataList.value.findIndex(d => d.apiKeyId === item.apiKeyId);
+      if (index !== -1) dataList.value.splice(index, 1);
+    }, 300);
   } catch (e) {
     if (e !== 'cancel') console.error(e);
   }
