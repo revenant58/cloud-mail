@@ -1,4 +1,4 @@
-import {useUserStore} from "@/store/user.js";
+import { useUserStore } from "@/store/user.js";
 
 export default {
     mounted(el, binding) {
@@ -21,7 +21,7 @@ export default {
 }
 
 export function hasPerm(permKey) {
-    const {permKeys} = useUserStore().user;
+    const { permKeys } = useUserStore().user;
     return permKeys.includes('*') || permKeys.includes(permKey);
 }
 
@@ -124,7 +124,7 @@ const routers = {
         name: 'api-key',
         component: () => import('@/views/api-key/index.vue'),
         meta: {
-            title: 'apiKeys',
+            title: 'Api Keys',
             name: 'api-key',
             menu: true
         }

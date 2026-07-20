@@ -58,7 +58,7 @@
     </el-scrollbar>
 
     <!-- Create dialog -->
-    <el-dialog v-model="showCreate" title="Create API Key" width="500px">
+    <el-dialog v-model="showCreate" title="Create API Key" width="500px" @closed="onDialogClosed">
       <div class="container" v-if="!createdKey">
         <el-input v-model="createForm.name" placeholder="Name (e.g. Discord Bot)"/>
         <div style="margin: 12px 0; font-size: 14px; color: #606266;">Scopes</div>
@@ -167,12 +167,19 @@ async function submitCreate() {
     const res = await apiKeyCreate(createForm.value);
     createdKey.value = res.apiKey;
     showCreate.value = false;
-    await loadData();
+    showCreate.value = false;
+    showCreate.value = false;
+    showCreate.value = false;
   } catch (e) {
     console.error(e);
   } finally {
     createLoading.value = false;
   }
+}
+
+function onDialogClosed() {
+  createdKey.value = '';
+  loadData();
 }
 
 function copyKey() {
