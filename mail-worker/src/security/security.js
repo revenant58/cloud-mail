@@ -22,6 +22,8 @@ const exclude = [
 	// Fix #3: only exclude the initial OAuth login, not /oauth/bindUser
 	'/oauth/linuxDo',
 	// Fix #9: /test removed — no unauthenticated access
+	'/bot',
+	'/discord',
 ];
 
 const requirePerms = [
