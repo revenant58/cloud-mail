@@ -34,7 +34,7 @@
               </div>
             </div>
             <div class="info-right">
-              <el-dropdown class="setting">
+              <el-dropdown class="setting" :teleported="false">
                 <Icon icon="fluent:settings-24-filled" width="21" height="21" color="#909399"/>
                 <template #dropdown>
                   <el-dropdown-menu>
@@ -105,7 +105,7 @@
 </template>
 
 <script setup>
-import {ref, onMounted, nextTick} from 'vue';
+import {ref, onMounted} from 'vue';
 import {Icon} from '@iconify/vue';
 import {ElMessage, ElMessageBox} from 'element-plus';
 import {apiKeyList, apiKeyCreate, apiKeyUpdate, apiKeyDelete} from '@/request/api-key.js';
@@ -189,7 +189,7 @@ async function toggleStatus(item) {
   const newStatus = item.status === 0 ? 1 : 0;
   try {
     await apiKeyUpdate({apiKeyId: item.api_key_id, status: newStatus});
-    await nextTick(loadData);
+    loadData();
   } catch (e) {
     console.error(e);
   }
@@ -203,7 +203,7 @@ async function deleteKey(item) {
       type: 'warning',
     });
     await apiKeyDelete(item.api_key_id);
-    await nextTick(loadData);
+    loadData();
   } catch (e) {
     if (e !== 'cancel') console.error(e);
   }
