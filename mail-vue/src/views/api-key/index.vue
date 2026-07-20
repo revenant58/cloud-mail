@@ -105,7 +105,7 @@
 </template>
 
 <script setup>
-import {ref, onMounted} from 'vue';
+import {ref, onMounted, nextTick} from 'vue';
 import {Icon} from '@iconify/vue';
 import {ElMessage, ElMessageBox} from 'element-plus';
 import {apiKeyList, apiKeyCreate, apiKeyUpdate, apiKeyDelete} from '@/request/api-key.js';
@@ -166,7 +166,6 @@ async function submitCreate() {
   try {
     const res = await apiKeyCreate(createForm.value);
     createdKey.value = res.apiKey;
-    showCreate.value = false;
   } catch (e) {
     console.error(e);
   } finally {
@@ -189,6 +188,7 @@ async function toggleStatus(item) {
   const newStatus = item.status === 0 ? 1 : 0;
   try {
     await apiKeyUpdate({apiKeyId: item.apiKeyId, status: newStatus});
+    await nextTick();
     loadData();
   } catch (e) {
     console.error(e);
@@ -203,6 +203,7 @@ async function deleteKey(item) {
       type: 'warning',
     });
     await apiKeyDelete(item.apiKeyId);
+    await nextTick();
     loadData();
   } catch (e) {
     if (e !== 'cancel') console.error(e);
@@ -216,6 +217,7 @@ async function deleteKey(item) {
   height: 100%;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .header-actions {

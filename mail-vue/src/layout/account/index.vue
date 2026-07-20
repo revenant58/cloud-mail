@@ -4,8 +4,8 @@
       <Icon v-perm="'account:add'" class="icon add" icon="ion:add-outline" width="23" height="23" @click="add"/>
       <Icon class="icon refresh" icon="ion:reload" width="18" height="18" @click="refresh"/>
     </div>
-    <el-scrollbar class="scrollbar" ref="scrollbarRef">
-      <div v-infinite-scroll="getAccountList" :infinite-scroll-distance="600" :infinite-scroll-immediate="false">
+    <el-scrollbar class="scrollbar" ref="scrollbarRef" @scroll="handleScroll">
+      <div>
         <el-card class="item" :class="itemBg(item.accountId)" v-for="(item, index) in accounts" :key="item.accountId"
                  @click="changeAccount(item)">
           <div class="account">
@@ -308,7 +308,8 @@ function remove(account) {
     cancelButtonText: t('cancel'),
     type: 'warning'
   }).then(() => {
-    accountDelete(account.accountId).then(() => {
+    accountDelete(account.accountId).then(async () => {
+      await nextTick();
       const index = accounts.findIndex(item => item.accountId === account.accountId);
       accounts.splice(index, 1);
       if (accounts.length < queryParams.size) {
@@ -352,13 +353,13 @@ function add() {
 }
 
 function setAsTop(account, index) {
-  accountSetAsTop(account.accountId).then(() => {
+  accountSetAsTop(account.accountId).then(async () => {
     ElMessage({
       message: t('setSuccess'),
       type: 'success',
       plain: true,
     })
-
+    await nextTick();
     const [item] = accounts.splice(index, 1);
     accounts.splice(1, 0, item);
 
@@ -381,6 +382,13 @@ async function copyAccount(account) {
       plain: true,
     })
   }
+}
+
+function handleScroll({ scrollTop }) {
+  const wrap = scrollbarRef.value?.wrapRef
+  if (!wrap) return
+  const atBottom = wrap.scrollHeight - scrollTop - wrap.clientHeight < 600
+  if (atBottom) getAccountList()
 }
 
 function getAccountList() {
