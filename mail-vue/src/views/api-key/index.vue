@@ -106,11 +106,11 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import {Icon} from '@iconify/vue';
-import {ElMessage, ElMessageBox} from 'element-plus';
-import {apiKeyList, apiKeyCreate, apiKeyUpdate, apiKeyDelete} from '@/request/api-key.js';
+import { Icon } from '@iconify/vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { apiKeyList, apiKeyCreate, apiKeyUpdate, apiKeyDelete } from '@/request/api-key.js';
 
-defineOptions({name: 'api-key'});
+defineOptions({ name: 'api-key' });
 
 const dataList = ref([]);
 const loading = ref(false);
@@ -126,9 +126,6 @@ const createForm = ref({
   expireTime: null,
 });
 
-let isMounted = true;
-onUnmounted(() => { isMounted = false; });
-
 onMounted(() => {
   loadData();
 });
@@ -141,18 +138,15 @@ function parseScopes(scopes) {
   }
 }
 
+// ✅ FIX UTAMA: splice in-place instead of replace reference
+// dataList.value = res → Vue unmount semua node lama → nextSibling null crash
+// dataList.value.splice(...) → Vue diff minimal, tidak ada unmount massal
 async function loadData() {
   loading.value = true;
   try {
     const res = await apiKeyList();
-    
-    // GANTI INI:
-    // dataList.value = res || [];
-    
-    // PAKAI INI — update in-place, Vue tidak perlu unmount/remount semua node
     const newList = res || [];
     dataList.value.splice(0, dataList.value.length, ...newList);
-    
   } catch (e) {
     console.error(e);
   } finally {
@@ -162,7 +156,7 @@ async function loadData() {
 }
 
 function openCreate() {
-  createForm.value = {name: '', scopes: ['users', 'emails'], expireTime: null};
+  createForm.value = { name: '', scopes: ['users', 'emails'], expireTime: null };
   createdKey.value = '';
   showCreate.value = true;
 }
@@ -176,7 +170,7 @@ async function submitCreate() {
   try {
     const res = await apiKeyCreate(createForm.value);
     createdKey.value = res.apiKey;
-    // Tambah entry baru ke list langsung tanpa tunggu dialog tutup
+    // Tambah ke list langsung jika API return data lengkap
     if (res.keyData) {
       dataList.value.push(res.keyData);
     }
@@ -187,9 +181,10 @@ async function submitCreate() {
   }
 }
 
+// ✅ Aman: loadData pakai splice, tidak perlu setTimeout/nextTick lagi
 function onDialogClosed() {
   createdKey.value = '';
-  loadData(); // langsung, tidak perlu setTimeout lagi
+  loadData();
 }
 
 function copyKey() {
@@ -198,26 +193,30 @@ function copyKey() {
   });
 }
 
+// ✅ FIX: update in-place, tidak re-render seluruh list
 async function toggleStatus(item) {
   const newStatus = item.status === 0 ? 1 : 0;
   try {
     await apiKeyUpdate({ apiKeyId: item.apiKeyId, status: newStatus });
-    // Update item langsung, tidak re-render seluruh list
     item.status = newStatus;
   } catch (e) {
     console.error(e);
   }
 }
 
+// ✅ FIX: splice satu item, tidak reload seluruh list
 async function deleteKey(item) {
   try {
-    await ElMessageBox.confirm('This will permanently delete this API key. Continue?', 'Warning', {
-      confirmButtonText: 'Delete',
-      cancelButtonText: 'Cancel',
-      type: 'warning',
-    });
+    await ElMessageBox.confirm(
+      'This will permanently delete this API key. Continue?',
+      'Warning',
+      {
+        confirmButtonText: 'Delete',
+        cancelButtonText: 'Cancel',
+        type: 'warning',
+      }
+    );
     await apiKeyDelete(item.apiKeyId);
-    // Hapus dari array tanpa reload penuh
     const index = dataList.value.findIndex(d => d.apiKeyId === item.apiKeyId);
     if (index !== -1) dataList.value.splice(index, 1);
   } catch (e) {
@@ -232,7 +231,7 @@ async function deleteKey(item) {
   height: 100%;
   display: flex;
   flex-direction: column;
-  position: relative;
+  position: relative; /* ✅ penting: agar .loading overlay tidak lari ke parent */
 }
 
 .header-actions {
@@ -246,7 +245,10 @@ async function deleteKey(item) {
   cursor: pointer;
   color: var(--el-text-color-regular);
   transition: color 0.2s;
-  &:hover { color: var(--el-color-primary); }
+
+  &:hover {
+    color: var(--el-color-primary);
+  }
 }
 
 .scrollbar {
@@ -265,7 +267,10 @@ async function deleteKey(item) {
   border-radius: 8px;
   background: var(--el-bg-color);
   transition: border-color 0.2s;
-  &:hover { border-color: var(--el-color-primary-light-5); }
+
+  &:hover {
+    border-color: var(--el-color-primary-light-5);
+  }
 }
 
 .code-info {
@@ -318,6 +323,7 @@ async function deleteKey(item) {
   padding: 12px;
   border-radius: 6px;
   word-break: break-all;
+
   code {
     font-size: 13px;
     color: var(--el-color-success);
@@ -335,8 +341,14 @@ async function deleteKey(item) {
   transition: opacity 0.3s;
 }
 
-.loading-show { opacity: 1; }
-.loading-hide { opacity: 0; pointer-events: none; }
+.loading-show {
+  opacity: 1;
+}
+
+.loading-hide {
+  opacity: 0;
+  pointer-events: none;
+}
 
 .empty {
   display: flex;
@@ -345,7 +357,14 @@ async function deleteKey(item) {
 }
 
 @media (max-width: 767px) {
-  .code-info { flex-direction: column; align-items: flex-start; gap: 8px; }
-  .info-right { align-self: flex-end; }
+  .code-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .info-right {
+    align-self: flex-end;
+  }
 }
 </style>
