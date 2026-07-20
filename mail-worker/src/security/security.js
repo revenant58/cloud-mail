@@ -21,8 +21,7 @@ const exclude = [
 	'/telegram',
 	// Fix #3: only exclude the initial OAuth login, not /oauth/bindUser
 	'/oauth/linuxDo',
-	// Fix #9: /test removed — no unauthenticated access
-	'/bot',
+	'/v1',
 ];
 
 const requirePerms = [
@@ -62,7 +61,11 @@ const requirePerms = [
 	'/regKey/list',
 	'/regKey/delete',
 	'/regKey/clearNotUse',
-	'/regKey/history'
+	'/regKey/history',
+	'/apiKey/create',
+	'/apiKey/list',
+	'/apiKey/update',
+	'/apiKey/delete'
 ];
 
 const premKey = {

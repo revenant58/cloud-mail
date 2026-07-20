@@ -19,5 +19,6 @@ import '../api/reg-key-api'
 import '../api/public-api'
 import '../api/telegram-api'
 import '../api/oauth-api'
-import '../api/bot-api'
+import '../api/api-key-api'
+import '../api/v1-api'
 export default app;

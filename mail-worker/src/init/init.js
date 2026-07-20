@@ -29,9 +29,42 @@ const dbInit = {
 		await this.v2_8DB(c);
 		await this.v2_9DB(c);
 		await this.v3_0DB(c);
+		await this.v3_1DB(c);
 		await settingService.refresh(c);
 		return c.text('success');
 	},
+
+	async v3_1DB(c) {
+		try {
+			await c.env.db.prepare(`
+				CREATE TABLE IF NOT EXISTS api_key (
+					api_key_id INTEGER PRIMARY KEY AUTOINCREMENT,
+					name TEXT NOT NULL DEFAULT '',
+					key_hash TEXT NOT NULL,
+					key_prefix TEXT NOT NULL DEFAULT '',
+					scopes TEXT NOT NULL DEFAULT '[]',
+					status INTEGER NOT NULL DEFAULT 0,
+					user_id INTEGER NOT NULL DEFAULT 0,
+					create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+					expire_time DATETIME
+				)
+			`).run();
+		} catch (e) {
+			console.warn(`跳过字段：${e.message}`);
+		}
+
+		try {
+			await c.env.db.prepare(`
+				INSERT INTO perm (perm_id, name, perm_key, pid, type, sort) VALUES
+				(37,'API密钥', NULL, 0, 1, 5.2),
+				(38,'密钥查看', 'api-key:query', 37, 2, 0),
+				(39,'密钥添加', 'api-key:add', 37, 2, 1),
+				(40,'密钥删除', 'api-key:delete', 37, 2, 2)
+			`).run();
+		} catch (e) {
+			console.warn(`跳过数据：${e.message}`);
+		}
+	}
 
 	async v3_0DB(c) {
 		try {

@@ -31,7 +31,7 @@
           <Icon icon="fluent:settings-48-regular" width="20" height="20" />
           <span class="menu-name" style="margin-left: 21px">{{$t('settings')}}</span>
         </el-menu-item>
-        <div class="manage-title" v-perm="['all-email:query','user:query','role:query','setting:query','analysis:query','reg-key:query']">
+        <div class="manage-title" v-perm="['all-email:query','user:query','role:query','setting:query','analysis:query','reg-key:query','api-key:query']">
           <div>{{$t('manage')}}</div>
         </div>
         <el-menu-item @click="router.push({name: 'analysis'})" index="analysis" v-perm="'analysis:query'"
@@ -63,6 +63,11 @@
                       :class="route.meta.name === 'sys-setting' ? 'choose-item' : ''">
           <Icon icon="eos-icons:system-ok-outlined" width="18" height="18" style="margin-left: 2px" />
           <span class="menu-name" style="margin-left: 22px">{{$t('SystemSettings')}}</span>
+        </el-menu-item>
+        <el-menu-item @click="router.push({name: 'api-key'})" index="api-key" v-perm="'api-key:query'"
+                      :class="route.meta.name === 'api-key' ? 'choose-item' : ''">
+          <Icon icon="fluent:key-20-regular" width="20" height="20" />
+          <span class="menu-name" style="margin-left: 21px">API Keys</span>
         </el-menu-item>
       </el-menu>
     </div>
