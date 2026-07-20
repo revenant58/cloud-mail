@@ -105,7 +105,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick, onUnmounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import {Icon} from '@iconify/vue';
 import {ElMessage, ElMessageBox} from 'element-plus';
 import {apiKeyList, apiKeyCreate, apiKeyUpdate, apiKeyDelete} from '@/request/api-key.js';
@@ -145,16 +145,19 @@ async function loadData() {
   loading.value = true;
   try {
     const res = await apiKeyList();
-    // Cek dulu sebelum set — komponen mungkin sudah unmount
-    if (!isMounted) return;
-    dataList.value = res || [];
+    
+    // GANTI INI:
+    // dataList.value = res || [];
+    
+    // PAKAI INI — update in-place, Vue tidak perlu unmount/remount semua node
+    const newList = res || [];
+    dataList.value.splice(0, dataList.value.length, ...newList);
+    
   } catch (e) {
     console.error(e);
   } finally {
-    if (isMounted) {
-      loading.value = false;
-      first.value = false;
-    }
+    loading.value = false;
+    first.value = false;
   }
 }
 
@@ -186,10 +189,7 @@ async function submitCreate() {
 
 function onDialogClosed() {
   createdKey.value = '';
-  // Tunggu lebih lama — beri waktu Vue selesaikan semua transition
-  setTimeout(() => {
-    nextTick(() => loadData());
-  }, 500);
+  loadData(); // langsung, tidak perlu setTimeout lagi
 }
 
 function copyKey() {
