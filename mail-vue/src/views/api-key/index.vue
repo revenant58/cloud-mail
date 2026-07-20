@@ -166,6 +166,10 @@ async function submitCreate() {
   try {
     const res = await apiKeyCreate(createForm.value);
     createdKey.value = res.apiKey;
+    // Tambah entry baru ke list langsung tanpa tunggu dialog tutup
+    if (res.keyData) {
+      dataList.value.push(res.keyData);
+    }
   } catch (e) {
     console.error(e);
   } finally {
@@ -175,7 +179,7 @@ async function submitCreate() {
 
 function onDialogClosed() {
   createdKey.value = '';
-  loadData();
+  setTimeout(() => loadData(), 350);
 }
 
 function copyKey() {
