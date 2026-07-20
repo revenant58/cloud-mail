@@ -105,7 +105,7 @@
 </template>
 
 <script setup>
-import {ref, onMounted, nextTick} from 'vue';
+import { ref, onMounted, nextTick, onUnmounted } from 'vue';
 import {Icon} from '@iconify/vue';
 import {ElMessage, ElMessageBox} from 'element-plus';
 import {apiKeyList, apiKeyCreate, apiKeyUpdate, apiKeyDelete} from '@/request/api-key.js';
@@ -126,6 +126,9 @@ const createForm = ref({
   expireTime: null,
 });
 
+let isMounted = true;
+onUnmounted(() => { isMounted = false; });
+
 onMounted(() => {
   loadData();
 });
@@ -142,12 +145,16 @@ async function loadData() {
   loading.value = true;
   try {
     const res = await apiKeyList();
+    // Cek dulu sebelum set — komponen mungkin sudah unmount
+    if (!isMounted) return;
     dataList.value = res || [];
   } catch (e) {
     console.error(e);
   } finally {
-    loading.value = false;
-    first.value = false;
+    if (isMounted) {
+      loading.value = false;
+      first.value = false;
+    }
   }
 }
 
@@ -179,7 +186,10 @@ async function submitCreate() {
 
 function onDialogClosed() {
   createdKey.value = '';
-  setTimeout(() => loadData(), 350);
+  // Tunggu lebih lama — beri waktu Vue selesaikan semua transition
+  setTimeout(() => {
+    nextTick(() => loadData());
+  }, 500);
 }
 
 function copyKey() {
