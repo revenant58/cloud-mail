@@ -12,7 +12,7 @@
 
       <!-- Key list -->
       <div class="code-box">
-        <div class="code-item" v-for="item in dataList" :key="item.api_key_id">
+        <div class="code-item" v-for="item in dataList" :key="item.apiKeyId">
           <div class="code-info">
             <div class="info-left">
               <div class="info-left-item">
@@ -22,7 +22,7 @@
                 </el-tag>
               </div>
               <div class="info-left-item">
-                <span class="code-prefix">{{ item.key_prefix }}</span>
+                <span class="code-prefix">{{ item.keyPrefix }}</span>
               </div>
               <div class="info-left-item">
                 <div>Scopes：</div>
@@ -188,7 +188,7 @@ function copyKey() {
 async function toggleStatus(item) {
   const newStatus = item.status === 0 ? 1 : 0;
   try {
-    await apiKeyUpdate({apiKeyId: item.api_key_id, status: newStatus});
+    await apiKeyUpdate({apiKeyId: item.apiKeyId, status: newStatus});
     loadData();
   } catch (e) {
     console.error(e);
@@ -202,7 +202,7 @@ async function deleteKey(item) {
       cancelButtonText: 'Cancel',
       type: 'warning',
     });
-    await apiKeyDelete(item.api_key_id);
+    await apiKeyDelete(item.apiKeyId);
     loadData();
   } catch (e) {
     if (e !== 'cancel') console.error(e);
