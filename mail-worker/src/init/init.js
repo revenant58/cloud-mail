@@ -64,7 +64,7 @@ const dbInit = {
 		} catch (e) {
 			console.warn(`跳过数据：${e.message}`);
 		}
-	}
+	},
 
 	async v3_0DB(c) {
 		try {
