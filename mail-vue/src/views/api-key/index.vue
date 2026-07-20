@@ -34,7 +34,7 @@
               </div>
             </div>
             <div class="info-right">
-              <el-dropdown class="setting" :teleported="false">
+              <el-dropdown class="setting">
                 <Icon icon="fluent:settings-24-filled" width="21" height="21" color="#909399"/>
                 <template #dropdown>
                   <el-dropdown-menu>
