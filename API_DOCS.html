@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CloudMail API — Discord Bot Documentation</title>
+    <link rel="icon" href="docs-logo.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #0a0a0f;
+            --bg-card: #12121a;
+            --bg-card-hover: #1a1a25;
+            --bg-code: #0d1117;
+            --border: #1e1e2e;
+            --border-hover: #2e2e3e;
+            --text: #e4e4e7;
+            --text-dim: #71717a;
+            --text-muted: #52525b;
+            --accent: #818cf8;
+            --accent-dim: #6366f1;
+            --accent-glow: rgba(129, 140, 248, 0.15);
+            --green: #34d399;
+            --green-dim: rgba(52, 211, 153, 0.12);
+            --red: #f87171;
+            --red-dim: rgba(248, 113, 113, 0.12);
+            --orange: #fb923c;
+            --orange-dim: rgba(251, 146, 60, 0.12);
+            --yellow: #fbbf24;
+            --yellow-dim: rgba(251, 191, 36, 0.12);
+            --blue: #60a5fa;
+            --blue-dim: rgba(96, 165, 250, 0.12);
+            --purple: #c084fc;
+            --purple-dim: rgba(192, 132, 252, 0.12);
+            --cyan: #22d3ee;
+            --sidebar-w: 280px;
+            --radius: 10px;
+            --radius-sm: 6px;
+        }
+
+        html { scroll-behavior: smooth; font-size: 15px; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0; left: 0;
+            width: var(--sidebar-w);
+            height: 100vh;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border);
+            padding: 24px 0;
+            overflow-y: auto;
+            z-index: 100;
+            transition: transform .3s;
+        }
+
+        .sidebar-logo {
+            display: flex; align-items: center; gap: 12px;
+            padding: 0 20px 20px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+
+        .sidebar-logo img { width: 36px; height: 36px; border-radius: 8px; }
+        .sidebar-logo h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.02em; }
+        .sidebar-logo span { color: var(--accent); }
+
+        .sidebar-section {
+            padding: 8px 20px;
+            font-size: .7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--text-muted);
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 7px 20px 7px 28px;
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: .88rem;
+            border-left: 2px solid transparent;
+            transition: all .15s;
+        }
+
+        .sidebar a:hover, .sidebar a.active {
+            color: var(--text);
+            background: var(--accent-glow);
+            border-left-color: var(--accent);
+        }
+
+        .sidebar a.sub { padding-left: 44px; font-size: .82rem; }
+
+        /* Main */
+        .main {
+            margin-left: var(--sidebar-w);
+            padding: 48px 60px 100px;
+            max-width: 920px;
+        }
+
+        .badge {
+            display: inline-block;
+            font-size: .7rem;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 99px;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            vertical-align: middle;
+            margin-left: 8px;
+        }
+
+        .badge-get { background: var(--green-dim); color: var(--green); }
+        .badge-post { background: var(--blue-dim); color: var(--blue); }
+        .badge-put { background: var(--orange-dim); color: var(--orange); }
+        .badge-delete { background: var(--red-dim); color: var(--red); }
+        .badge-admin { background: var(--purple-dim); color: var(--purple); }
+
+        h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 8px; }
+        h2 { font-size: 1.5rem; font-weight: 700; margin: 56px 0 16px; letter-spacing: -0.02em; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+        h3 { font-size: 1.15rem; font-weight: 600; margin: 36px 0 12px; letter-spacing: -0.01em; }
+
+        .subtitle { color: var(--text-dim); font-size: 1.05rem; margin-bottom: 32px; }
+
+        p { margin-bottom: 14px; color: var(--text-dim); }
+
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* Endpoint card */
+        .endpoint {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin: 20px 0;
+            transition: border-color .2s;
+        }
+        .endpoint:hover { border-color: var(--border-hover); }
+
+        .endpoint-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .method {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .75rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: var(--radius-sm);
+            text-transform: uppercase;
+            min-width: 64px;
+            text-align: center;
+        }
+
+        .method-get { background: var(--green-dim); color: var(--green); }
+        .method-post { background: var(--blue-dim); color: var(--blue); }
+        .method-put { background: var(--orange-dim); color: var(--orange); }
+        .method-delete { background: var(--red-dim); color: var(--red); }
+
+        .path {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .95rem;
+            font-weight: 500;
+        }
+
+        .scope-tag {
+            font-size: .65rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 99px;
+            background: var(--accent-glow);
+            color: var(--accent);
+            margin-left: auto;
+        }
+
+        .admin-badge {
+            font-size: .65rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 99px;
+            background: var(--purple-dim);
+            color: var(--purple);
+        }
+
+        .endpoint-desc { color: var(--text-dim); font-size: .92rem; margin-bottom: 16px; }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0;
+            font-size: .88rem;
+        }
+
+        th {
+            text-align: left;
+            padding: 10px 14px;
+            background: rgba(255,255,255,.03);
+            color: var(--text-dim);
+            font-weight: 600;
+            font-size: .78rem;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-dim);
+            vertical-align: top;
+        }
+
+        td code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .82rem;
+            background: var(--bg-code);
+            padding: 2px 7px;
+            border-radius: 4px;
+            color: var(--accent);
+        }
+
+        /* Code block */
+        pre {
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 18px 20px;
+            overflow-x: auto;
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .82rem;
+            line-height: 1.7;
+            color: var(--text-dim);
+        }
+
+        pre .kw { color: var(--purple); }
+        pre .str { color: var(--green); }
+        pre .cm { color: var(--text-muted); font-style: italic; }
+        pre .fn { color: var(--accent); }
+        pre .num { color: var(--orange); }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .inline-code {
+            background: var(--bg-code);
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: .85rem;
+            color: var(--accent);
+        }
+
+        /* Alert */
+        .alert {
+            padding: 16px 20px;
+            border-radius: var(--radius-sm);
+            margin: 16px 0;
+            font-size: .9rem;
+            border-left: 3px solid;
+        }
+
+        .alert-warning {
+            background: var(--yellow-dim);
+            border-color: var(--yellow);
+            color: var(--yellow);
+        }
+
+        .alert-info {
+            background: var(--blue-dim);
+            border-color: var(--blue);
+            color: var(--blue);
+        }
+
+        .alert-danger {
+            background: var(--red-dim);
+            border-color: var(--red);
+            color: var(--red);
+        }
+
+        .alert strong { display: block; margin-bottom: 4px; }
+
+        /* Stats card */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-card .num { font-size: 1.8rem; font-weight: 800; color: var(--accent); }
+        .stat-card .label { font-size: .8rem; color: var(--text-dim); margin-top: 4px; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+        /* Mobile */
+        .hamburger {
+            display: none;
+            position: fixed;
+            top: 16px; left: 16px;
+            z-index: 200;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 8px 12px;
+            color: var(--text);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); box-shadow: 4px 0 20px rgba(0,0,0,.5); }
+            .hamburger { display: block; }
+            .main { margin-left: 0; padding: 72px 20px 80px; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        /* Smooth glow */
+        .hero-glow {
+            position: absolute;
+            top: -100px; left: 50%;
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(129,140,248,.06) 0%, transparent 70%);
+            transform: translateX(-50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .hero { position: relative; }
+    </style>
+</head>
+<body>
+
+<!-- Hamburger -->
+<button class="hamburger" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+    <div class="sidebar-logo">
+        <img src="docs-logo.png" alt="CloudMail">
+        <h1>Cloud<span>Mail</span></h1>
+    </div>
+
+    <div class="sidebar-section">Getting Started</div>
+    <a href="#overview">Overview</a>
+    <a href="#authentication">Authentication</a>
+    <a href="#scopes">Scopes</a>
+
+    <div class="sidebar-section">API Endpoints</div>
+    <a href="#users">Users</a>
+    <a href="#list-users" class="sub">List Users</a>
+    <a href="#create-user" class="sub">Create User</a>
+    <a href="#delete-user" class="sub">Delete User</a>
+
+    <a href="#emails">Emails</a>
+    <a href="#list-emails" class="sub">List Emails</a>
+    <a href="#get-email" class="sub">Get Email</a>
+    <a href="#delete-emails" class="sub">Delete Emails</a>
+
+    <a href="#stats">Statistics</a>
+
+    <div class="sidebar-section">Reference</div>
+    <a href="#errors">Error Codes</a>
+    <a href="#db-schema">DB Schema</a>
+
+    <div class="sidebar-section">Integration</div>
+    <a href="#discordjs">Discord.js Example</a>
+    <a href="#slash-commands">Slash Commands</a>
+    <a href="#deployment">Deployment</a>
+</nav>
+
+<!-- Main Content -->
+<div class="main">
+    <div class="hero">
+        <div class="hero-glow"></div>
+        <div class="hero" style="position:relative">
+            <h1 id="overview">CloudMail API <span style="font-size:.6em;color:var(--accent)">v1</span></h1>
+            <p class="subtitle">REST API untuk integrasi Discord Bot dengan CloudMail. Kelola user, email, dan statistik melalui API Key berbasis scope.</p>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="num">8</div>
+            <div class="label">Endpoints</div>
+        </div>
+        <div class="stat-card">
+            <div class="num">3</div>
+            <div class="label">Scopes</div>
+        </div>
+        <div class="stat-card">
+            <div class="num">SHA-256</div>
+            <div class="label">Key Hashing</div>
+        </div>
+        <div class="stat-card">
+            <div class="num">JWT + API Key</div>
+            <div class="label">Auth System</div>
+        </div>
+    </div>
+
+    <!-- Authentication -->
+    <h2 id="authentication">Authentication</h2>
+    <p>Semua request ke <span class="inline-code">/api/v1/*</span> memerlukan header API Key:</p>
+
+    <pre>x-api-key: cm_<span class="str">your-api-key-here</span></pre>
+
+    <p>Dapatkan API Key dari: <strong>Admin Panel → Management → API Keys → Generate Key</strong></p>
+
+    <div class="alert alert-danger">
+        <strong>⚠️ Peringatan</strong>
+        API Key hanya ditampilkan <strong>SEKALI</strong> saat pembuatan. Copy dan simpan di tempat aman. Key tidak bisa di-retrieve lagi dari database.
+    </div>
+
+    <div class="alert alert-info">
+        <strong>ℹ️ Autentikasi Flow</strong>
+        <code>x-api-key</code> → SHA-256 hash → DB lookup → Status check → Scope check → Endpoint access
+    </div>
+
+    <!-- Scopes -->
+    <h2 id="scopes">Scopes</h2>
+    <p>Setiap API Key memiliki daftar scope yang menentukan endpoint mana yang bisa diakses:</p>
+
+    <table>
+        <thead>
+            <tr><th>Scope</th><th>Description</th><th>Endpoints</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>users</code></td>
+                <td>Create, list, delete users</td>
+                <td><code>/v1/users</code></td>
+            </tr>
+            <tr>
+                <td><code>emails</code></td>
+                <td>List, read, delete emails</td>
+                <td><code>/v1/emails</code></td>
+            </tr>
+            <tr>
+                <td><code>stats</code></td>
+                <td>View system statistics</td>
+                <td><code>/v1/stats</code></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="alert alert-warning">
+        <strong>🔑 Contoh</strong>
+        Jika key hanya memiliki scope <code>["emails"]</code>, request ke <code>/v1/users</code> akan return <code>403 Forbidden</code>.
+    </div>
+
+    <!-- ===================== USERS ===================== -->
+    <h2 id="users">Users</h2>
+
+    <!-- List Users -->
+    <div class="endpoint" id="list-users">
+        <div class="endpoint-header">
+            <span class="method method-get">GET</span>
+            <span class="path">/api/v1/users</span>
+            <span class="scope-tag">scope: users</span>
+        </div>
+        <p class="endpoint-desc">Daftar semua user dengan pagination.</p>
+
+        <table>
+            <thead><tr><th>Param</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>num</code></td><td>int</td><td>1</td><td>Halaman</td></tr>
+                <tr><td><code>size</code></td><td>int</td><td>20</td><td>Item per halaman (max 50)</td></tr>
+                <tr><td><code>type</code></td><td>int</td><td>—</td><td>Filter tipe user</td></tr>
+            </tbody>
+        </table>
+
+        <p style="margin-top:14px;font-weight:600;color:var(--text)">Response:</p>
+<pre>{
+  <span class="str">"code"</span>: <span class="num">200</span>,
+  <span class="str">"data"</span>: {
+    <span class="str">"list"</span>: [...],
+    <span class="str">"total"</span>: <span class="num">42</span>
+  }
+}</pre>
+    </div>
+
+    <!-- Create User -->
+    <div class="endpoint" id="create-user">
+        <div class="endpoint-header">
+            <span class="method method-post">POST</span>
+            <span class="path">/api/v1/users</span>
+            <span class="scope-tag">scope: users</span>
+        </div>
+        <p class="endpoint-desc">Buat user baru.</p>
+
+        <p style="font-weight:600;color:var(--text)">Body (JSON):</p>
+<pre>{
+  <span class="str">"email"</span>: <span class="str">"user@example.com"</span>,
+  <span class="str">"password"</span>: <span class="str">"your-password"</span>
+}</pre>
+
+        <p style="font-weight:600;color:var(--text)">Response:</p>
+<pre>{
+  <span class="str">"code"</span>: <span class="num">200</span>
+}</pre>
+    </div>
+
+    <!-- Delete User -->
+    <div class="endpoint" id="delete-user">
+        <div class="endpoint-header">
+            <span class="method method-delete">DELETE</span>
+            <span class="path">/api/v1/users</span>
+            <span class="scope-tag">scope: users</span>
+        </div>
+        <p class="endpoint-desc">Hapus user secara permanen (physical delete).</p>
+
+        <p style="font-weight:600;color:var(--text)">Body (JSON):</p>
+<pre>{
+  <span class="str">"userId"</span>: <span class="num">123</span>
+}</pre>
+
+        <div class="alert alert-danger">
+            <strong>⚠️ Hati-hati</strong>
+            Operasi ini permanent. User yang dihapus tidak bisa dikembalikan.
+        </div>
+    </div>
+
+    <!-- ===================== EMAILS ===================== -->
+    <h2 id="emails">Emails</h2>
+
+    <!-- List Emails -->
+    <div class="endpoint" id="list-emails">
+        <div class="endpoint-header">
+            <span class="method method-get">GET</span>
+            <span class="path">/api/v1/emails</span>
+            <span class="scope-tag">scope: emails</span>
+        </div>
+        <p class="endpoint-desc">Daftar email dengan filter dan pagination.</p>
+
+        <table>
+            <thead><tr><th>Param</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>num</code></td><td>int</td><td>1</td><td>Halaman</td></tr>
+                <tr><td><code>size</code></td><td>int</td><td>20</td><td>Item per halaman (max 50)</td></tr>
+                <tr><td><code>type</code></td><td>int</td><td>—</td><td><code>0</code> = inbox, <code>1</code> = sent, <code>2</code> = trash</td></tr>
+            </tbody>
+        </table>
+
+        <p style="margin-top:14px;font-weight:600;color:var(--text)">Response:</p>
+<pre>{
+  <span class="str">"code"</span>: <span class="num">200</span>,
+  <span class="str">"data"</span>: {
+    <span class="str">"list"</span>: [
+      {
+        <span class="str">"emailId"</span>: <span class="num">1</span>,
+        <span class="str">"from"</span>: <span class="str">"sender@example.com"</span>,
+        <span class="str">"to"</span>: <span class="str">"user@revmail.my.id"</span>,
+        <span class="str">"subject"</span>: <span class="str">"Hello"</span>,
+        <span class="str">"body"</span>: <span class="str">"..."</span>,
+        <span class="str">"type"</span>: <span class="num">0</span>,
+        <span class="str">"createTime"</span>: <span class="str">"2026-07-20T12:00:00.000Z"</span>
+      }
+    ],
+    <span class="str">"total"</span>: <span class="num">150</span>
+  }
+}</pre>
+    </div>
+
+    <!-- Get Email -->
+    <div class="endpoint" id="get-email">
+        <div class="endpoint-header">
+            <span class="method method-get">GET</span>
+            <span class="path">/api/v1/emails/:emailId</span>
+            <span class="scope-tag">scope: emails</span>
+        </div>
+        <p class="endpoint-desc">Detail email berdasarkan ID.</p>
+
+        <p style="font-weight:600;color:var(--text)">Contoh:</p>
+<pre><span class="cm">// GET /api/v1/emails/42</span></pre>
+
+        <p style="font-weight:600;color:var(--text)">Response (success):</p>
+<pre>{
+  <span class="str">"code"</span>: <span class="num">200</span>,
+  <span class="str">"data"</span>: {
+    <span class="str">"emailId"</span>: <span class="num">42</span>,
+    <span class="str">"from"</span>: <span class="str">"sender@example.com"</span>,
+    <span class="str">"to"</span>: <span class="str">"user@revmail.my.id"</span>,
+    <span class="str">"subject"</span>: <span class="str">"Hello"</span>,
+    <span class="str">"body"</span>: <span class="str">"Full email content..."</span>,
+    <span class="str">"type"</span>: <span class="num">0</span>,
+    <span class="str">"createTime"</span>: <span class="str">"2026-07-20T12:00:00.000Z"</span>
+  }
+}</pre>
+
+        <p style="font-weight:600;color:var(--text)">Response (not found):</p>
+<pre>{
+  <span class="str">"code"</span>: <span class="num">404</span>,
+  <span class="str">"message"</span>: <span class="str">"Email not found"</span>
+}</pre>
+    </div>
+
+    <!-- Delete Emails -->
+    <div class="endpoint" id="delete-emails">
+        <div class="endpoint-header">
+            <span class="method method-delete">DELETE</span>
+            <span class="path">/api/v1/emails</span>
+            <span class="scope-tag">scope: emails</span>
+        </div>
+        <p class="endpoint-desc">Soft delete email (pindah ke trash). Kirim comma-separated IDs.</p>
+
+        <p style="font-weight:600;color:var(--text)">Body (JSON):</p>
+<pre>{
+  <span class="str">"emailIds"</span>: <span class="str">"1,2,3"</span>
+}</pre>
+
+        <p style="font-weight:600;color:var(--text)">Response:</p>
+<pre>{
+  <span class="str">"code"</span>: <span class="num">200</span>
+}</pre>
+    </div>
+
+    <!-- ===================== STATS ===================== -->
+    <h2 id="stats">Statistics</h2>
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method method-get">GET</span>
+            <span class="path">/api/v1/stats</span>
+            <span class="scope-tag">scope: stats</span>
+        </div>
+        <p class="endpoint-desc">Ambil statistik sistem (total email, total user, dll).</p>
+
+        <p style="font-weight:600;color:var(--text)">Response:</p>
+<pre>{
+  <span class="str">"code"</span>: <span class="num">200</span>,
+  <span class="str">"data"</span>: {
+    <span class="str">"totalEmails"</span>: <span class="num">1234</span>,
+    <span class="str">"totalUsers"</span>: <span class="num">50</span>
+  }
+}</pre>
+    </div>
+
+    <!-- ===================== ERRORS ===================== -->
+    <h2 id="errors">Error Codes</h2>
+
+    <table>
+        <thead><tr><th>Code</th><th>Meaning</th><th>Cause</th></tr></thead>
+        <tbody>
+            <tr>
+                <td><code>400</code></td>
+                <td>Bad Request</td>
+                <td>Missing required parameters</td>
+            </tr>
+            <tr>
+                <td><code>401</code></td>
+                <td>Unauthorized</td>
+                <td>Invalid / missing / expired API key</td>
+            </tr>
+            <tr>
+                <td><code>403</code></td>
+                <td>Forbidden</td>
+                <td>Key valid tapi scope tidak cukup</td>
+            </tr>
+            <tr>
+                <td><code>404</code></td>
+                <td>Not Found</td>
+                <td>Resource tidak ditemukan</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p style="font-weight:600;color:var(--text);margin-top:20px">Contoh Error Response:</p>
+<pre><span class="cm">// Missing API key</span>
+{
+  <span class="str">"code"</span>: <span class="num">401</span>,
+  <span class="str">"message"</span>: <span class="str">"Authentication has expired. Please sign in again"</span>
+}
+
+<span class="cm">// Invalid key</span>
+{
+  <span class="str">"code"</span>: <span class="num">401</span>,
+  <span class="str">"message"</span>: <span class="str">"Invalid API key"</span>
+}
+
+<span class="cm">// Missing scope</span>
+{
+  <span class="str">"code"</span>: <span class="num">403</span>,
+  <span class="str">"message"</span>: <span class="str">"Missing required scope: emails"</span>
+}
+
+<span class="cm">// Key disabled</span>
+{
+  <span class="str">"code"</span>: <span class="num">401</span>,
+  <span class="str">"message"</span>: <span class="str">"API key is disabled"</span>
+}
+
+<span class="cm">// Key expired</span>
+{
+  <span class="str">"code"</span>: <span class="num">401</span>,
+  <span class="str">"message"</span>: <span class="str">"API key has expired"</span>
+}</pre>
+
+    <!-- ===================== DB SCHEMA ===================== -->
+    <h2 id="db-schema">DB Schema</h2>
+    <p>Tabel <code>api_key</code> di Cloudflare D1 (SQLite):</p>
+
+    <table>
+        <thead><tr><th>Column</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+            <tr><td><code>api_key_id</code></td><td>INTEGER (PK, AUTO)</td><td>Primary key</td></tr>
+            <tr><td><code>name</code></td><td>TEXT</td><td>Nama key (misal: "Discord Bot")</td></tr>
+            <tr><td><code>key_hash</code></td><td>TEXT</td><td>SHA-256 hash dari raw key</td></tr>
+            <tr><td><code>key_prefix</code></td><td>TEXT</td><td>16 karakter pertama + "..."</td></tr>
+            <tr><td><code>scopes</code></td><td>TEXT (JSON)</td><td>Array of scopes, misal: <code>["users","emails"]</code></td></tr>
+            <tr><td><code>status</code></td><td>INTEGER</td><td><code>0</code> = active, <code>1</code> = disabled</td></tr>
+            <tr><td><code>user_id</code></td><td>INTEGER</td><td>ID admin yang membuat</td></tr>
+            <tr><td><code>create_time</code></td><td>DATETIME</td><td>Waktu pembuatan</td></tr>
+            <tr><td><code>expire_time</code></td><td>DATETIME (nullable)</td><td>Kadaluarsa (kosong = tidak pernah)</td></tr>
+        </tbody>
+    </table>
+
+    <!-- ===================== DISCORD.JS ===================== -->
+    <h2 id="discordjs">Discord.js Integration</h2>
+
+    <h3>Setup</h3>
+<pre><span class="cm">// config.js</span>
+<span class="kw">module</span>.exports = {
+  <span class="str">CLOUDMAIL_BASE</span>: <span class="str">'https://mail.revmail.my.id/api'</span>,
+  <span class="str">CLOUDMAIL_API_KEY</span>: process.env.<span class="str">CLOUDMAIL_API_KEY</span>,
+};
+
+<span class="cm">// api.js — CloudMail API Client</span>
+<span class="kw">const</span> fetch = <span class="fn">require</span>(<span class="str">'node-fetch'</span>);
+<span class="kw">const</span> { CLOUDMAIL_BASE, CLOUDMAIL_API_KEY } = <span class="fn">require</span>(<span class="str">'./config'</span>);
+
+<span class="kw">const</span> headers = { <span class="str">'x-api-key'</span>: CLOUDMAIL_API_KEY };
+
+<span class="kw">async function</span> <span class="fn">listEmails</span>(page = <span class="num">1</span>, type) {
+  <span class="kw">let</span> url = <span class="str">`${CLOUDMAIL_BASE}/v1/emails?num=${page}&size=10`</span>;
+  <span class="kw">if</span> (type !== <span class="kw">undefined</span>) url += <span class="str">`&type=${type}`</span>;
+  <span class="kw">const</span> res = <span class="kw">await</span> <span class="fn">fetch</span>(url, { headers });
+  <span class="kw">const</span> json = <span class="kw">await</span> res.<span class="fn">json</span>();
+  <span class="kw">return</span> json.data;
+}
+
+<span class="kw">async function</span> <span class="fn">getEmail</span>(id) {
+  <span class="kw">const</span> res = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">`${CLOUDMAIL_BASE}/v1/emails/${id}`</span>, { headers });
+  <span class="kw">const</span> json = <span class="kw">await</span> res.<span class="fn">json</span>();
+  <span class="kw">return</span> json.data;
+}
+
+<span class="kw">async function</span> <span class="fn">deleteEmails</span>(ids) {
+  <span class="kw">const</span> res = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">`${CLOUDMAIL_BASE}/v1/emails`</span>, {
+    method: <span class="str">'DELETE'</span>,
+    headers: { ...headers, <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span> },
+    body: JSON.<span class="fn">stringify</span>({ emailIds: ids.<span class="fn">join</span>(<span class="str">','</span>) }),
+  });
+  <span class="kw">return</span> (<span class="kw">await</span> res.<span class="fn">json</span>()).code === <span class="num">200</span>;
+}
+
+<span class="kw">async function</span> <span class="fn">createUser</span>(email, password) {
+  <span class="kw">const</span> res = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">`${CLOUDMAIL_BASE}/v1/users`</span>, {
+    method: <span class="str">'POST'</span>,
+    headers: { ...headers, <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span> },
+    body: JSON.<span class="fn">stringify</span>({ email, password }),
+  });
+  <span class="kw">return</span> (<span class="kw">await</span> res.<span class="fn">json</span>()).code === <span class="num">200</span>;
+}
+
+<span class="kw">async function</span> <span class="fn">listUsers</span>() {
+  <span class="kw">const</span> res = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">`${CLOUDMAIL_BASE}/v1/users`</span>, { headers });
+  <span class="kw">const</span> json = <span class="kw">await</span> res.<span class="fn">json</span>();
+  <span class="kw">return</span> json.data;
+}
+
+<span class="kw">async function</span> <span class="fn">getStats</span>() {
+  <span class="kw">const</span> res = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">`${CLOUDMAIL_BASE}/v1/stats`</span>, { headers });
+  <span class="kw">const</span> json = <span class="kw">await</span> res.<span class="fn">json</span>();
+  <span class="kw">return</span> json.data;
+}
+
+module.exports = { listEmails, getEmail, deleteEmails, createUser, listUsers, getStats };</pre>
+
+    <!-- Slash Commands -->
+    <h2 id="slash-commands">Slash Command Examples</h2>
+
+    <h3>📬 /inbox — Cek Email Inbox</h3>
+<pre><span class="kw">const</span> { SlashCommandBuilder, EmbedBuilder } = <span class="fn">require</span>(<span class="str">'discord.js'</span>);
+<span class="kw">const</span> { listEmails } = <span class="fn">require</span>(<span class="str">'./api'</span>);
+
+module.exports = {
+  data: <span class="kw">new</span> <span class="fn">SlashCommandBuilder</span>()
+    .<span class="fn">setName</span>(<span class="str">'inbox'</span>)
+    .<span class="fn">setDescription</span>(<span class="str">'Cek email inbox terbaru'</span>)
+    .<span class="fn">addIntegerOption</span>(opt =>
+      opt.<span class="fn">setName</span>(<span class="str">'page'</span>).<span class="fn">setDescription</span>(<span class="str">'Halaman'</span>).<span class="fn">setRequired</span>(<span class="kw">false</span>)
+    ),
+
+  <span class="kw">async</span> <span class="fn">execute</span>(interaction) {
+    <span class="kw">const</span> page = interaction.options.<span class="fn">getInteger</span>(<span class="str">'page'</span>) || <span class="num">1</span>;
+
+    <span class="kw">await</span> interaction.<span class="fn">deferReply</span>();
+
+    <span class="kw">try</span> {
+      <span class="kw">const</span> data = <span class="kw">await</span> <span class="fn">listEmails</span>(page, <span class="num">0</span>);
+
+      <span class="kw">if</span> (!data.list.length) {
+        <span class="kw">return</span> interaction.<span class="fn">editReply</span>(<span class="str">'📭 Inbox kosong.'</span>);
+      }
+
+      <span class="kw">const</span> embeds = data.list.<span class="fn">map</span>(e =>
+        <span class="kw">new</span> <span class="fn">EmbedBuilder</span>()
+          .<span class="fn">setTitle</span>(e.subject || <span class="str">'(no subject)'</span>)
+          .<span class="fn">setDescription</span>(<span class="str">`From: ${e.from}\n\n${(e.body||'').substring(0,150)}...`</span>)
+          .<span class="fn">setColor</span>(<span class="num">0x818cf8</span>)
+          .<span class="fn">setFooter</span>({ text: <span class="kw">new</span> <span class="fn">Date</span>(e.createTime).<span class="fn">toLocaleDateString</span>(<span class="str">'id-ID'</span>) })
+      );
+
+      <span class="kw">await</span> interaction.<span class="fn">editReply</span>({
+        content: <span class="str">`📬 **Page ${page}** — ${data.total} total email`</span>,
+        embeds: embeds.<span class="fn">slice</span>(<span class="num">0</span>, <span class="num">5</span>),
+      });
+    } <span class="kw">catch</span> (err) {
+      <span class="kw">await</span> interaction.<span class="fn">editReply</span>(<span class="str">`❌ Error: ${err.message}`</span>);
+    }
+  },
+};</pre>
+
+    <h3>👤 /createuser — Buat User Baru</h3>
+<pre><span class="kw">const</span> { SlashCommandBuilder } = <span class="fn">require</span>(<span class="str">'discord.js'</span>);
+<span class="kw">const</span> { createUser } = <span class="fn">require</span>(<span class="str">'./api'</span>);
+
+module.exports = {
+  data: <span class="kw">new</span> <span class="fn">SlashCommandBuilder</span>()
+    .<span class="fn">setName</span>(<span class="str">'createuser'</span>)
+    .<span class="fn">setDescription</span>(<span class="str">'Buat user CloudMail baru'</span>)
+    .<span class="fn">addStringOption</span>(opt =>
+      opt.<span class="fn">setName</span>(<span class="str">'email'</span>).<span class="fn">setDescription</span>(<span class="str">'Email user'</span>).<span class="fn">setRequired</span>(<span class="kw">true</span>)
+    )
+    .<span class="fn">addStringOption</span>(opt =>
+      opt.<span class="fn">setName</span>(<span class="str">'password'</span>).<span class="fn">setDescription</span>(<span class="str">'Password'</span>).<span class="fn">setRequired</span>(<span class="kw">true</span>)
+    ),
+
+  <span class="kw">async</span> <span class="fn">execute</span>(interaction) {
+    <span class="kw">const</span> email = interaction.options.<span class="fn">getString</span>(<span class="str">'email'</span>);
+    <span class="kw">const</span> password = interaction.options.<span class="fn">getString</span>(<span class="str">'password'</span>);
+
+    <span class="kw">try</span> {
+      <span class="kw">const</span> ok = <span class="kw">await</span> <span class="fn">createUser</span>(email, password);
+      <span class="kw">await</span> interaction.<span class="fn">reply</span>(ok
+        ? <span class="str">`✅ User **${email}** berhasil dibuat!`</span>
+        : <span class="str">'❌ Gagal membuat user.'</span>
+      );
+    } <span class="kw">catch</span> (err) {
+      <span class="kw">await</span> interaction.<span class="fn">reply</span>(<span class="str">`❌ Error: ${err.message}`</span>);
+    }
+  },
+};</pre>
+
+    <h3>📊 /stats — Statistik Sistem</h3>
+<pre><span class="kw">const</span> { SlashCommandBuilder, EmbedBuilder } = <span class="fn">require</span>(<span class="str">'discord.js'</span>);
+<span class="kw">const</span> { getStats } = <span class="fn">require</span>(<span class="str">'./api'</span>);
+
+module.exports = {
+  data: <span class="kw">new</span> <span class="fn">SlashCommandBuilder</span>()
+    .<span class="fn">setName</span>(<span class="str">'stats'</span>)
+    .<span class="fn">setDescription</span>(<span class="str">'Lihat statistik CloudMail'</span>),
+
+  <span class="kw">async</span> <span class="fn">execute</span>(interaction) {
+    <span class="kw">try</span> {
+      <span class="kw">const</span> stats = <span class="kw">await</span> <span class="fn">getStats</span>();
+      <span class="kw">const</span> embed = <span class="kw">new</span> <span class="fn">EmbedBuilder</span>()
+        .<span class="fn">setTitle</span>(<span class="str">'📊 CloudMail Stats'</span>)
+        .<span class="fn">setColor</span>(<span class="num">0x34d399</span>)
+        .<span class="fn">addFields</span>(
+          { name: <span class="str">'📧 Total Emails'</span>, value: <span class="str">`${stats.totalEmails}`</span>, inline: <span class="kw">true</span> },
+          { name: <span class="str">'👤 Total Users'</span>, value: <span class="str">`${stats.totalUsers}`</span>, inline: <span class="kw">true</span> },
+        );
+      <span class="kw">await</span> interaction.<span class="fn">reply</span>({ embeds: [embed] });
+    } <span class="kw">catch</span> (err) {
+      <span class="kw">await</span> interaction.<span class="fn">reply</span>(<span class="str">`❌ Error: ${err.message}`</span>);
+    }
+  },
+};</pre>
+
+    <!-- Deployment -->
+    <h2 id="deployment">Deployment Steps</h2>
+
+    <div class="alert alert-info">
+        <strong>📋 Checklist Deploy</strong>
+    </div>
+
+    <table>
+        <thead><tr><th>#</th><th>Step</th><th>Command</th></tr></thead>
+        <tbody>
+            <tr><td>1</td><td>Deploy Cloudflare Worker</td><td><code>cd mail-worker && npx wrangler deploy</code></td></tr>
+            <tr><td>2</td><td>Initialize database</td><td><code>curl https://mail.revmail.my.id/init/{jwt-secret}</code></td></tr>
+            <tr><td>3</td><td>Login admin panel</td><td>Buka <code>https://mail.revmail.my.id</code></td></tr>
+            <tr><td>4</td><td>Assign perm "API密钥 → 密钥查看"</td><td>Admin → Permissions → Roles</td></tr>
+            <tr><td>5</td><td>Generate API Key</td><td>Admin → Management → API Keys</td></tr>
+            <tr><td>6</td><td>Set env di bot</td><td><code>CLOUDMAIL_API_KEY=cm_xxxxx</code></td></tr>
+        </tbody>
+    </table>
+
+    <div class="alert alert-warning" style="margin-top:24px">
+        <strong>🔑 Set API Key sebagai Environment Variable di Bot</strong>
+        Jangan hardcode API key di source code. Gunakan <code>.env</code> file atau Discord bot hosting environment variables.
+    </div>
+
+    <div style="margin-top:80px; padding-top:24px; border-top:1px solid var(--border); color:var(--text-muted); font-size:.82rem; text-align:center;">
+        CloudMail API Docs v1 — Built for Discord Bot Integration
+    </div>
+</div>
+
+<script>
+    // Active sidebar highlight
+    const links = document.querySelectorAll('.sidebar a');
+    const sections = [];
+    links.forEach(link => {
+        const id = link.getAttribute('href')?.replace('#', '');
+        if (id) {
+            const el = document.getElementById(id);
+            if (el) sections.push({ el, link });
+        }
+    });
+
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+        if (!ticking) {
+            requestAnimationFrame(() => {
+                let current = null;
+                for (const s of sections) {
+                    if (s.el.getBoundingClientRect().top <= 120) current = s;
+                }
+                links.forEach(l => l.classList.remove('active'));
+                if (current) current.link.classList.add('active');
+                ticking = false;
+            });
+            ticking = true;
+        }
+    });
+
+    // Close sidebar on link click (mobile)
+    links.forEach(link => {
+        link.addEventListener('click', () => {
+            document.querySelector('.sidebar').classList.remove('open');
+        });
+    });
+</script>
+</body>
+</html>

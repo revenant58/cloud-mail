@@ -41,7 +41,10 @@ app.delete('/apiKey/delete', async (c) => {
 	if (user.email !== c.env.admin) {
 		throw new BizError('Admin only', 403);
 	}
-	const params = await c.req.json();
-	await apiKeyService.delete(c, params);
+	const apiKeyIds = c.req.query('apiKeyIds');
+	if (!apiKeyIds) {
+		throw new BizError('apiKeyIds is required', 400);
+	}
+	await apiKeyService.delete(c, { apiKeyIds });
 	return c.json(result.ok());
 });
