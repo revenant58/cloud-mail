@@ -142,7 +142,7 @@ async function loadData() {
   loading.value = true;
   try {
     const res = await apiKeyList();
-    dataList.value = res.data || [];
+    dataList.value = res || [];
   } catch (e) {
     console.error(e);
   } finally {
@@ -166,7 +166,8 @@ async function submitCreate() {
   try {
     const res = await apiKeyCreate(createForm.value);
     createdKey.value = res.apiKey;
-    loadData();
+    showCreate.value = false;
+    await loadData();
   } catch (e) {
     console.error(e);
   } finally {
