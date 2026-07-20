@@ -105,7 +105,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, nextTick } from 'vue';
 import { Icon } from '@iconify/vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { apiKeyList, apiKeyCreate, apiKeyUpdate, apiKeyDelete } from '@/request/api-key.js';
@@ -217,6 +217,7 @@ async function deleteKey(item) {
       }
     );
     await apiKeyDelete(item.apiKeyId);
+    await nextTick();
     const index = dataList.value.findIndex(d => d.apiKeyId === item.apiKeyId);
     if (index !== -1) dataList.value.splice(index, 1);
   } catch (e) {
