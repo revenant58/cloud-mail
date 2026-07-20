@@ -1,7 +1,7 @@
 import BizError from '../error/biz-error';
 import orm from '../entity/orm';
 import apiKeyEntity from '../entity/api-key';
-import { eq, desc } from 'drizzle-orm';
+import { eq, desc, inArray } from 'drizzle-orm';
 import { t } from '../i18n/i18n';
 
 const encoder = new TextEncoder();
@@ -88,10 +88,8 @@ const apiKeyService = {
 			throw new BizError('apiKeyIds is required', 400);
 		}
 		const idList = apiKeyIds.split(',').map(Number);
-		for (const id of idList) {
-			await orm(c).delete(apiKeyEntity)
-				.where(eq(apiKeyEntity.apiKeyId, id)).run();
-		}
+		await orm(c).delete(apiKeyEntity)
+			.where(inArray(apiKeyEntity.apiKeyId, idList)).run();
 	},
 
 	async verify(c, key) {
