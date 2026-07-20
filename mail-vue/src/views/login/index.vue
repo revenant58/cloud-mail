@@ -28,30 +28,8 @@
         <span class="form-desc" v-if="show === 'login'">{{ $t('loginTitle') }}</span>
         <span class="form-desc" v-else>{{ $t('regTitle') }}</span>
         <div v-show="show === 'login'">
-          <el-input :class="!hideLoginDomain ? 'email-input' : ''" v-model="form.email"
-                    type="text" :placeholder="$t('emailAccount')" autocomplete="off">
-            <template #append v-if="!hideLoginDomain">
-              <div @click.stop="openSelect">
-                <el-select
-                    v-if="show === 'login'"
-                    ref="mySelect"
-                    v-model="suffix"
-                    :placeholder="$t('select')"
-                    class="select"
-                >
-                  <el-option
-                      v-for="item in domainList"
-                      :key="item"
-                      :label="item"
-                      :value="item"
-                  />
-                </el-select>
-                <div style="color: #0A0A0A; font-weight: 600;">
-                  <span>{{ suffix }}</span>
-                  <Icon class="setting-icon" icon="mingcute:down-small-fill" width="20" height="20"/>
-                </div>
-              </div>
-            </template>
+          <el-input v-model="form.email"
+                    type="text" placeholder="example@domain.com" autocomplete="off">
           </el-input>
           <el-input v-model="form.password" :placeholder="$t('password')" type="password" autocomplete="off">
           </el-input>
@@ -63,30 +41,8 @@
           </el-button>
         </div>
         <div v-show="show !== 'login'">
-          <el-input :class="!hideLoginDomain ? 'email-input' : ''" v-model="registerForm.email" type="text" :placeholder="$t('emailAccount')"
+          <el-input v-model="registerForm.email" type="text" placeholder="example@domain.com"
                     autocomplete="off">
-            <template #append v-if="!hideLoginDomain">
-              <div @click.stop="openSelect">
-                <el-select
-                    v-if="show !== 'login'"
-                    ref="mySelect"
-                    v-model="suffix"
-                    :placeholder="$t('select')"
-                    class="select"
-                >
-                  <el-option
-                      v-for="item in domainList"
-                      :key="item"
-                      :label="item"
-                      :value="item"
-                  />
-                </el-select>
-                <div style="font-weight: 600;">
-                  <span>{{ suffix }}</span>
-                  <Icon class="setting-icon" icon="mingcute:down-small-fill" width="20" height="20"/>
-                </div>
-              </div>
-            </template>
           </el-input>
           <el-input v-model="registerForm.password" :placeholder="$t('password')" type="password" autocomplete="off"/>
           <el-input v-model="registerForm.confirmPassword" :placeholder="$t('confirmPwd')" type="password"
@@ -122,28 +78,7 @@
     </div>
     <el-dialog class="bind-dialog" v-model="showBindForm" :title="$t('bindEmail')">
       <div class="bind-container">
-        <el-input :class="!hideLoginDomain ? 'email-input' : ''" v-model="bindForm.email" type="text" :placeholder="$t('emailAccount')" autocomplete="off">
-          <template #append v-if="!hideLoginDomain">
-            <div @click.stop="openSelect">
-              <el-select
-                  ref="mySelect"
-                  v-model="suffix"
-                  :placeholder="$t('select')"
-                  class="select"
-              >
-                <el-option
-                    v-for="item in domainList"
-                    :key="item"
-                    :label="item"
-                    :value="item"
-                />
-              </el-select>
-              <div>
-                <span>{{ suffix }}</span>
-                <Icon class="setting-icon" icon="mingcute:down-small-fill" width="20" height="20"/>
-              </div>
-            </div>
-          </template>
+        <el-input v-model="bindForm.email" type="text" placeholder="example@domain.com" autocomplete="off">
         </el-input>
         <el-input v-if="settingStore.settings.regKey === 0" v-model="bindForm.code" :placeholder="$t('regKey')"
                   type="text" autocomplete="off"/>
@@ -198,17 +133,14 @@ const form = reactive({
   password: '',
 
 });
-const mySelect = ref()
-const suffix = ref('')
+
 const registerForm = reactive({
   email: '',
   password: '',
   confirmPassword: '',
   code: null
 })
-const domainList = settingStore.domainList;
 const registerLoading = ref(false)
-suffix.value = domainList[0]
 const verifyShow = ref(false)
 let verifyToken = ''
 let turnstileId = null
@@ -249,7 +181,7 @@ const loginOpacity = computed(() => {
   return uiStore.dark ? `rgba(0, 0, 0, ${opacity})` : `rgba(255, 255, 255, ${opacity})`
 })
 
-const hideLoginDomain = computed(() => settingStore.settings.loginDomain === 1)
+
 
 const background = computed(() => {
   return settingStore.settings.background ? settingStore.settings.background : ''
@@ -264,16 +196,8 @@ const backgroundStyle = computed(() => {
   } : {}
 })
 
-const openSelect = () => {
-  mySelect.value.toggleMenu()
-}
-
 const getFullEmail = (email) => {
-  return hideLoginDomain.value ? email : email + suffix.value
-}
-
-const getEmailName = (email) => {
-  return email.split('@')[0]
+  return email
 }
 
 function linuxDoLogin() {
@@ -330,18 +254,7 @@ function bind() {
     return
   }
 
-
-  if (getEmailName(bindForm.email).length < settingStore.settings.minEmailPrefix) {
-    ElMessage({
-      message: t('minEmailPrefix', {msg: settingStore.settings.minEmailPrefix}),
-      type: 'error',
-      plain: true,
-    })
-    return
-  }
-
   let email = getFullEmail(bindForm.email);
-
 
   if (!isEmail(email)) {
     ElMessage({
@@ -435,10 +348,7 @@ async function saveToken(token) {
 function refreshWebsiteConfig() {
   websiteConfig().then(setting => {
     settingStore.settings = setting
-    settingStore.domainList = setting.domainList
-    if (!suffix.value && setting.domainList.length > 0) {
-      suffix.value = setting.domainList[0]
-    }
+
     document.title = setting.title
   }).catch(e => {
     console.error(e)
@@ -451,17 +361,6 @@ function submitRegister() {
   if (!registerForm.email) {
     ElMessage({
       message: t('emptyEmailMsg'),
-      type: 'error',
-      plain: true,
-    })
-    return
-  }
-
-  console.log(registerForm.email)
-
-  if (getEmailName(registerForm.email).length < settingStore.settings.minEmailPrefix) {
-    ElMessage({
-      message: t('minEmailPrefix', {msg: settingStore.settings.minEmailPrefix}),
       type: 'error',
       plain: true,
     })
@@ -637,16 +536,7 @@ function submitRegister() {
   box-shadow: 4px 4px 0 #0A0A0A !important;
   transform: translate(-1px, -1px);
 }
-#login-box .el-input-group__append {
-  border: 2px solid #0A0A0A !important;
-  border-left: none !important;
-  border-radius: 0 4px 4px 0 !important;
-  background: #f5f0e8 !important;
-  font-weight: 700;
-}
-#login-box .email-input .el-input__wrapper {
-  border-radius: 4px 0 0 4px !important;
-}
+
 </style>
 
 <style lang="scss" scoped>
