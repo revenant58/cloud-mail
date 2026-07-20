@@ -187,9 +187,9 @@ function copyKey() {
 async function toggleStatus(item) {
   const newStatus = item.status === 0 ? 1 : 0;
   try {
-    await apiKeyUpdate({apiKeyId: item.apiKeyId, status: newStatus});
-    await nextTick();
-    loadData();
+    await apiKeyUpdate({ apiKeyId: item.apiKeyId, status: newStatus });
+    // Update item langsung, tidak re-render seluruh list
+    item.status = newStatus;
   } catch (e) {
     console.error(e);
   }
@@ -203,8 +203,9 @@ async function deleteKey(item) {
       type: 'warning',
     });
     await apiKeyDelete(item.apiKeyId);
-    await nextTick();
-    loadData();
+    // Hapus dari array tanpa reload penuh
+    const index = dataList.value.findIndex(d => d.apiKeyId === item.apiKeyId);
+    if (index !== -1) dataList.value.splice(index, 1);
   } catch (e) {
     if (e !== 'cancel') console.error(e);
   }
