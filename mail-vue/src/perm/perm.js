@@ -124,7 +124,7 @@ const routers = {
         name: 'api-key',
         component: () => import('@/views/api-key/index.vue'),
         meta: {
-            title: 'Api Keys',
+            title: 'apiKeys',
             name: 'api-key',
             menu: true
         }

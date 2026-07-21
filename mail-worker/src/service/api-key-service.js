@@ -20,20 +20,54 @@ function generateKey() {
 	return 'cm_' + hex;
 }
 
+const ALLOWED_SCOPES = ['users', 'emails', 'stats'];
+
+function normalizeScopes(scopes) {
+	if (!Array.isArray(scopes)) {
+		return [];
+	}
+	return scopes.filter(scope => ALLOWED_SCOPES.includes(scope));
+}
+
+function parseScopes(scopes) {
+	try {
+		const parsed = JSON.parse(scopes || '[]');
+		return Array.isArray(parsed) ? parsed : [];
+	} catch {
+		return [];
+	}
+}
+
+function normalizeExpireTime(expireTime) {
+	if (!expireTime) {
+		return null;
+	}
+	const date = new Date(expireTime);
+	if (Number.isNaN(date.getTime())) {
+		throw new BizError('Invalid expireTime', 400);
+	}
+	return date.toISOString();
+}
+
 const apiKeyService = {
 
 	async create(c, params) {
 		const user = c.get('user');
 		const { name, scopes, expireTime } = params;
 
-		if (!name) {
+		if (!name?.trim()) {
 			throw new BizError('Name is required', 400);
+		}
+
+		const scopeList = normalizeScopes(scopes);
+		if (scopeList.length === 0) {
+			throw new BizError('At least one scope is required', 400);
 		}
 
 		const rawKey = generateKey();
 		const keyHash = await sha256(rawKey);
 		const keyPrefix = rawKey.substring(0, 16) + '...';
-		const scopesStr = JSON.stringify(scopes || []);
+		const scopesStr = JSON.stringify(scopeList);
 
 		const insertResult = await orm(c).insert(apiKeyEntity).values({
 			name,
@@ -42,7 +76,7 @@ const apiKeyService = {
 			scopes: scopesStr,
 			status: 0,
 			userId: user.userId || 0,
-			expireTime: expireTime || null,
+			expireTime: normalizeExpireTime(expireTime),
 		}).returning().get();
 
 		return {
@@ -71,9 +105,15 @@ const apiKeyService = {
 		}
 		const updates = {};
 		if (name !== undefined) updates.name = name;
-		if (scopes !== undefined) updates.scopes = JSON.stringify(scopes);
+		if (scopes !== undefined) {
+			const scopeList = normalizeScopes(scopes);
+			if (scopeList.length === 0) {
+				throw new BizError('At least one scope is required', 400);
+			}
+			updates.scopes = JSON.stringify(scopeList);
+		}
 		if (status !== undefined) updates.status = status;
-		if (expireTime !== undefined) updates.expireTime = expireTime;
+		if (expireTime !== undefined) updates.expireTime = normalizeExpireTime(expireTime);
 
 		if (Object.keys(updates).length === 0) {
 			throw new BizError('No fields to update', 400);
@@ -113,7 +153,7 @@ const apiKeyService = {
 				throw new BizError('API key has expired', 401);
 			}
 		}
-		return JSON.parse(row.scopes);
+		return parseScopes(row.scopes);
 	},
 };
 

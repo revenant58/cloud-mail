@@ -67,7 +67,7 @@
         <el-menu-item @click="router.push({name: 'api-key'})" index="api-key" v-perm="'api-key:query'"
                       :class="route.meta.name === 'api-key' ? 'choose-item' : ''">
           <Icon icon="fluent:key-20-regular" width="20" height="20" />
-          <span class="menu-name" style="margin-left: 21px">API Keys</span>
+          <span class="menu-name" style="margin-left: 21px">{{$t('apiKeys')}}</span>
         </el-menu-item>
       </el-menu>
     </div>

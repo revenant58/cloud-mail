@@ -30,8 +30,34 @@ const dbInit = {
 		await this.v2_9DB(c);
 		await this.v3_0DB(c);
 		await this.v3_1DB(c);
+		await this.v3_2DB(c);
+		await this.v3_3DB(c);
 		await settingService.refresh(c);
 		return c.text('success');
+	},
+
+	async v3_3DB(c) {
+		try {
+			await c.env.db.batch([
+				c.env.db.prepare(`UPDATE perm SET name = 'API密钥查看' WHERE perm_key = 'api-key:query'`),
+				c.env.db.prepare(`UPDATE perm SET name = 'API密钥添加' WHERE perm_key = 'api-key:add'`),
+				c.env.db.prepare(`UPDATE perm SET name = 'API密钥删除' WHERE perm_key = 'api-key:delete'`),
+				c.env.db.prepare(`UPDATE perm SET name = 'API密钥修改' WHERE perm_key = 'api-key:update'`),
+			]);
+		} catch (e) {
+			console.warn(`跳过数据：${e.message}`);
+		}
+	},
+
+	async v3_2DB(c) {
+		try {
+			await c.env.db.prepare(`
+				INSERT INTO perm (perm_id, name, perm_key, pid, type, sort) VALUES
+				(41,'密钥修改', 'api-key:update', 37, 2, 1.5)
+			`).run();
+		} catch (e) {
+			console.warn(`跳过数据：${e.message}`);
+		}
 	},
 
 	async v3_1DB(c) {

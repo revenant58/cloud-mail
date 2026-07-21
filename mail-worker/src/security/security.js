@@ -94,6 +94,10 @@ const premKey = {
 	'reg-key:add': ['/regKey/add'],
 	'reg-key:query': ['/regKey/list','/regKey/history'],
 	'reg-key:delete': ['/regKey/delete','/regKey/clearNotUse'],
+	'api-key:add': ['/apiKey/create'],
+	'api-key:query': ['/apiKey/list'],
+	'api-key:update': ['/apiKey/update'],
+	'api-key:delete': ['/apiKey/delete'],
 };
 
 app.use('*', async (c, next) => {

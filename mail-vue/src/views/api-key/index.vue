@@ -1,7 +1,7 @@
 <template>
   <div class="api-key">
     <div class="header-actions">
-      <Icon class="icon" icon="ion:add-outline" width="23" height="23" @click="openCreate"/>
+      <Icon class="icon" icon="ion:add-outline" width="23" height="23" v-perm="'api-key:add'" @click="openCreate"/>
       <Icon class="icon" icon="ion:reload" width="18" height="18" @click="loadData"/>
     </div>
 
@@ -23,33 +23,33 @@
               <div class="info-left-item">
                 <span class="code-name">{{ item.name }}</span>
                 <el-tag size="small" :type="item.status === 0 ? 'success' : 'danger'" style="margin-left:8px">
-                  {{ item.status === 0 ? 'Active' : 'Disabled' }}
+                  {{ item.status === 0 ? $t('apiKeyActive') : $t('apiKeyDisabled') }}
                 </el-tag>
               </div>
               <div class="info-left-item">
                 <span class="code-prefix">{{ item.keyPrefix }}</span>
               </div>
               <div class="info-left-item">
-                <div>Scopes：</div>
+                <div>{{ $t('apiKeyScopes') }}：</div>
                 <el-tag v-for="s in parseScopes(item.scopes)" :key="s" size="small" style="margin-right:4px">{{ s }}</el-tag>
               </div>
               <div class="info-left-item" v-if="item.expireTime">
-                <div>Expires：</div>
+                <div>{{ $t('apiKeyExpires') }}：</div>
                 <div>{{ item.expireTime }}</div>
               </div>
             </div>
             <div class="info-right">
               <!-- FIX: teleported="true" (default) agar dropdown tidak nested -->
               <!-- di dalam scroll container yang bisa terpotong overflow -->
-              <el-dropdown class="setting">
+              <el-dropdown class="setting" v-if="canUpdateKey || canDeleteKey">
                 <Icon icon="fluent:settings-24-filled" width="21" height="21" color="#909399"/>
                 <template #dropdown>
                   <el-dropdown-menu>
-                    <el-dropdown-item @click="toggleStatus(item)">
-                      {{ item.status === 0 ? 'Disable' : 'Enable' }}
+                    <el-dropdown-item v-if="canUpdateKey" @click="toggleStatus(item)">
+                      {{ item.status === 0 ? $t('apiKeyDisable') : $t('apiKeyEnable') }}
                     </el-dropdown-item>
-                    <el-dropdown-item @click="deleteKey(item)" style="color: #f56c6c">
-                      Delete
+                    <el-dropdown-item v-if="canDeleteKey" @click="deleteKey(item)" style="color: #f56c6c">
+                      {{ $t('delete') }}
                     </el-dropdown-item>
                   </el-dropdown-menu>
                 </template>
@@ -60,7 +60,7 @@
       </div>
 
       <div class="empty" v-show="dataList.length === 0 && !first">
-        <el-empty :image-size="120" description="No API keys found"/>
+        <el-empty :image-size="120" :description="$t('apiKeyEmpty')"/>
       </div>
 
     </div>
@@ -68,24 +68,23 @@
     <!-- Create dialog -->
     <el-dialog
       v-model="showCreate"
-      title="Create API Key"
+      :title="$t('apiKeyCreateTitle')"
       width="500px"
       destroy-on-close
       @closed="onDialogClosed"
     >
       <div v-if="!createdKey" class="container">
-        <el-input v-model="createForm.name" placeholder="Name (e.g. Discord Bot)"/>
-        <div style="margin: 12px 0; font-size: 14px; color: #606266;">Scopes</div>
+        <el-input v-model="createForm.name" :placeholder="$t('apiKeyNamePlaceholder')"/>
+        <div style="margin: 12px 0; font-size: 14px; color: #606266;">{{ $t('apiKeyScopes') }}</div>
         <el-checkbox-group v-model="createForm.scopes">
           <el-checkbox value="users">Users</el-checkbox>
           <el-checkbox value="emails">Emails</el-checkbox>
           <el-checkbox value="stats">Stats</el-checkbox>
-          <el-checkbox value="settings">Settings</el-checkbox>
         </el-checkbox-group>
         <el-date-picker
           v-model="createForm.expireTime"
           type="datetime"
-          placeholder="Expiration (optional)"
+          :placeholder="$t('apiKeyExpirePlaceholder')"
           style="margin-top: 12px; width: 100%;"
         />
         <el-button
@@ -95,14 +94,14 @@
           :loading="createLoading"
           style="margin-top: 12px; width: 100%;"
         >
-          Generate Key
+          {{ $t('apiKeyGenerate') }}
         </el-button>
       </div>
 
       <div v-else class="created-key-box">
         <el-alert
-          title="API Key Generated"
-          description="Copy this key now. It will NOT be shown again."
+          :title="$t('apiKeyGeneratedTitle')"
+          :description="$t('apiKeyGeneratedDesc')"
           type="warning"
           :closable="false"
           show-icon
@@ -112,10 +111,10 @@
           <code>{{ createdKey }}</code>
         </div>
         <el-button type="primary" @click="copyKey" style="margin-top: 12px; width: 100%;">
-          Copy to Clipboard
+          {{ $t('apiKeyCopy') }}
         </el-button>
         <el-button style="margin-top: 8px; width: 100%;" @click="closeDialog">
-          Close
+          {{ $t('close') }}
         </el-button>
       </div>
     </el-dialog>
@@ -123,12 +122,18 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { Icon } from '@iconify/vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { apiKeyList, apiKeyCreate, apiKeyUpdate, apiKeyDelete } from '@/request/api-key.js';
+import { hasPerm } from '@/perm/perm.js';
+import { useI18n } from 'vue-i18n';
 
 defineOptions({ name: 'api-key' });
+
+const { t } = useI18n();
+const canUpdateKey = computed(() => hasPerm('api-key:update'));
+const canDeleteKey = computed(() => hasPerm('api-key:delete'));
 
 const dataList = ref([]);
 const loading = ref(false);
@@ -188,7 +193,11 @@ function closeDialog() {
 
 async function submitCreate() {
   if (!createForm.value.name.trim()) {
-    ElMessage.warning('Name is required');
+    ElMessage.warning(t('apiKeyNameRequired'));
+    return;
+  }
+  if (!createForm.value.scopes.length) {
+    ElMessage.warning(t('apiKeyScopeRequired'));
     return;
   }
   createLoading.value = true;
@@ -223,7 +232,7 @@ function onDialogClosed() {
 
 function copyKey() {
   navigator.clipboard.writeText(createdKey.value).then(() => {
-    ElMessage.success('Copied');
+    ElMessage.success(t('copySuccessMsg'));
   });
 }
 
@@ -244,11 +253,11 @@ async function toggleStatus(item) {
 async function deleteKey(item) {
   try {
     await ElMessageBox.confirm(
-      'This will permanently delete this API key. Continue?',
-      'Warning',
+      t('apiKeyDeleteConfirm'),
+      t('warning'),
       {
-        confirmButtonText: 'Delete',
-        cancelButtonText: 'Cancel',
+        confirmButtonText: t('delete'),
+        cancelButtonText: t('cancel'),
         type: 'warning',
       }
     );
