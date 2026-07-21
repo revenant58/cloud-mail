@@ -35,21 +35,22 @@ const apiKeyService = {
 		const keyPrefix = rawKey.substring(0, 16) + '...';
 		const scopesStr = JSON.stringify(scopes || []);
 
-		await orm(c).insert(apiKeyEntity).values({
+		const insertResult = await orm(c).insert(apiKeyEntity).values({
 			name,
 			keyHash,
 			keyPrefix,
 			scopes: scopesStr,
 			status: 0,
-			userId: user.userId,
+			userId: user.userId || 0,
 			expireTime: expireTime || null,
-		}).run();
+		}).returning().get();
 
 		return {
 			apiKey: rawKey,
-			name,
-			keyPrefix,
-			scopes: scopesStr,
+			keyData: {
+				...insertResult,
+				keyHash: undefined,
+			},
 		};
 	},
 
