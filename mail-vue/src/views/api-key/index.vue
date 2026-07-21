@@ -5,17 +5,11 @@
       <Icon class="icon" icon="ion:reload" width="18" height="18" @click="loadData"/>
     </div>
 
-    <!-- FIX: Ganti el-scrollbar → div biasa dengan overflow-y: auto -->
-    <!-- el-scrollbar punya internal ResizeObserver + DOM refs yang crash -->
-    <!-- saat splice() memicu re-render di dalam scrollbar virtual -->
-    <div class="scroll-area">
-
-      <!-- Loading overlay -->
-      <div class="loading" :class="loading ? 'loading-show' : 'loading-hide'">
-        <loading v-show="!first"/>
+    <el-scrollbar class="scrollbar">
+      <div class="loading" :class="listLoading ? 'loading-show' : 'loading-hide'" :style="first ? 'background: transparent' : ''">
+        <Loading/>
       </div>
 
-      <!-- Key list -->
       <div class="code-box">
         <div class="code-item" v-for="item in dataList" :key="item.apiKeyId">
           <div class="code-info">
@@ -31,7 +25,7 @@
               </div>
               <div class="info-left-item">
                 <div>{{ $t('apiKeyScopes') }}：</div>
-                <el-tag v-for="s in parseScopes(item.scopes)" :key="s" size="small" style="margin-right:4px">{{ s }}</el-tag>
+                <el-tag v-for="s in item.scopeList" :key="s" size="small" style="margin-right:4px">{{ s }}</el-tag>
               </div>
               <div class="info-left-item" v-if="item.expireTime">
                 <div>{{ $t('apiKeyExpires') }}：</div>
@@ -39,9 +33,7 @@
               </div>
             </div>
             <div class="info-right">
-              <!-- FIX: teleported="true" (default) agar dropdown tidak nested -->
-              <!-- di dalam scroll container yang bisa terpotong overflow -->
-              <el-dropdown class="setting" v-if="canUpdateKey || canDeleteKey">
+              <el-dropdown v-if="canUpdateKey || canDeleteKey" trigger="click" class="setting">
                 <Icon icon="fluent:settings-24-filled" width="21" height="21" color="#909399"/>
                 <template #dropdown>
                   <el-dropdown-menu>
@@ -59,19 +51,16 @@
         </div>
       </div>
 
-      <div class="empty" v-show="dataList.length === 0 && !first">
-        <el-empty :image-size="120" :description="$t('apiKeyEmpty')"/>
+      <div class="empty" v-if="dataList.length === 0">
+        <el-empty v-if="!first" :image-size="120" :description="$t('apiKeyEmpty')"/>
       </div>
+    </el-scrollbar>
 
-    </div>
-
-    <!-- Create dialog -->
     <el-dialog
       v-model="showCreate"
       :title="$t('apiKeyCreateTitle')"
       width="500px"
       destroy-on-close
-      @closed="onDialogClosed"
     >
       <div v-if="!createdKey" class="container">
         <el-input v-model="createForm.name" :placeholder="$t('apiKeyNamePlaceholder')"/>
@@ -122,9 +111,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, computed, reactive } from 'vue';
 import { Icon } from '@iconify/vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
+import Loading from '@/components/loading/index.vue';
 import { apiKeyList, apiKeyCreate, apiKeyUpdate, apiKeyDelete } from '@/request/api-key.js';
 import { hasPerm } from '@/perm/perm.js';
 import { useI18n } from 'vue-i18n';
@@ -135,14 +125,13 @@ const { t } = useI18n();
 const canUpdateKey = computed(() => hasPerm('api-key:update'));
 const canDeleteKey = computed(() => hasPerm('api-key:delete'));
 
-const dataList = ref([]);
-const loading = ref(false);
+const dataList = reactive([]);
+const listLoading = ref(false);
 const first = ref(true);
 
 const showCreate = ref(false);
 const createLoading = ref(false);
 const createdKey = ref('');
-const keyCreatedWithData = ref(false);
 
 const createForm = ref({
   name: '',
@@ -150,45 +139,57 @@ const createForm = ref({
   expireTime: null,
 });
 
-onMounted(() => {
-  loadData();
-});
+loadData();
 
 function parseScopes(scopes) {
   try {
-    return JSON.parse(scopes);
+    const parsed = JSON.parse(scopes);
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
   }
 }
 
-async function loadData() {
-  loading.value = true;
+function normalizeList(list) {
+  return (list || []).map(item => ({
+    ...item,
+    scopeList: parseScopes(item.scopes),
+  }));
+}
+
+async function loadData(showLoading = true) {
+  if (showLoading) {
+    listLoading.value = true;
+  }
   try {
     const res = await apiKeyList();
-    // FIX: Ganti splice → assignment biasa
-    // Splice sebelumnya memicu Vue reactive interceptor yang cascade ke
-    // el-scrollbar scheduler → nextSibling crash.
-    // Sekarang el-scrollbar sudah dihapus, tapi assignment lebih aman
-    // dan performa Vue diff-nya sama saja karena key="item.apiKeyId" di v-for.
-    dataList.value = res || [];
+    dataList.length = 0;
+    dataList.push(...normalizeList(res));
   } catch (e) {
     console.error(e);
   } finally {
-    loading.value = false;
-    first.value = false;
+    listLoading.value = false;
+    if (first.value) {
+      setTimeout(() => {
+        first.value = false;
+      }, 200);
+    }
   }
 }
 
 function openCreate() {
   createForm.value = { name: '', scopes: ['users', 'emails'], expireTime: null };
   createdKey.value = '';
-  keyCreatedWithData.value = false;
   showCreate.value = true;
 }
 
 function closeDialog() {
   showCreate.value = false;
+  if (createdKey.value) {
+    loadData(false);
+  }
+  createdKey.value = '';
+  createForm.value = { name: '', scopes: ['users', 'emails'], expireTime: null };
 }
 
 async function submitCreate() {
@@ -204,29 +205,13 @@ async function submitCreate() {
   try {
     const res = await apiKeyCreate(createForm.value);
     createdKey.value = res.apiKey;
-
     if (res.keyData) {
-      dataList.value = [...dataList.value, res.keyData];
-      keyCreatedWithData.value = true;
-    } else {
-      keyCreatedWithData.value = false;
+      dataList.unshift(normalizeList([res.keyData])[0]);
     }
   } catch (e) {
     console.error(e);
   } finally {
     createLoading.value = false;
-  }
-}
-
-function onDialogClosed() {
-  const needReload = !keyCreatedWithData.value && !!createdKey.value;
-
-  createdKey.value = '';
-  keyCreatedWithData.value = false;
-  createForm.value = { name: '', scopes: ['users', 'emails'], expireTime: null };
-
-  if (needReload) {
-    setTimeout(() => loadData(), 0);
   }
 }
 
@@ -240,11 +225,7 @@ async function toggleStatus(item) {
   const newStatus = item.status === 0 ? 1 : 0;
   try {
     await apiKeyUpdate({ apiKeyId: item.apiKeyId, status: newStatus });
-    // Update in-place di dalam array yang sama
-    const index = dataList.value.findIndex(d => d.apiKeyId === item.apiKeyId);
-    if (index !== -1) {
-      dataList.value[index] = { ...dataList.value[index], status: newStatus };
-    }
+    item.status = newStatus;
   } catch (e) {
     console.error(e);
   }
@@ -262,9 +243,11 @@ async function deleteKey(item) {
       }
     );
     await apiKeyDelete(item.apiKeyId);
-    setTimeout(() => {
-      dataList.value = dataList.value.filter(d => d.apiKeyId !== item.apiKeyId);
-    }, 300);
+    const index = dataList.findIndex(d => d.apiKeyId === item.apiKeyId);
+    if (index !== -1) {
+      dataList.splice(index, 1);
+    }
+    ElMessage.success(t('delSuccessMsg'));
   } catch (e) {
     if (e !== 'cancel') console.error(e);
   }
@@ -297,29 +280,8 @@ async function deleteKey(item) {
   }
 }
 
-/* FIX: Ganti .scrollbar (el-scrollbar) → .scroll-area (div biasa) */
-.scroll-area {
+.scrollbar {
   flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  position: relative;
-
-  /* Scrollbar styling native agar tetap konsisten dengan design */
-  scrollbar-width: thin;
-  scrollbar-color: var(--el-border-color) transparent;
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: var(--el-border-color);
-    border-radius: 3px;
-  }
 }
 
 .code-box {
@@ -415,6 +377,7 @@ async function deleteKey(item) {
 
 .loading-hide {
   opacity: 0;
+  transition: var(--loading-hide-transition);
 }
 
 .empty {
