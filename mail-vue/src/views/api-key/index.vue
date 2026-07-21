@@ -5,7 +5,12 @@
       <Icon class="icon" icon="ion:reload" width="18" height="18" @click="loadData"/>
     </div>
 
-    <el-scrollbar class="scrollbar">
+    <!-- FIX: Ganti el-scrollbar → div biasa dengan overflow-y: auto -->
+    <!-- el-scrollbar punya internal ResizeObserver + DOM refs yang crash -->
+    <!-- saat splice() memicu re-render di dalam scrollbar virtual -->
+    <div class="scroll-area">
+
+      <!-- Loading overlay -->
       <div class="loading" :class="loading ? 'loading-show' : 'loading-hide'">
         <loading v-show="!first"/>
       </div>
@@ -34,7 +39,9 @@
               </div>
             </div>
             <div class="info-right">
-              <el-dropdown class="setting" :teleported="false">
+              <!-- FIX: teleported="true" (default) agar dropdown tidak nested -->
+              <!-- di dalam scroll container yang bisa terpotong overflow -->
+              <el-dropdown class="setting">
                 <Icon icon="fluent:settings-24-filled" width="21" height="21" color="#909399"/>
                 <template #dropdown>
                   <el-dropdown-menu>
@@ -55,15 +62,10 @@
       <div class="empty" v-show="dataList.length === 0 && !first">
         <el-empty :image-size="120" description="No API keys found"/>
       </div>
-    </el-scrollbar>
+
+    </div>
 
     <!-- Create dialog -->
-    <!--
-      FIX: Tambah destroy-on-close agar Vue benar-benar unmount slot konten dialog
-      sebelum kita melakukan reactive update apapun setelah dialog tertutup.
-      Ini mencegah error nextSibling & emitsOptions karena vnode dialog
-      sudah di-destroy total sebelum patch cycle berikutnya berjalan.
-    -->
     <el-dialog
       v-model="showCreate"
       title="Create API Key"
@@ -71,11 +73,6 @@
       destroy-on-close
       @closed="onDialogClosed"
     >
-      <!--
-        FIX: Gunakan v-if pada wrapper div, bukan langsung pada dua blok terpisah.
-        Ini memastikan hanya satu subtree yang di-mount pada satu waktu,
-        mencegah Vue kebingungan saat diff vnode lama vs baru di dalam dialog.
-      -->
       <div v-if="!createdKey" class="container">
         <el-input v-model="createForm.name" placeholder="Name (e.g. Discord Bot)"/>
         <div style="margin: 12px 0; font-size: 14px; color: #606266;">Scopes</div>
@@ -102,7 +99,6 @@
         </el-button>
       </div>
 
-      <!-- Show key once -->
       <div v-else class="created-key-box">
         <el-alert
           title="API Key Generated"
@@ -138,11 +134,10 @@ const dataList = ref([]);
 const loading = ref(false);
 const first = ref(true);
 
-// Create
 const showCreate = ref(false);
 const createLoading = ref(false);
 const createdKey = ref('');
-const keyCreatedWithData = ref(false); // flag: apakah server sudah return keyData lengkap
+const keyCreatedWithData = ref(false);
 
 const createForm = ref({
   name: '',
@@ -162,13 +157,16 @@ function parseScopes(scopes) {
   }
 }
 
-// Splice in-place agar Vue diff minimal, tidak ada unmount massal node
 async function loadData() {
   loading.value = true;
   try {
     const res = await apiKeyList();
-    const newList = res || [];
-    dataList.value.splice(0, dataList.value.length, ...newList);
+    // FIX: Ganti splice → assignment biasa
+    // Splice sebelumnya memicu Vue reactive interceptor yang cascade ke
+    // el-scrollbar scheduler → nextSibling crash.
+    // Sekarang el-scrollbar sudah dihapus, tapi assignment lebih aman
+    // dan performa Vue diff-nya sama saja karena key="item.apiKeyId" di v-for.
+    dataList.value = res || [];
   } catch (e) {
     console.error(e);
   } finally {
@@ -184,8 +182,6 @@ function openCreate() {
   showCreate.value = true;
 }
 
-// Tutup dialog dari tombol "Close" di dalam dialog
-// Kita set showCreate = false di sini; cleanup & reload ditangani oleh onDialogClosed
 function closeDialog() {
   showCreate.value = false;
 }
@@ -201,11 +197,9 @@ async function submitCreate() {
     createdKey.value = res.apiKey;
 
     if (res.keyData) {
-      // Server return data lengkap → push langsung, tidak perlu reload
-      dataList.value.push(res.keyData);
+      dataList.value = [...dataList.value, res.keyData];
       keyCreatedWithData.value = true;
     } else {
-      // Server hanya return apiKey string → perlu reload setelah dialog tutup
       keyCreatedWithData.value = false;
     }
   } catch (e) {
@@ -215,24 +209,15 @@ async function submitCreate() {
   }
 }
 
-// FIX UTAMA:
-// @closed emit dari el-dialog berarti animasi tutup SUDAH selesai dan
-// konten dialog SUDAH di-unmount (karena destroy-on-close).
-// Aman untuk melakukan reactive update di sini, tapi tetap pakai setTimeout(0)
-// sebagai safety net agar berada di luar patch cycle yang sama.
 function onDialogClosed() {
-  const needReload = !keyCreatedWithData.value && createdKey.value;
+  const needReload = !keyCreatedWithData.value && !!createdKey.value;
 
-  // Reset state form
   createdKey.value = '';
   keyCreatedWithData.value = false;
   createForm.value = { name: '', scopes: ['users', 'emails'], expireTime: null };
 
-  // Reload hanya jika key berhasil dibuat tapi data belum di-push
   if (needReload) {
-    setTimeout(() => {
-      loadData();
-    }, 0);
+    setTimeout(() => loadData(), 0);
   }
 }
 
@@ -242,18 +227,20 @@ function copyKey() {
   });
 }
 
-// Update in-place, tidak re-render seluruh list
 async function toggleStatus(item) {
   const newStatus = item.status === 0 ? 1 : 0;
   try {
     await apiKeyUpdate({ apiKeyId: item.apiKeyId, status: newStatus });
-    item.status = newStatus;
+    // Update in-place di dalam array yang sama
+    const index = dataList.value.findIndex(d => d.apiKeyId === item.apiKeyId);
+    if (index !== -1) {
+      dataList.value[index] = { ...dataList.value[index], status: newStatus };
+    }
   } catch (e) {
     console.error(e);
   }
 }
 
-// Splice satu item setelah konfirmasi
 async function deleteKey(item) {
   try {
     await ElMessageBox.confirm(
@@ -266,10 +253,8 @@ async function deleteKey(item) {
       }
     );
     await apiKeyDelete(item.apiKeyId);
-    // setTimeout agar tidak bentrok dengan animasi el-dropdown yang masih closing
     setTimeout(() => {
-      const index = dataList.value.findIndex(d => d.apiKeyId === item.apiKeyId);
-      if (index !== -1) dataList.value.splice(index, 1);
+      dataList.value = dataList.value.filter(d => d.apiKeyId !== item.apiKeyId);
     }, 300);
   } catch (e) {
     if (e !== 'cancel') console.error(e);
@@ -303,8 +288,29 @@ async function deleteKey(item) {
   }
 }
 
-.scrollbar {
+/* FIX: Ganti .scrollbar (el-scrollbar) → .scroll-area (div biasa) */
+.scroll-area {
   flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+
+  /* Scrollbar styling native agar tetap konsisten dengan design */
+  scrollbar-width: thin;
+  scrollbar-color: var(--el-border-color) transparent;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--el-border-color);
+    border-radius: 3px;
+  }
 }
 
 .code-box {
@@ -391,6 +397,7 @@ async function deleteKey(item) {
   z-index: 1;
   background: transparent;
   transition: opacity 0.3s;
+  pointer-events: none;
 }
 
 .loading-show {
@@ -399,7 +406,6 @@ async function deleteKey(item) {
 
 .loading-hide {
   opacity: 0;
-  pointer-events: none;
 }
 
 .empty {
