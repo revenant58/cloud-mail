@@ -7,7 +7,7 @@
 
     <el-scrollbar class="scrollbar">
       <div class="loading" :class="loading ? 'loading-show' : 'loading-hide'">
-        <loading v-if="!first"/>
+        <loading v-show="!first"/>
       </div>
 
       <!-- Key list -->
@@ -52,7 +52,7 @@
         </div>
       </div>
 
-      <div class="empty" v-if="dataList.length === 0 && !first">
+      <div class="empty" v-show="dataList.length === 0 && !first">
         <el-empty :image-size="120" description="No API keys found"/>
       </div>
     </el-scrollbar>
