@@ -58,8 +58,25 @@
     </el-scrollbar>
 
     <!-- Create dialog -->
-    <el-dialog v-model="showCreate" title="Create API Key" width="500px" @closed="onDialogClosed">
-      <div class="container" v-if="!createdKey">
+    <!--
+      FIX: Tambah destroy-on-close agar Vue benar-benar unmount slot konten dialog
+      sebelum kita melakukan reactive update apapun setelah dialog tertutup.
+      Ini mencegah error nextSibling & emitsOptions karena vnode dialog
+      sudah di-destroy total sebelum patch cycle berikutnya berjalan.
+    -->
+    <el-dialog
+      v-model="showCreate"
+      title="Create API Key"
+      width="500px"
+      destroy-on-close
+      @closed="onDialogClosed"
+    >
+      <!--
+        FIX: Gunakan v-if pada wrapper div, bukan langsung pada dua blok terpisah.
+        Ini memastikan hanya satu subtree yang di-mount pada satu waktu,
+        mencegah Vue kebingungan saat diff vnode lama vs baru di dalam dialog.
+      -->
+      <div v-if="!createdKey" class="container">
         <el-input v-model="createForm.name" placeholder="Name (e.g. Discord Bot)"/>
         <div style="margin: 12px 0; font-size: 14px; color: #606266;">Scopes</div>
         <el-checkbox-group v-model="createForm.scopes">
@@ -69,13 +86,18 @@
           <el-checkbox value="settings">Settings</el-checkbox>
         </el-checkbox-group>
         <el-date-picker
-            v-model="createForm.expireTime"
-            type="datetime"
-            placeholder="Expiration (optional)"
-            style="margin-top: 12px; width: 100%;"
+          v-model="createForm.expireTime"
+          type="datetime"
+          placeholder="Expiration (optional)"
+          style="margin-top: 12px; width: 100%;"
         />
-        <el-button class="btn" type="primary" @click="submitCreate" :loading="createLoading"
-                   style="margin-top: 12px; width: 100%;">
+        <el-button
+          class="btn"
+          type="primary"
+          @click="submitCreate"
+          :loading="createLoading"
+          style="margin-top: 12px; width: 100%;"
+        >
           Generate Key
         </el-button>
       </div>
@@ -83,12 +105,12 @@
       <!-- Show key once -->
       <div v-else class="created-key-box">
         <el-alert
-            title="API Key Generated"
-            description="Copy this key now. It will NOT be shown again."
-            type="warning"
-            :closable="false"
-            show-icon
-            style="margin-bottom: 16px;"
+          title="API Key Generated"
+          description="Copy this key now. It will NOT be shown again."
+          type="warning"
+          :closable="false"
+          show-icon
+          style="margin-bottom: 16px;"
         />
         <div class="created-key">
           <code>{{ createdKey }}</code>
@@ -96,7 +118,7 @@
         <el-button type="primary" @click="copyKey" style="margin-top: 12px; width: 100%;">
           Copy to Clipboard
         </el-button>
-        <el-button style="margin-top: 8px; width: 100%;" @click="showCreate = false; createdKey = ''">
+        <el-button style="margin-top: 8px; width: 100%;" @click="closeDialog">
           Close
         </el-button>
       </div>
@@ -105,7 +127,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue';
+import { ref, onMounted } from 'vue';
 import { Icon } from '@iconify/vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { apiKeyList, apiKeyCreate, apiKeyUpdate, apiKeyDelete } from '@/request/api-key.js';
@@ -120,6 +142,8 @@ const first = ref(true);
 const showCreate = ref(false);
 const createLoading = ref(false);
 const createdKey = ref('');
+const keyCreatedWithData = ref(false); // flag: apakah server sudah return keyData lengkap
+
 const createForm = ref({
   name: '',
   scopes: ['users', 'emails'],
@@ -138,9 +162,7 @@ function parseScopes(scopes) {
   }
 }
 
-// ✅ FIX UTAMA: splice in-place instead of replace reference
-// dataList.value = res → Vue unmount semua node lama → nextSibling null crash
-// dataList.value.splice(...) → Vue diff minimal, tidak ada unmount massal
+// Splice in-place agar Vue diff minimal, tidak ada unmount massal node
 async function loadData() {
   loading.value = true;
   try {
@@ -158,11 +180,18 @@ async function loadData() {
 function openCreate() {
   createForm.value = { name: '', scopes: ['users', 'emails'], expireTime: null };
   createdKey.value = '';
+  keyCreatedWithData.value = false;
   showCreate.value = true;
 }
 
+// Tutup dialog dari tombol "Close" di dalam dialog
+// Kita set showCreate = false di sini; cleanup & reload ditangani oleh onDialogClosed
+function closeDialog() {
+  showCreate.value = false;
+}
+
 async function submitCreate() {
-  if (!createForm.value.name) {
+  if (!createForm.value.name.trim()) {
     ElMessage.warning('Name is required');
     return;
   }
@@ -170,9 +199,14 @@ async function submitCreate() {
   try {
     const res = await apiKeyCreate(createForm.value);
     createdKey.value = res.apiKey;
-    // Tambah ke list langsung jika API return data lengkap
+
     if (res.keyData) {
+      // Server return data lengkap → push langsung, tidak perlu reload
       dataList.value.push(res.keyData);
+      keyCreatedWithData.value = true;
+    } else {
+      // Server hanya return apiKey string → perlu reload setelah dialog tutup
+      keyCreatedWithData.value = false;
     }
   } catch (e) {
     console.error(e);
@@ -181,10 +215,25 @@ async function submitCreate() {
   }
 }
 
-// ✅ Aman: loadData pakai splice, tidak perlu setTimeout/nextTick lagi
+// FIX UTAMA:
+// @closed emit dari el-dialog berarti animasi tutup SUDAH selesai dan
+// konten dialog SUDAH di-unmount (karena destroy-on-close).
+// Aman untuk melakukan reactive update di sini, tapi tetap pakai setTimeout(0)
+// sebagai safety net agar berada di luar patch cycle yang sama.
 function onDialogClosed() {
+  const needReload = !keyCreatedWithData.value && createdKey.value;
+
+  // Reset state form
   createdKey.value = '';
-  loadData();
+  keyCreatedWithData.value = false;
+  createForm.value = { name: '', scopes: ['users', 'emails'], expireTime: null };
+
+  // Reload hanya jika key berhasil dibuat tapi data belum di-push
+  if (needReload) {
+    setTimeout(() => {
+      loadData();
+    }, 0);
+  }
 }
 
 function copyKey() {
@@ -193,7 +242,7 @@ function copyKey() {
   });
 }
 
-// ✅ FIX: update in-place, tidak re-render seluruh list
+// Update in-place, tidak re-render seluruh list
 async function toggleStatus(item) {
   const newStatus = item.status === 0 ? 1 : 0;
   try {
@@ -204,7 +253,7 @@ async function toggleStatus(item) {
   }
 }
 
-// ✅ FIX: splice satu item, tidak reload seluruh list
+// Splice satu item setelah konfirmasi
 async function deleteKey(item) {
   try {
     await ElMessageBox.confirm(
@@ -217,6 +266,7 @@ async function deleteKey(item) {
       }
     );
     await apiKeyDelete(item.apiKeyId);
+    // setTimeout agar tidak bentrok dengan animasi el-dropdown yang masih closing
     setTimeout(() => {
       const index = dataList.value.findIndex(d => d.apiKeyId === item.apiKeyId);
       if (index !== -1) dataList.value.splice(index, 1);
@@ -233,7 +283,7 @@ async function deleteKey(item) {
   height: 100%;
   display: flex;
   flex-direction: column;
-  position: relative; /* ✅ penting: agar .loading overlay tidak lari ke parent */
+  position: relative;
 }
 
 .header-actions {
