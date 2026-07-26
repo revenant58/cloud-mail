@@ -6,44 +6,106 @@ keep_vars = true
 [observability]
 enabled = true
 
+# ═══════════════════════════════════════════════════════
+# D1 Database Configuration (SQLite)
+# ═══════════════════════════════════════════════════════
+# Uncomment dan isi setelah create D1 database:
+# wrangler d1 create cloud-mail-db
 #[[d1_databases]]
-#binding = "db"			#d1数据库绑定名默认不可修改
-#database_name = ""		#d1数据库名字
-#database_id = ""		#d1数据库id
+#binding = "db"			        # JANGAN UBAH - Required untuk ORM
+#database_name = "cloud-mail-db"	# Nama database Anda
+#database_id = ""		            # Copy dari output 'wrangler d1 create'
 
+# ═══════════════════════════════════════════════════════
+# KV Namespace Configuration (Key-Value Storage)
+# ═══════════════════════════════════════════════════════
+# Uncomment dan isi setelah create KV:
+# wrangler kv:namespace create kv
 #[[kv_namespaces]]
-#binding = "kv"			#kv绑定名默认不可修改
-#id = ""					#kv数据库id
+#binding = "kv"			# JANGAN UBAH - Required untuk caching
+#id = ""					# Copy dari output 'wrangler kv:namespace create'
 
+# ═══════════════════════════════════════════════════════
+# R2 Bucket Configuration (Object Storage)
+# ═══════════════════════════════════════════════════════
+# Uncomment dan isi setelah create R2:
+# wrangler r2 bucket create cloud-mail-storage
 #[[r2_buckets]]
-#binding = "r2"			#r2对象存储绑定名默认不可修改
-#bucket_name = ""		#r2对象存储桶的名字
+#binding = "r2"			    # JANGAN UBAH - Required untuk attachments
+#bucket_name = ""		    # Nama bucket Anda
 
+# ═══════════════════════════════════════════════════════
+# Cloudflare Email Sending (Optional)
+# ═══════════════════════════════════════════════════════
+# Jika ingin gunakan CF Email Routing untuk send email:
 #[[send_email]]
-#name = "email"			#CF发件, 配置后优先使用
+#name = "email"			# CF Email sender binding
 
+# ═══════════════════════════════════════════════════════
+# AI Binding (Cloudflare Workers AI)
+# ═══════════════════════════════════════════════════════
 [ai]
 binding = "ai"
 
+# ═══════════════════════════════════════════════════════
+# Static Assets (Vue.js Frontend)
+# ═══════════════════════════════════════════════════════
 [assets]
-binding = "assets"		#静态资源绑定名默认不可修改
-directory = "./dist"	#前端vue项目打包的静态资源存放位置,默认dist
+binding = "assets"		# JANGAN UBAH
+directory = "./dist"	# Vue build output dari mail-vue
 not_found_handling = "single-page-application"
 run_worker_first = true
 
+# ═══════════════════════════════════════════════════════
+# Scheduled Tasks (Cron)
+# ═══════════════════════════════════════════════════════
 [triggers]
-crons = ["0 16 * * *"]	#每天晚上12点执行每日任务,刷新分析缓存
+crons = [
+    "0 16 * * *",      # 00:00 WIB - Daily cleanup & analytics refresh
+    "*/30 * * * *"     # Every 30 minutes - Analytics cache refresh
+]
 
-
+# ═══════════════════════════════════════════════════════
+# Environment Variables (Public)
+# ═══════════════════════════════════════════════════════
 [vars]
-#ai_model = ""			#ai模型,不填默认使用@cf/meta/llama-3.1-8b-instruct
-#analysis_cache = false			#是否开启分析数据缓存
-#orm_log = false			#是否sql日志
-#domain = []				#邮件域名可可配置多个 示例: ["example1.com","example2.com"]
-#admin = ""				#管理员的邮箱	示例: admin@example.com
-#jwt_secret = ""			#jwt令牌的密钥,随便填一串字符串
-#bot_secret = ""			#Discord Bot API密钥,通过Cloudflare Dashboard设置为Secret
+# AI Model Configuration
+ai_model = "@cf/meta/llama-3.1-8b-instruct"  # Default AI model
 
+# Cache Configuration
+analysis_cache = true    # Enable analytics caching (faster dashboard)
 
+# Database Logging
+orm_log = false          # Set true untuk debug SQL queries
+
+# Email Domain Configuration
+domain = ["revmail.my.id"]  # Email domains (dapat multiple)
+
+# Admin Email
+admin = "admin@revmail.my.id"  # Admin email address
+
+# JWT Secret (Generate: openssl rand -hex 32)
+# GANTI dengan random string Anda sendiri!
+jwt_secret = "your_jwt_secret_here_change_this_32_chars_minimum"
+
+# IMPORTANT: bot_secret HARUS di-set via Cloudflare Dashboard sebagai Secret!
+# Jangan uncomment di sini (akan terexpose di Git)
+# Set via: wrangler secret put bot_secret
+# Value: secret key yang sama dengan di Discord Bot .env
+
+# ═══════════════════════════════════════════════════════
+# Build Configuration
+# ═══════════════════════════════════════════════════════
 [build]
 command = "pnpm --prefix ../mail-vue install && pnpm --prefix ../mail-vue run build"
+
+# ═══════════════════════════════════════════════════════
+# Integration Notes
+# ═══════════════════════════════════════════════════════
+# Discord Bot Integration:
+# 1. Deploy worker ini dulu
+# 2. Login ke mail-vue → Settings → API Keys
+# 3. Generate API key dengan scope: users, emails, stats
+# 4. Copy API key ke Discord Bot .env → CLOUDMAIL_API_KEY
+# 5. Set CLOUDMAIL_BASE=https://mail.revmail.my.id/api di Bot
+# 6. Bot akan otomatis create user via /v1/users endpoint

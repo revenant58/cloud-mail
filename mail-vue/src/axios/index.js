@@ -65,8 +65,9 @@ http.interceptors.response.use((res) => {
                     repeatNum: -4,
                 })
                 reject(data)
+            } else {
+                resolve(data.data)
             }
-            resolve(data.data)
         })
     },
     (error) => {
@@ -95,7 +96,7 @@ http.interceptors.response.use((res) => {
                 plain: true,
                 grouping: true
             })
-            ElMessage.error('')
+
         } else if (error.response) {
             ElMessage({
                 message: i18n.global.t('serverBusyErrorMsg'),

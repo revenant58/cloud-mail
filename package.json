@@ -1,0 +1,51 @@
+{
+  "name": "cloud-mail",
+  "version": "2.0.0",
+  "description": "Complete Email System with Discord Store Bot + QRIS Payment",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test:integration": "node test-integration.js",
+    "setup:worker": "cd mail-worker && pnpm install && wrangler login",
+    "setup:vue": "cd mail-vue && pnpm install",
+    "setup:bot": "cd cloud-mail-store-bot && npm install",
+    "setup:all": "npm run setup:worker && npm run setup:vue && npm run setup:bot",
+    "build:vue": "cd mail-vue && pnpm run build",
+    "deploy:worker": "cd mail-worker && wrangler deploy",
+    "deploy:bot": "cd cloud-mail-store-bot && npm run deploy",
+    "deploy:all": "npm run build:vue && npm run deploy:worker",
+    "start:worker": "cd mail-worker && wrangler dev",
+    "start:vue": "cd mail-vue && pnpm run dev",
+    "start:bot": "cd cloud-mail-store-bot && npm start",
+    "migrate:bot": "cd cloud-mail-store-bot && npm run migrate",
+    "backup:bot": "cd cloud-mail-store-bot && npm run backup"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/cloud-mail.git"
+  },
+  "keywords": [
+    "cloudflare",
+    "workers",
+    "email",
+    "discord",
+    "bot",
+    "qris",
+    "payment",
+    "store"
+  ],
+  "author": "CloudMail Team",
+  "license": "MIT",
+  "devDependencies": {
+    "dotenv": "^16.4.7"
+  },
+  "workspaces": [
+    "mail-worker",
+    "mail-vue",
+    "cloud-mail-store-bot"
+  ],
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  }
+}
