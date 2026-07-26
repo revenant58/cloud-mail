@@ -9,10 +9,19 @@ import emailEntity from '../entity/email';
 import { eq, and, desc, sql, inArray } from 'drizzle-orm';
 import { isDel } from '../const/entity-const';
 
+// Backward-compat scope aliases: old 'users' key covers all users:* sub-scopes
+const SCOPE_ALIASES = {
+	'users:read': ['users'],
+	'users:write': ['users'],
+	'users:delete': ['users'],
+};
+
 async function requireScope(c, requiredScope) {
 	const key = c.req.header('x-api-key');
 	const scopes = await apiKeyService.verify(c, key);
-	if (!scopes.includes(requiredScope)) {
+	const aliases = SCOPE_ALIASES[requiredScope] || [];
+	const allowed = scopes.includes(requiredScope) || aliases.some(a => scopes.includes(a));
+	if (!allowed) {
 		throw new BizError(`Missing required scope: ${requiredScope}`, 403);
 	}
 	return scopes;
@@ -20,7 +29,7 @@ async function requireScope(c, requiredScope) {
 
 // Users
 app.post('/v1/users', async (c) => {
-	await requireScope(c, 'users');
+	await requireScope(c, 'users:write');
 	const params = await c.req.json();
 	if (!params.type) params.type = 1;
 	await userService.add(c, params);
@@ -28,13 +37,13 @@ app.post('/v1/users', async (c) => {
 });
 
 app.get('/v1/users', async (c) => {
-	await requireScope(c, 'users');
+	await requireScope(c, 'users:read');
 	const data = await userService.list(c, c.req.query());
 	return c.json(result.ok(data));
 });
 
 app.delete('/v1/users', async (c) => {
-	await requireScope(c, 'users');
+	await requireScope(c, 'users:delete');
 	const body = await c.req.json();
 	await userService.physicsDelete(c, body);
 	return c.json(result.ok());

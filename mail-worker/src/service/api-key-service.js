@@ -1,7 +1,7 @@
 import BizError from '../error/biz-error';
 import orm from '../entity/orm';
 import apiKeyEntity from '../entity/api-key';
-import { eq, desc, inArray } from 'drizzle-orm';
+import { eq, desc, inArray, and } from 'drizzle-orm';
 import { t } from '../i18n/i18n';
 
 const encoder = new TextEncoder();
@@ -20,7 +20,7 @@ function generateKey() {
 	return 'cm_' + hex;
 }
 
-const ALLOWED_SCOPES = ['users', 'emails', 'stats'];
+const ALLOWED_SCOPES = ['users', 'users:read', 'users:write', 'users:delete', 'emails', 'stats'];
 
 function normalizeScopes(scopes) {
 	if (!Array.isArray(scopes)) {
@@ -89,9 +89,12 @@ const apiKeyService = {
 	},
 
 	async list(c) {
-		const list = await orm(c).select().from(apiKeyEntity)
-			.orderBy(desc(apiKeyEntity.apiKeyId))
-			.all();
+		const user = c.get('user');
+		const isAdmin = user.email === c.env.admin;
+		const query = orm(c).select().from(apiKeyEntity).orderBy(desc(apiKeyEntity.apiKeyId));
+		const list = isAdmin
+			? await query.all()
+			: await query.where(eq(apiKeyEntity.userId, user.userId)).all();
 		return list.map(item => ({
 			...item,
 			keyHash: undefined,
@@ -103,6 +106,18 @@ const apiKeyService = {
 		if (!apiKeyId) {
 			throw new BizError('apiKeyId is required', 400);
 		}
+
+		// Ownership check
+		const user = c.get('user');
+		const isAdmin = user.email === c.env.admin;
+		if (!isAdmin) {
+			const existing = await orm(c).select().from(apiKeyEntity)
+				.where(eq(apiKeyEntity.apiKeyId, apiKeyId)).get();
+			if (!existing || existing.userId !== user.userId) {
+				throw new BizError('API key not found', 404);
+			}
+		}
+
 		const updates = {};
 		if (name !== undefined) updates.name = name;
 		if (scopes !== undefined) {
@@ -129,8 +144,15 @@ const apiKeyService = {
 			throw new BizError('apiKeyIds is required', 400);
 		}
 		const idList = apiKeyIds.split(',').map(Number);
-		await orm(c).delete(apiKeyEntity)
-			.where(inArray(apiKeyEntity.apiKeyId, idList)).run();
+
+		// Ownership check: non-admin can only delete own keys
+		const user = c.get('user');
+		const isAdmin = user.email === c.env.admin;
+		const condition = isAdmin
+			? inArray(apiKeyEntity.apiKeyId, idList)
+			: and(inArray(apiKeyEntity.apiKeyId, idList), eq(apiKeyEntity.userId, user.userId));
+
+		await orm(c).delete(apiKeyEntity).where(condition).run();
 	},
 
 	async verify(c, key) {

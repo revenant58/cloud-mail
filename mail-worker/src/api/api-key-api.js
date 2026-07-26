@@ -21,7 +21,8 @@ app.put('/apiKey/update', async (c) => {
 });
 
 app.delete('/apiKey/delete', async (c) => {
-	const apiKeyIds = c.req.query('apiKeyIds');
+	const body = await c.req.json().catch(() => ({}));
+	const apiKeyIds = body.apiKeyIds;
 	if (!apiKeyIds) {
 		throw new BizError('apiKeyIds is required', 400);
 	}

@@ -13,5 +13,5 @@ export function apiKeyUpdate(form) {
 }
 
 export function apiKeyDelete(apiKeyIds) {
-    return http.delete('/apiKey/delete?apiKeyIds=' + apiKeyIds)
+    return http.delete('/apiKey/delete', { data: { apiKeyIds } })
 }
