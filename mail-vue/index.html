@@ -1,22 +1,24 @@
 <!doctype html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#F1F1F1" id="theme-color-meta">
-  <meta name="description" content="Cloud Mail 是一个 Serverless 响应式邮箱服务，支持邮件发送，可部署到 Cloudflare 平台，降低服务器成本。Cloud Mail is a serverless responsive email service that supports email sending and can be deployed on Cloudflare to reduce server costs.">
-  <title>Cloud Mail</title>
+  <meta name="description"
+    content="RenMailHost adalah layanan kotak surat responsif Serverless yang mendukung pengiriman email dan dapat diterapkan ke platform Cloudflare untuk mengurangi biaya server. Cloud Mail adalah layanan email responsif tanpa server yang mendukung pengiriman email dan dapat diterapkan di Cloudflare untuk mengurangi biaya server.">
+  <title>RenMailHost</title>
   <link rel="icon" href="/public/mail.png" type="image/png">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <script>
-    const uiStoreStr =  localStorage.getItem('ui')
+    const uiStoreStr = localStorage.getItem('ui')
     if (uiStoreStr) {
-      const uiStore =  JSON.parse(uiStoreStr)
+      const uiStore = JSON.parse(uiStoreStr)
       const root = document.documentElement
       root.setAttribute('class', uiStore.dark ? 'dark' : '');
       const metaTag = document.getElementById('theme-color-meta');
-      const isMobile =  !window.matchMedia("(pointer: fine) and (hover: hover)").matches;
+      const isMobile = !window.matchMedia("(pointer: fine) and (hover: hover)").matches;
       metaTag.setAttribute('content', uiStore.dark ? (isMobile ? '#141414' : '#000000') : (isMobile ? '#FFFFFF' : '#F1F1F1'));
     }
   </script>
@@ -25,9 +27,11 @@
   html {
     background: #FFFFFF;
   }
+
   .dark {
     background: #141414;
   }
+
   #loading-first {
     position: fixed;
     left: 0;
@@ -112,6 +116,7 @@
     0% {
       transform: scaleX(0);
     }
+
     100% {
       transform: scaleX(1);
     }
@@ -121,19 +126,22 @@
     0% {
       transform: translateX(-24px);
     }
+
     100% {
       transform: translateX(60px);
     }
   }
 </style>
+
 <body>
-<div id="loading-first" >
-  <div class="loading-icon">
-    <img class="loading-image" src="/mail-pwa.png" alt="Cloud Mail">
-    <div class="loading-progress" aria-hidden="true"></div>
+  <div id="loading-first">
+    <div class="loading-icon">
+      <img class="loading-image" src="/mail-pwa.png" alt="Cloud Mail">
+      <div class="loading-progress" aria-hidden="true"></div>
+    </div>
   </div>
-</div>
-<div id="app"></div>
-<script type="module" src="/src/main.js"></script>
+  <div id="app"></div>
+  <script type="module" src="/src/main.js"></script>
 </body>
+
 </html>
