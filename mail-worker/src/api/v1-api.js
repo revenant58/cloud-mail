@@ -89,7 +89,7 @@ app.get('/v1/emails/:emailId', async (c) => {
 app.delete('/v1/emails', async (c) => {
 	await requireScope(c, 'emails');
 	const { emailIds } = await c.req.json();
-	const emailIdList = emailIds.split(',').map(Number);
+	const emailIdList = Array.isArray(emailIds) ? emailIds.map(Number) : String(emailIds).split(',').map(Number);
 	await orm(c).update(emailEntity).set({ isDel: isDel.DELETE }).where(
 		and(
 			inArray(emailEntity.emailId, emailIdList),
