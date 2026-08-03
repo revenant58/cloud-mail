@@ -143,7 +143,7 @@ const apiKeyService = {
 		if (!apiKeyIds) {
 			throw new BizError('apiKeyIds is required', 400);
 		}
-		const idList = apiKeyIds.split(',').map(Number);
+		const idList = Array.isArray(apiKeyIds) ? apiKeyIds.map(Number) : String(apiKeyIds).split(',').map(Number);
 
 		// Ownership check: non-admin can only delete own keys
 		const user = c.get('user');
