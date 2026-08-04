@@ -85,7 +85,10 @@ domain = ["revmail.my.id"]  # Email domains (dapat multiple)
 admin = "admin@revmail.my.id"  # Admin email address
 
 # JWT Secret (Generate: openssl rand -hex 32)
-# GANTI dengan random string Anda sendiri!
+# ⚠️  MANDATORY: Replace this placeholder before deploying!
+# The Worker refuses to serve /api/* while this placeholder is still set.
+# Best practice: remove this line and set it as a secret instead:
+#   wrangler secret put jwt_secret
 jwt_secret = "your_jwt_secret_here_change_this_32_chars_minimum"
 
 # IMPORTANT: bot_secret HARUS di-set via Cloudflare Dashboard sebagai Secret!

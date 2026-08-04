@@ -42,29 +42,6 @@ const s3Service = {
 		const client = await this.client(c);
 		const { bucket } = await settingService.query(c);
 
-
-		client.middlewareStack.add(
-			(next) => async (args) => {
-
-				const body = args.request.body
-
-				// 计算 MD5 校验和并转换为 Base64 编码
-				const encoder = new TextEncoder();
-				const data = encoder.encode(body);
-
-				// 使用 Web Crypto API 计算 MD5 校验和
-				const hashBuffer = await crypto.subtle.digest('MD5', data);
-				const hashArray = new Uint8Array(hashBuffer);
-				const contentMD5 = btoa(String.fromCharCode.apply(null, hashArray));
-
-				args.request.headers["Content-MD5"] = contentMD5;
-
-				return next(args);
-			},
-			{ step: "build", name: "inspectRequestMiddleware" }
-		);
-
-
 		await client.send(
 			new DeleteObjectsCommand({
 				Bucket: bucket,

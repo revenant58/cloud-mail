@@ -3,9 +3,11 @@ import emailUtils from '../utils/email-utils';
 import {emailConst} from "../const/entity-const";
 
 const dbInit = {
-	async init(c) {
+	async init(c, secret) {
 
-		const secret = c.req.param('secret');
+		if (!secret) {
+			secret = c.req.param('secret');
+		}
 
 		if (secret !== (c.env.init_secret || c.env.jwt_secret)) {
 			return c.text('❌ JWT secret mismatch');
@@ -32,8 +34,60 @@ const dbInit = {
 		await this.v3_1DB(c);
 		await this.v3_2DB(c);
 		await this.v3_3DB(c);
+		await this.v3_4DB(c);
 		await settingService.refresh(c);
 		return c.text('success');
+	},
+
+	// Rename perm names from Chinese to language-neutral English so i18n can translate them
+	async v3_4DB(c) {
+		try {
+			await c.env.db.batch([
+				// parent groups (no perm_key)
+				c.env.db.prepare(`UPDATE perm SET name = 'Emails' WHERE perm_id = 1`),
+				c.env.db.prepare(`UPDATE perm SET name = 'Settings' WHERE perm_id = 4`),
+				c.env.db.prepare(`UPDATE perm SET name = 'All Users' WHERE perm_id = 6`),
+				c.env.db.prepare(`UPDATE perm SET name = 'Roles' WHERE perm_id = 13`),
+				c.env.db.prepare(`UPDATE perm SET name = 'System Settings' WHERE perm_id = 17`),
+				c.env.db.prepare(`UPDATE perm SET name = 'Email Address' WHERE perm_id = 21`),
+				c.env.db.prepare(`UPDATE perm SET name = 'All Mail' WHERE perm_id = 27`),
+				c.env.db.prepare(`UPDATE perm SET name = 'Analytics' WHERE perm_id = 31`),
+				c.env.db.prepare(`UPDATE perm SET name = 'Invite Code' WHERE perm_id = 33`),
+				c.env.db.prepare(`UPDATE perm SET name = 'API Keys' WHERE perm_id = 37`),
+				// child perms (by stable perm_key)
+				c.env.db.prepare(`UPDATE perm SET name = 'Delete Email' WHERE perm_key = 'email:delete'`),
+				c.env.db.prepare(`UPDATE perm SET name = 'Send Email' WHERE perm_key = 'email:send'`),
+				c.env.db.prepare(`UPDATE perm SET name = 'Delete Account' WHERE perm_key = 'my:delete'`),
+				c.env.db.prepare(`UPDATE perm SET name = 'View User' WHERE perm_key = 'user:query'`),
+				c.env.db.prepare(`UPDATE perm SET name = 'Add User' WHERE perm_key = 'user:add'`),
+				c.env.db.prepare(`UPDATE perm SET name = 'Change Password' WHERE perm_key = 'user:set-pwd'`),
+				c.env.db.prepare(`UPDATE perm SET name = 'Change Status' WHERE perm_key = 'user:set-status'`),
+				c.env.db.prepare(`UPDATE perm SET name = 'Change User Role' WHERE perm_key = 'user:set-type'`),
+				c.env.db.prepare(`UPDATE perm SET name = 'Reset Send Count' WHERE perm_key = 'user:reset-send'`),
+				c.env.db.prepare(`UPDATE perm SET name = 'Delete User' WHERE perm_key = 'user:delete'`),
+				c.env.db.prepare(`UPDATE perm SET name = 'View Role' WHERE perm_key = 'role:query'`),
+				c.env.db.prepare(`UPDATE perm SET name = 'Add Role' WHERE perm_key = 'role:add'`),
+				c.env.db.prepare(`UPDATE perm SET name = 'Edit Role' WHERE perm_key = 'role:set'`),
+				c.env.db.prepare(`UPDATE perm SET name = 'Delete Role' WHERE perm_key = 'role:delete'`),
+				c.env.db.prepare(`UPDATE perm SET name = 'View Settings' WHERE perm_key = 'setting:query'`),
+				c.env.db.prepare(`UPDATE perm SET name = 'Change Settings' WHERE perm_key = 'setting:set'`),
+				c.env.db.prepare(`UPDATE perm SET name = 'View Email Address' WHERE perm_key = 'account:query'`),
+				c.env.db.prepare(`UPDATE perm SET name = 'Add Email Address' WHERE perm_key = 'account:add'`),
+				c.env.db.prepare(`UPDATE perm SET name = 'Delete Email Address' WHERE perm_key = 'account:delete'`),
+				c.env.db.prepare(`UPDATE perm SET name = 'View All Mail' WHERE perm_key = 'all-email:query'`),
+				c.env.db.prepare(`UPDATE perm SET name = 'Delete All Mail' WHERE perm_key = 'all-email:delete'`),
+				c.env.db.prepare(`UPDATE perm SET name = 'View Data' WHERE perm_key = 'analysis:query'`),
+				c.env.db.prepare(`UPDATE perm SET name = 'View Code' WHERE perm_key = 'reg-key:query'`),
+				c.env.db.prepare(`UPDATE perm SET name = 'Add Code' WHERE perm_key = 'reg-key:add'`),
+				c.env.db.prepare(`UPDATE perm SET name = 'Delete Code' WHERE perm_key = 'reg-key:delete'`),
+				c.env.db.prepare(`UPDATE perm SET name = 'View Key' WHERE perm_key = 'api-key:query'`),
+				c.env.db.prepare(`UPDATE perm SET name = 'Add Key' WHERE perm_key = 'api-key:add'`),
+				c.env.db.prepare(`UPDATE perm SET name = 'Delete Key' WHERE perm_key = 'api-key:delete'`),
+				c.env.db.prepare(`UPDATE perm SET name = 'Update Key' WHERE perm_key = 'api-key:update'`),
+			]);
+		} catch (e) {
+			console.warn(`跳过数据：${e.message}`);
+		}
 	},
 
 	async v3_3DB(c) {

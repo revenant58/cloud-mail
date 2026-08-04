@@ -12,6 +12,15 @@ export default {
 		const url = new URL(req.url)
 
 		if (url.pathname.startsWith('/api/')) {
+
+			// Fail fast: refuse to serve the API while the placeholder secret is still configured
+			if (env.jwt_secret && env.jwt_secret.includes('your_jwt_secret_here')) {
+				return new Response(JSON.stringify({ code: 500, msg: 'jwt_secret is not configured on the Worker. Set a real secret in wrangler.toml.' }), {
+					status: 500,
+					headers: { 'Content-Type': 'application/json' }
+				});
+			}
+
 			url.pathname = url.pathname.replace('/api', '')
 			req = new Request(url.toString(), req)
 			return app.fetch(req, env, ctx);

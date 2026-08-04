@@ -29,7 +29,7 @@ import {useSettingStore} from "@/store/setting.js";
 import emailScroll from "@/components/email-scroll/index.vue"
 import {emailList, emailDelete, emailLatest, emailRead} from "@/request/email.js";
 import {starAdd, starCancel} from "@/request/star.js";
-import {defineOptions, h, onMounted, reactive, ref, watch} from "vue";
+import {defineOptions, h, onMounted, onBeforeUnmount, reactive, ref, watch} from "vue";
 import {sleep} from "@/utils/time-utils.js";
 import router from "@/router/index.js";
 import {Icon} from "@iconify/vue";
@@ -53,6 +53,11 @@ onMounted(() => {
   latest()
 })
 
+// stop the polling loop when leaving the page, otherwise each visit leaks a poller
+onBeforeUnmount(() => {
+  polling = false;
+})
+
 
 watch(() => accountStore.currentAccountId, () => {
   scroll.value.refreshList();
@@ -74,8 +79,10 @@ function jumpContent(email) {
 
 const existIds = new Set();
 
+let polling = true;
+
 async function latest() {
-  while (true) {
+  while (polling) {
 
     let autoRefresh = settingStore.settings.autoRefresh;
     await sleep(autoRefresh > 1 ? autoRefresh * 1000 : 3000);

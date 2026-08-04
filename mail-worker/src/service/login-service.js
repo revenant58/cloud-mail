@@ -233,6 +233,12 @@ const loginService = {
 			throw new BizError(t('IncorrectPwd'));
 		}
 
+		// Transparently upgrade legacy SHA-256 hashes to PBKDF2 on successful login
+		if (!saltHashUtils.isModernHash(userRow.password)) {
+			const { salt, hash } = await saltHashUtils.hashPassword(password);
+			await userService.resetPassword(c, { password: null, salt, hash }, userRow.userId);
+		}
+
 		const uuid = uuidv4();
 		// Fix #5: JWT now has expiry matching KV TTL (30 days)
 		const jwt = await JwtUtils.generateToken(c, { userId: userRow.userId, token: uuid }, constant.TOKEN_EXPIRE);
@@ -268,9 +274,14 @@ const loginService = {
 	async logout(c, userId) {
 		const token =userContext.getToken(c);
 		const authInfo = await c.env.kv.get(KvConst.AUTH_INFO + userId, { type: 'json' });
+		if (!authInfo || !Array.isArray(authInfo.tokens)) {
+			return;
+		}
 		const index = authInfo.tokens.findIndex(item => item === token);
-		authInfo.tokens.splice(index, 1);
-		await c.env.kv.put(KvConst.AUTH_INFO + userId, JSON.stringify(authInfo));
+		if (index > -1) {
+			authInfo.tokens.splice(index, 1);
+			await c.env.kv.put(KvConst.AUTH_INFO + userId, JSON.stringify(authInfo));
+		}
 	}
 
 };

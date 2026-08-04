@@ -1,11 +1,10 @@
-import { defineWorkersConfig } from '@cloudflare/vitest-pool-workers/config';
+import { defineConfig } from 'vitest/config';
 
-export default defineWorkersConfig({
+// Plain unit-test config: these tests exercise pure utilities and need no
+// Workers bindings. Use `vitest run` (pnpm test:unit) to execute them.
+export default defineConfig({
 	test: {
-		poolOptions: {
-			workers: {
-				wrangler: { configPath: './wrangler.jsonc' },
-			},
-		},
+		environment: 'node',
+		include: ['test/**/*.spec.js'],
 	},
 });

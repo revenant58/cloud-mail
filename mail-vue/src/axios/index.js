@@ -73,8 +73,13 @@ http.interceptors.response.use((res) => {
     (error) => {
 
         if (error.status === 403) {
-            location.reload();
-            return;
+            // Guard against reload loops when the server keeps answering 403
+            const now = Date.now();
+            if (!window.__last403ReloadAt || now - window.__last403ReloadAt > 15000) {
+                window.__last403ReloadAt = now;
+                location.reload();
+            }
+            return Promise.reject(error);
         }
 
         const noMsg = error.config.noMsg;

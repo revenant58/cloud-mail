@@ -59,13 +59,13 @@ export async function email(message, env, ctx) {
 			return;
 		}
 
-		let userRow = {}
+		let userRow = null
 
 		if (account) {
 			 userRow = await userService.selectByIdIncludeDel({ env: env }, account.userId);
 		}
 
-		if (account && userRow.email !== env.admin) {
+		if (account && userRow && userRow.email !== env.admin) {
 
 			let { banEmail, availDomain } = await roleService.selectByUserId({ env: env }, account.userId);
 

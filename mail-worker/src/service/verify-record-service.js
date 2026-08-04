@@ -49,7 +49,7 @@ const verifyRecordService = {
 				count: sql`${verifyRecord.count} + 1`, updateTime: now
 			}).where(and(eq(verifyRecord.ip, ip),eq(verifyRecord.type,verifyRecordType.REG))).returning().get();
 		} else {
-			return orm(c).insert(verifyRecord).values({ip, type: verifyRecordType.REG}).returning().run();
+			return orm(c).insert(verifyRecord).values({ip, type: verifyRecordType.REG}).returning().get();
 		}
 	},
 

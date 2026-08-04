@@ -56,12 +56,15 @@ const userService = {
 
 	async resetPassword(c, params, userId) {
 
-		const { password } = params;
+		let { password, salt, hash } = params;
 
-		if (password.length < 6) {
-			throw new BizError(t('pwdMinLength'));
+		if (!salt || !hash) {
+			if (!password || password.length < 6) {
+				throw new BizError(t('pwdMinLength'));
+			}
+			({ salt, hash } = await cryptoUtils.hashPassword(password));
 		}
-		const { salt, hash } = await cryptoUtils.hashPassword(password);
+
 		await orm(c).update(user).set({ password: hash, salt: salt }).where(eq(user.userId, userId)).run();
 	},
 

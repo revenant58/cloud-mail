@@ -68,10 +68,13 @@ app.get('/v1/emails', async (c) => {
 	const query = orm(c).select().from(emailEntity).where(and(...conditions)).orderBy(desc(emailEntity.emailId));
 	const totalQuery = orm(c).select({ total: sql`count(*)`.as('total') }).from(emailEntity).where(and(...conditions));
 
-	const [list, totalRow] = await Promise.all([
+	const [rows, totalRow] = await Promise.all([
 		query.limit(size).offset(offset).all(),
 		totalQuery.get()
 	]);
+
+	// Strip heavy content fields from the list to limit blast radius of a leaked API key
+	const list = rows.map(({ content, text, ...rest }) => rest);
 
 	return c.json(result.ok({ list, total: totalRow?.total || 0 }));
 });
